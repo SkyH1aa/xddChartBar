@@ -313,6 +313,7 @@
           <strong>${escapeHtml(p.title)}</strong>
           ${p.enabled ? '<span class="badge topic">已启用</span>' : '<span class="badge" style="color:#fff;background:var(--faint)">已停用</span>'}
           <button class="btn sm ghost" data-edit="${p.id}">编辑</button>
+          <button class="btn sm ghost" data-push="${p.id}">再次推送</button>
           <button class="btn sm ghost" data-toggle="${p.id}" data-en="${p.enabled ? 'false' : 'true'}">${p.enabled ? '停用' : '启用'}</button>
           <button class="btn sm danger" data-del="${p.id}">删除</button>
         </div>
@@ -329,6 +330,12 @@
         catch (err) { alert(err.message); }
       });
       card.querySelector('[data-edit]').addEventListener('click', () => popupStartEdit(p));
+      card.querySelector('[data-push]').addEventListener('click', async (b) => {
+        if (!confirm('将把这条公告再次推送给所有用户（未看过新版本的可再次收到弹窗）？')) return;
+        b.currentTarget.disabled = true;
+        try { await callEdge('popup_push', { id: p.id }); alert('已再次推送'); loadPopups(); }
+        catch (err) { alert(err.message); b.currentTarget.disabled = false; }
+      });
       list.appendChild(card);
     });
   }

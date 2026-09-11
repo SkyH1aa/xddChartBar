@@ -113,21 +113,28 @@
   }
 
   // ---------------- 弹窗公告 ----------------
+  // 每条公告用 push_seq 作为"推送版本"。用户端记录已看过的版本，
+  // 管理员"再次推送"会让 push_seq+1，版本落后的用户会再次看到该公告。
   async function loadPopups() {
     try {
       const { data } = await supabase
         .from('forum_popups')
-        .select('id, title, content')
+        .select('id, title, content, push_seq')
         .eq('enabled', true)
         .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(20);
       if (!data || !data.length) return;
-      const target = data[0];
-      let shown = '';
-      try { shown = localStorage.getItem('nzb_popup_shown') || ''; } catch (_e) {}
-      if (shown === target.id) return;
-      try { localStorage.setItem('nzb_popup_shown', target.id); } catch (_e) {}
-      renderPopup(target);
+      let seen = {};
+      try { seen = JSON.parse(localStorage.getItem('nzb_popup_seen') || '{}'); } catch (_e) { seen = {}; }
+      for (const target of data) {
+        const ver = seen[target.id] || 0;
+        if (ver !== (target.push_seq || 0)) {
+          seen[target.id] = target.push_seq || 0;
+          try { localStorage.setItem('nzb_popup_seen', JSON.stringify(seen)); } catch (_e) { /* ignore */ }
+          renderPopup(target);
+          return; // 每次访问只弹最新的未读公告
+        }
+      }
     } catch (_e) { /* ignore */ }
   }
   function renderPopup(p) {
