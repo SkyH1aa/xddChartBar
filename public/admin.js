@@ -45,14 +45,14 @@
 
   function readSession() {
     try {
-      token = sessionStorage.getItem(TOKEN_KEY);
-      profile = JSON.parse(sessionStorage.getItem(PROFILE_KEY) || 'null');
+      token = localStorage.getItem(TOKEN_KEY);
+      profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null');
     } catch (_e) { token = null; profile = null; }
   }
   function persist(t, p) {
     token = t; profile = p;
-    sessionStorage.setItem(TOKEN_KEY, t);
-    sessionStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+    localStorage.setItem(TOKEN_KEY, t);
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
   }
   function hasPerm(p) { return profile?.isFounder || !!profile?.perms?.[p]; }
 
@@ -403,8 +403,8 @@
     switchTab(activeTab);
   }
   $('logoutBtn').addEventListener('click', () => {
-    sessionStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(PROFILE_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(PROFILE_KEY);
     location.href = 'index.html';
   });
 

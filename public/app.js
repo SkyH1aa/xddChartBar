@@ -87,14 +87,14 @@
 
   function readSession() {
     try {
-      state.session.token = sessionStorage.getItem(TOKEN_KEY) || null;
-      state.session.profile = JSON.parse(sessionStorage.getItem(PROFILE_KEY) || 'null');
+      state.session.token = localStorage.getItem(TOKEN_KEY) || null;
+      state.session.profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null');
     } catch (_e) { /* ignore */ }
   }
   function clearSession() {
     state.session = { token: null, profile: null };
-    sessionStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(PROFILE_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(PROFILE_KEY);
   }
 
   // ---------------- 站点运行状态 ----------------
@@ -351,8 +351,8 @@
     try {
       const data = await callEdge('admin_login', { username, password });
       state.session = { token: data.token, profile: data };
-      sessionStorage.setItem(TOKEN_KEY, data.token);
-      sessionStorage.setItem(PROFILE_KEY, JSON.stringify(data));
+      localStorage.setItem(TOKEN_KEY, data.token);
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(data));
       location.href = 'admin.html';
     } catch (e) {
       els.loginError.textContent = e.message;
