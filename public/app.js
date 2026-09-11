@@ -335,7 +335,17 @@
     els.adminFormRegister.classList.toggle('hidden', mode !== 'register');
     els.adminModalTitle.textContent = mode === 'login' ? '管理员登录' : '注册管理员';
   }
-  $('openAdmin').addEventListener('click', () => openModal('login'));
+  function onOpenAdmin() {
+    // 已登录则直接进后台，无需再次登录
+    try {
+      if (localStorage.getItem(TOKEN_KEY)) {
+        location.href = 'admin.html';
+        return;
+      }
+    } catch (_e) { /* ignore */ }
+    openModal('login');
+  }
+  $('openAdmin').addEventListener('click', onOpenAdmin);
   $('closeModal').addEventListener('click', () => els.adminModal.classList.add('hidden'));
   $('closeModal2').addEventListener('click', () => els.adminModal.classList.add('hidden'));
   $('switchToRegister').addEventListener('click', () => openModal('register'));

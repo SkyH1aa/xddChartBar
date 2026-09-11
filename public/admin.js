@@ -144,9 +144,8 @@
         buttons.push(`<button class="btn sm ghost" data-a="block" data-id="${p.id}" data-v="${p.blocked ? 'false' : 'true'}">${p.blocked ? '解除屏蔽' : '屏蔽'}</button>`);
         buttons.push(`<button class="btn sm danger" data-a="del" data-id="${p.id}">删除</button>`);
       }
-      if (hasPerm('can_review') && !p.reviewed) {
+      if (hasPerm('can_review') && !p.reviewed && !p.blocked) {
         buttons.push(`<button class="btn sm" data-a="review" data-id="${p.id}" data-v="true">审核通过</button>`);
-        buttons.push(`<button class="btn sm ghost" data-a="dereview" data-id="${p.id}">打回待审</button>`);
       }
       if (hasPerm('can_pin')) {
         buttons.push(`<button class="btn sm ghost" data-a="pin" data-id="${p.id}">置顶</button>`);
@@ -172,7 +171,6 @@
       if (a === 'block') await callEdge('block_post', { id, blocked: v === 'true' });
       else if (a === 'del') await callEdge('delete_post', { id });
       else if (a === 'review') await callEdge('review_post', { id, reviewed: true });
-      else if (a === 'dereview') await callEdge('review_post', { id, reviewed: false });
       else if (a === 'pin') await callEdge('pin_post', { id, pinned: true });
       loadPosts();
     } catch (err) { alert(err.message); btn.disabled = false; }
@@ -183,31 +181,38 @@
   // ---------- 吃瓜审核 ----------
   async function loadReview() {
     const data = await callEdge('list_posts', { topic: '吃瓜', page: 1, pageSize: 200 });
-    const pending = data.filter((p) => !p.reviewed && !p.blocked);
+    const pending = data.filter((p) => !p.blocked);   // 已通过 / 已屏蔽的都不在待审列表
     const list = $('reviewList');
     list.innerHTML = '';
     if (!pending.length) { list.innerHTML = '<div class="empty">暂无待审核的吃瓜帖</div>'; return; }
     pending.forEach((p) => {
+      const stateTag = p.reviewed
+        ? '<span class="badge topic">已通过</span>'
+        : '<span class="badge" style="color:#fff;background:var(--warn)">待审核</span>';
       const card = document.createElement('div');
       card.className = 'panel fade-in-up';
       card.style.padding = '14px 16px';
       card.style.boxShadow = 'none';
       card.style.marginBottom = '10px';
       const actions = (hasPerm('can_review')) ? `
-        <button class="btn sm" data-id="${p.id}" data-v="true">通过并展示</button>
-        <button class="btn sm danger" data-id="${p.id}" data-v="false">驳回（不展示）</button>` : '<span class="badge">无审核权限</span>';
+        <button class="btn sm" data-a="pass" data-id="${p.id}">通过并展示</button>
+        <button class="btn sm ghost" data-a="block" data-id="${p.id}">不通过且屏蔽（仅管理员可见）</button>
+        <button class="btn sm danger" data-a="del" data-id="${p.id}">删除</button>` : '<span class="badge">无审核权限</span>';
       card.innerHTML = `
         <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
-          <strong>${escapeHtml(p.nickname || '匿名')}</strong>
+          <strong>${escapeHtml(p.nickname || '匿名')}</strong> ${stateTag}
           <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(p.created_at)}</span>
         </div>
         <div style="color:var(--text);font-size:14px;line-height:1.7;white-space:pre-wrap;margin-bottom:10px">${escapeHtml(p.content)}</div>
-        <div style="display:flex;gap:8px">${actions}</div>`;
-      card.querySelectorAll('[data-id][data-v]').forEach((b) => {
+        <div style="display:flex;gap:8px;flex-wrap:wrap">${actions}</div>`;
+      card.querySelectorAll('[data-a]').forEach((b) => {
         b.addEventListener('click', async () => {
+          if (b.dataset.a === 'del' && !confirm('确定删除该帖？（不可恢复）')) return;
           b.disabled = true;
           try {
-            await callEdge('review_post', { id: p.id, reviewed: b.dataset.v === 'true' });
+            if (b.dataset.a === 'pass') await callEdge('review_pass_post', { id: p.id });
+            else if (b.dataset.a === 'block') await callEdge('review_block_post', { id: p.id });
+            else await callEdge('review_delete_post', { id: p.id });
             loadReview();
           } catch (err) { alert(err.message); b.disabled = false; }
         });
