@@ -277,6 +277,26 @@
   });
 
   // ---------- 弹窗公告 ----------
+  let popupEditingId = null;
+  function popupResetForm() {
+    popupEditingId = null;
+    $('popTitle').value = '';
+    $('popContent').value = '';
+    $('popFormTitle').textContent = '新建公告';
+    $('popCreate').textContent = '发布公告';
+    $('popCreate').classList.remove('ghost');
+    $('popCancel').classList.add('hidden');
+  }
+  function popupStartEdit(p) {
+    popupEditingId = p.id;
+    $('popTitle').value = p.title;
+    $('popContent').value = p.content;
+    $('popFormTitle').textContent = '编辑公告';
+    $('popCreate').textContent = '保存修改';
+    $('popCreate').classList.add('ghost');
+    $('popCancel').classList.remove('hidden');
+    $('popFormTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
   async function loadPopups() {
     const data = await callEdge('popup_list');
     const list = $('popupList');
@@ -292,6 +312,7 @@
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
           <strong>${escapeHtml(p.title)}</strong>
           ${p.enabled ? '<span class="badge topic">已启用</span>' : '<span class="badge" style="color:#fff;background:var(--faint)">已停用</span>'}
+          <button class="btn sm ghost" data-edit="${p.id}">编辑</button>
           <button class="btn sm ghost" data-toggle="${p.id}" data-en="${p.enabled ? 'false' : 'true'}">${p.enabled ? '停用' : '启用'}</button>
           <button class="btn sm danger" data-del="${p.id}">删除</button>
         </div>
@@ -299,7 +320,7 @@
       card.querySelector('[data-del]').addEventListener('click', async (b) => {
         if (!confirm('删除该公告？')) return;
         b.currentTarget.disabled = true;
-        try { await callEdge('popup_delete', { id: p.id }); loadPopups(); }
+        try { await callEdge('popup_delete', { id: p.id }); if (popupEditingId === p.id) popupResetForm(); loadPopups(); }
         catch (err) { alert(err.message); }
       });
       card.querySelector('[data-toggle]').addEventListener('click', async (b) => {
@@ -307,6 +328,7 @@
         try { await callEdge('popup_toggle', { id: p.id, enabled: b.currentTarget.dataset.en === 'true' }); loadPopups(); }
         catch (err) { alert(err.message); }
       });
+      card.querySelector('[data-edit]').addEventListener('click', () => popupStartEdit(p));
       list.appendChild(card);
     });
   }
@@ -314,9 +336,16 @@
     const title = $('popTitle').value.trim();
     const content = $('popContent').value.trim();
     if (!title || !content) { alert('请填写标题和内容'); return; }
-    try { await callEdge('popup_create', { title, content, enabled: true }); $('popTitle').value = ''; $('popContent').value = ''; loadPopups(); }
-    catch (err) { alert(err.message); }
+    $('popCreate').disabled = true;
+    try {
+      if (popupEditingId) await callEdge('popup_update', { id: popupEditingId, title, content });
+      else await callEdge('popup_create', { title, content, enabled: true });
+      popupResetForm();
+      loadPopups();
+    } catch (err) { alert(err.message); }
+    $('popCreate').disabled = false;
   });
+  $('popCancel').addEventListener('click', popupResetForm);
 
   // ---------- 管理员管理（创始人） ----------
   async function loadAdmins() {

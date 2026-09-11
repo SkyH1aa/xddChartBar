@@ -83,10 +83,13 @@
     <section id="tab-popups" class="panel hidden">
       <h3 style="margin-top:0">弹窗公告</h3>
       <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line)">
-        <h4 style="margin:0 0 10px">新建公告</h4>
+        <h4 id="popFormTitle" style="margin:0 0 10px">新建公告</h4>
         <div class="form-field"><label>标题</label><input id="popTitle" class="input" type="text" maxlength="100" /></div>
         <div class="form-field"><label>内容</label><textarea id="popContent" class="input" style="width:100%;min-height:80px;resize:vertical;background:var(--input-bg);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px" maxlength="2000"></textarea></div>
-        <button id="popCreate" class="btn sm">发布公告</button>
+        <div style="display:flex;gap:8px">
+          <button id="popCreate" class="btn sm">发布公告</button>
+          <button id="popCancel" class="btn sm ghost hidden">取消编辑</button>
+        </div>
       </div>
       <div id="popupList" style="margin-top:14px"></div>
     </section>
