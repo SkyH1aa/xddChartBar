@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新哲吧 · 管理后台</title>
+  <link rel="stylesheet" href="public/theme.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="dot"></span>新哲吧 · 管理后台</div>
+      <div class="spacer"></div>
+      <a href="index.html" class="btn ghost sm">返回主页</a>
+      <button id="logoutBtn" class="btn ghost sm">退出登录</button>
+      <div id="themeSwitcherHost" style="display:inline-flex"></div>
+    </div>
+  </header>
+
+  <!-- 未登录 -->
+  <div id="loginScreen" class="wrap hidden">
+    <div class="panel" style="max-width:380px;margin:40px auto">
+      <h3 style="margin-top:0">管理员登录</h3>
+      <div class="form-field"><label>账号</label><input id="loginUser" class="input" type="text" /></div>
+      <div class="form-field"><label>密码</label><input id="loginPass" class="input" type="password" /></div>
+      <div class="form-error" id="loginError"></div>
+      <button id="loginBtn" class="btn" style="width:100%">登录</button>
+    </div>
+  </div>
+
+  <!-- 后台主体 -->
+  <div id="dashboard" class="wrap hidden">
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+      <div>
+        <strong id="whoami">管理员</strong>
+        <span id="permTags" style="margin-left:8px"></span>
+      </div>
+      <nav id="tabs" style="display:flex;flex-wrap:wrap;gap:8px"></nav>
+    </div>
+
+    <!-- 帖子管理 -->
+    <section id="tab-posts" class="panel hidden">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+        <h3 style="margin:0">所有帖子</h3>
+        <select id="postFilter" class="input"></select>
+        <button id="postRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div id="postList"></div>
+    </section>
+
+    <!-- 吃瓜审核 -->
+    <section id="tab-review" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="margin:0">吃瓜审核（待审核）</h3>
+        <button id="reviewRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div id="reviewList"></div>
+    </section>
+
+    <!-- 顶置管理 -->
+    <section id="tab-pinned" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="margin:0">顶置管理（最多 200 条）</h3>
+        <button id="pinRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div id="pinList"></div>
+    </section>
+
+    <!-- 站点开关 -->
+    <section id="tab-site" class="panel hidden">
+      <h3 style="margin-top:0">网站运行开关</h3>
+      <label style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <input id="siteOpen" type="checkbox" />
+        <span>开启网站（取消勾选后访客将看到拦截页）</span>
+      </label>
+      <div class="form-field"><label>拦截页大标题</label><input id="haltTitle" class="input" type="text" maxlength="100" /></div>
+      <div class="form-field"><label>拦截页小标题</label><input id="haltSubtitle" class="input" type="text" maxlength="300" /></div>
+      <div class="form-error" id="siteError"></div>
+      <button id="siteSave" class="btn">保存站点设置</button>
+    </section>
+
+    <!-- 弹窗公告 -->
+    <section id="tab-popups" class="panel hidden">
+      <h3 style="margin-top:0">弹窗公告</h3>
+      <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line)">
+        <h4 style="margin:0 0 10px">新建公告</h4>
+        <div class="form-field"><label>标题</label><input id="popTitle" class="input" type="text" maxlength="100" /></div>
+        <div class="form-field"><label>内容</label><textarea id="popContent" class="input" style="width:100%;min-height:80px;resize:vertical;background:var(--input-bg);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px" maxlength="2000"></textarea></div>
+        <button id="popCreate" class="btn sm">发布公告</button>
+      </div>
+      <div id="popupList" style="margin-top:14px"></div>
+    </section>
+
+    <!-- 管理员管理（仅创始人） -->
+    <section id="tab-admins" class="panel hidden">
+      <h3 style="margin-top:0">管理员管理（创始人）</h3>
+      <h4 style="margin:0 0 8px">待审核申请</h4>
+      <div id="pendingList"></div>
+      <h4 style="margin:18px 0 8px">在职管理员</h4>
+      <div id="adminList"></div>
+    </section>
+  </div>
+
+  <script src="public/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="public/admin.js"></script>
+</body>
+</html>

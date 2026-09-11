@@ -1,0 +1,55 @@
+新哲吧 · 部署与配置说明
+========================
+
+一、你要部署的文件（独立 GitHub Pages 仓库）
+--------------------------------------------
+  index.html                主页（发布/筛选/分页/弹窗/拦截页）
+  admin.html                管理后台
+  public/theme.js           日夜主题（自动 6-18 亮 / 18-6 暗 + 手动切换）
+  public/theme.css          主题样式
+  public/app.js             主页逻辑
+  public/admin.js           后台逻辑
+  public/sensitive-words.js 敏感词库（空模板，需你自行维护）
+  supabase/newtheba-schema.sql         建表 SQL（手动执行）
+  supabase/functions/newtheba/index.ts Edge Function（云函数）
+
+二、Supabase 配置（复用你现有的 jgezpvmlnhycxslqbwcx 项目）
+----------------------------------------------------------
+ 1) 建表
+    打开 Supabase 项目 -> SQL Editor -> 粘贴 supabase/newtheba-schema.sql -> Run。
+    （脚本幂等，重复执行不会报错。会新建 forum_posts / forum_pinned_posts /
+       forum_admins / forum_site / forum_popups 五张表 + RLS + 触发器）
+
+ 2) 部署 Edge Function（关键！管理员操作都走它鉴权）
+    用 supabase CLI 在项目根目录执行：
+
+        supabase functions deploy newtheba
+
+    然后为函数配置环境变量（Project Settings->Edge Functions->newtheba->
+    Secrets 或编辑 supabase/functions/newtheba/.env）：
+        FORUM_FOUNDER_USER = chm
+        FORUM_FOUNDER_PASS = 100926090827
+        FORUM_TOKEN_SECRET = （任意长随机字符串，越随机越好，用于会话签名）
+    注意：SERVICE_ROLE_KEY 由 Supabase 自动注入，无需手填。
+    若无法用命令行，也可在控制台手工新建函数并粘贴 index.ts 内容，
+    但务必填好上面三个环境变量，否则创始人无法登录。
+
+ 3) 创始人登录
+    主页右上角「管理员」-> 用 chm / 100926090827 登录，即进入最高权限后台。
+
+三、敏感词库（手动维护）
+------------------------
+    打开 public/sensitive-words.js，在数组里按行添加敏感的词语即可，
+    发布时命中任一词会被拦截并提示。文件内容由你导入，TRAE 不预置任何词条。
+
+四、站点开关、顶置上限、留言保存规则（内置，无需配置）
+----------------------------------------------------
+  - 留言至多保留最近 5000 条，超出自动删除最老（数据库触发器处理）。
+  - 顶置帖单独存于 forum_pinned_posts，不占 5000 条名额，上限 200 条。
+  - 吃瓜板块最多 5000 字且需管理员审核；其余话题最多 500 字、直接发布。
+  - 管理员后台「站点开关」可关闭网站，关闭后访客显示自定义拦截页。
+
+五、部署到 GitHub Pages
+----------------------
+  把上述文件推送到一个独立仓库，GitHub Pages 设为根目录即可。
+  域名/CDN/自定义域名参照你算法社站点的做法。
