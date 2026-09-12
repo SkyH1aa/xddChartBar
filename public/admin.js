@@ -39,8 +39,21 @@
     });
     let data = {};
     try { data = await res.json(); } catch (_e) {}
-    if (!res.ok || data.ok === false) throw new Error(data.error || ('请求失败 ' + res.status));
+    if (!res.ok || data.ok === false) {
+      const msg = data.error || ('请求失败 ' + res.status);
+      if (/登录已过期|会话已过期|令牌已失效|请先登录/.test(msg) && token) sessionExpired();
+      throw new Error(msg);
+    }
     return data.data;
+  }
+  // 会话失效：清空凭据并退回登录屏（用于管理员每 N 分钟重新登录）
+  function sessionExpired() {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(PROFILE_KEY);
+    token = null; profile = null;
+    $('loginError').textContent = '登录已过期，请重新登录。';
+    $('loginScreen').classList.remove('hidden');
+    $('dashboard').classList.add('hidden');
   }
 
   function readSession() {
@@ -918,6 +931,12 @@
     $('siteOpen').checked = !!data.open;
     $('haltTitle').value = data.halt_title || '';
     $('haltSubtitle').value = data.halt_subtitle || '';
+    const box = $('adminControlBox');
+    if (box && hasPerm('can_user_mgmt')) {
+      box.style.display = 'block';
+      const ra = $('adminReauth');
+      if (ra) ra.checked = (Number(data.admin_ttl_min) || 0) > 0;
+    }
   }
   $('siteSave').addEventListener('click', async () => {
     const open = $('siteOpen').checked;
@@ -928,6 +947,27 @@
       await callEdge('site_set', { open, halt_title, halt_subtitle });
       $('siteError').textContent = '✅ 已保存';
     } catch (err) { $('siteError').textContent = err.message; }
+  });
+  // 管理员重新登录策略开关
+  $('adminReauthSave').addEventListener('click', async () => {
+    if (!hasPerm('can_user_mgmt')) { alert('无权限执行此操作'); return; }
+    $('siteError').textContent = '';
+    try {
+      await callEdge('admin_ttl_set', { minutes: $('adminReauth').checked ? 10 : 0 });
+      $('siteError').textContent = '✅ 已更新管理员重新登录策略';
+    } catch (err) { $('siteError').textContent = err.message; }
+  });
+  // 强制刷新所有其他端
+  $('forceRefresh').addEventListener('click', async () => {
+    if (!hasPerm('can_user_mgmt')) { alert('无权限执行此操作'); return; }
+    if (!confirm('确认强制刷新所有其他浏览器端？所有在线页面将自动整页刷新以清空缓存。')) return;
+    $('forceRefresh').disabled = true;
+    $('siteError').textContent = '';
+    try {
+      await callEdge('admin_force_refresh');
+      $('siteError').textContent = '✅ 已广播刷新，各端将在数秒内自动整页刷新';
+      setTimeout(() => location.reload(), 700);
+    } catch (err) { $('siteError').textContent = err.message; $('forceRefresh').disabled = false; }
   });
 
   // ---------- 弹窗公告 ----------

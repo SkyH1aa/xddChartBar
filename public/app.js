@@ -168,6 +168,28 @@
     return data.data;
   }
 
+  // ---------------- 全局刷新轮询 ----------------
+  // 管理员在后台点击“强制刷新所有其他端”时，服务端 client_epoch +1；
+  // 各端定时探测序号变化，发现变更则整页刷新以清空缓存。
+  function startClientEpochPoll() {
+    const KEY = 'client_epoch_seen';
+    let lastSeen = 0;
+    try { lastSeen = Number(localStorage.getItem(KEY)) || 0; } catch (_e) {}
+    async function tick() {
+      let epoch = lastSeen;
+      try { const d = await callEdge('client_epoch', {}); epoch = Number(d && d.epoch) || 0; }
+      catch (_e) { return; } // 网络异常静默，下轮再试，避免打扰浏览
+      if (epoch <= 0) return;
+      if (lastSeen !== 0 && epoch !== lastSeen) {
+        try { localStorage.setItem(KEY, String(epoch)); } catch (_e) {}
+        location.reload();
+        return;
+      }
+      if (lastSeen === 0) { lastSeen = epoch; try { localStorage.setItem(KEY, String(epoch)); } catch (_e) {} }
+    }
+    setInterval(tick, 30000);
+  }
+
   // ---------------- 会话 ----------------
   function readAdminSession() {
     try { state.session = { token: localStorage.getItem(ADMIN_TOKEN_KEY) }; } catch (_e) {}
@@ -1847,6 +1869,7 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
     loadLeaderboard();
     if (loggedIn()) { loadFavIds(); syncLikedFromServer(); refreshProfile(); checkBanStatus(); }
     subscribeRealtime();
+    startClientEpochPoll();
     armScheduledTimer();
     if (unreadTimer) clearInterval(unreadTimer);
     unreadTimer = setInterval(() => { refreshUnread(); checkBanStatus(); }, 60000);
