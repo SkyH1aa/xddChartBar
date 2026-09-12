@@ -848,6 +848,7 @@
       ? `<span class="admin-actions">
            ${state.adminPerms.can_block ? '<button class="act-btn adm" data-act="block" title="屏蔽帖子（首页不再显示）">🚫 屏蔽</button><button class="act-btn adm" data-act="del" title="删除帖子（移入回收站）">🗑 删除</button>' : ''}
            ${state.adminPerms.can_ban && post.author_id ? '<button class="act-btn adm" data-act="ban" title="封禁该作者 7 天">⛔ 封禁7天</button>' : ''}
+           ${state.adminPerms.can_digest ? `<button class="act-btn adm" data-act="digest" data-digest="${post.digest ? 'y' : 'n'}" data-id="${post.id}" title="${post.digest ? '把帖子移出精华聚合（原帖保留在主论坛）' : '把帖子加入精华聚合'}">✨ ${post.digest ? '移出精华' : '加入精华'}</button>` : ''}
          </span>`
       : '';
     card.innerHTML = `
@@ -893,6 +894,10 @@
       const aban = card.querySelector('[data-act="ban"]');
       if (aban) aban.addEventListener('click', () => adminBanUser(post, aban));
     }
+    if (state.adminPerms && state.adminPerms.can_digest) {
+      const adig = card.querySelector('[data-act="digest"]');
+      if (adig) adig.addEventListener('click', () => adminDigestToggle(post, adig));
+    }
     const profLink = card.querySelector('[data-open-profile]');
     if (profLink) profLink.addEventListener('click', () => { if (profLink.dataset.openProfile) openProfile(profLink.dataset.openProfile); else openUserModal(); });
     // 作者编辑/删除/推流
@@ -906,6 +911,16 @@
   }
 
   // ---------------- 管理员主页快捷操作：屏蔽 / 删除 / 封禁7天 ----------------
+  // 管理员快捷操作：把帖子加入/移出精华聚合
+  async function adminDigestToggle(post, btn) {
+    const removing = post.digest;
+    if (!confirm(removing ? '把帖子移出精华聚合？原帖保留在主论坛，不受影响。' : '把帖子加入精华聚合？其评论、点赞、收藏等将与主论坛完全同步。')) return;
+    btn.disabled = true;
+    try {
+      await callEdge(removing ? 'digest_remove' : 'digest_add', { token: state.session.token, post_id: post.id });
+      loadFeed();
+    } catch (err) { alert(err.message); btn.disabled = false; }
+  }
   async function adminBlockPost(post, btn) {
     if (!confirm('屏蔽该帖子？原作者仍可看到，但首页不再公开显示。')) return;
     btn.disabled = true;
@@ -1393,6 +1408,17 @@
         els.emptyState.innerHTML = `<div class="emoji">🕘</div>还没有浏览历史，打开一条帖子的评论就会记录`;
         return;
       }
+    } else if (state.mode === 'digest') {
+      els.viewTitle.style.display = '';
+      els.viewTitle.textContent = '✨ 精华聚合';
+      els.pager.classList.add('hidden');
+      try { rows = await callEdge('digest_list', { token: state.user.token || '' }); }
+      catch (_e) { rows = []; }
+      if (!rows.length) {
+        els.emptyState.classList.remove('hidden');
+        els.emptyState.innerHTML = `<div class="emoji">✨</div>暂无精华帖，管理员可在帖子下方「加入精华」`;
+        return;
+      }
     } else {
       // feed（最新 / 最热）
       const start = (state.page - 1) * PAGE_SIZE;
@@ -1435,14 +1461,19 @@
 
   // ---------------- 筛选 / 排序 ----------------
   function renderFilterBar() {
-    const chips = ['全部', ...TOPICS, ...customTopics.map((c) => c.display_name)];
+    const chips = ['✨ 精华', '全部', ...TOPICS, ...customTopics.map((c) => c.display_name)];
     els.filterBar.innerHTML = '';
     chips.forEach((t) => {
       const b = document.createElement('button');
-      b.className = 'chip' + ((state.activeTopic === t || (t === '全部' && !state.activeTopic)) ? ' active' : '');
+      const isDigest = t === '✨ 精华';
+      const active =
+        (isDigest && state.mode === 'digest') ||
+        (!isDigest && state.mode !== 'digest' && (state.activeTopic === t || (t === '全部' && !state.activeTopic)));
+      b.className = 'chip' + (active ? ' active' : '');
       b.textContent = t;
       b.addEventListener('click', () => {
-        state.activeTopic = t === '全部' ? '' : t;
+        if (isDigest) { state.mode = 'digest'; state.activeTopic = ''; }
+        else { state.mode = 'feed'; state.activeTopic = t === '全部' ? '' : t; }
         state.page = 1;
         renderFilterBar();
         loadPinned();

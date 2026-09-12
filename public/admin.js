@@ -548,7 +548,7 @@
       ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
       ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理']
+      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合']
     ];
     tags.push(...m.filter(([k]) => hasPerm(k)).map(([, l]) => `<span class="badge">${l}</span>`));
     (profile?.isFounder ? m : m.filter(([k]) => profile?.perms?.[k])).forEach(([k, label]) => {
@@ -1257,7 +1257,7 @@
         ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
         ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理']
+        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合']
       ];
       const toggles = perms.map(([k, label]) => {
         const on = !!a[k];
