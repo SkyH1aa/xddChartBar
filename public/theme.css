@@ -490,6 +490,19 @@ select.input { appearance: auto; }
   .composer-row .btn { width: 100%; }
 }
 
+/* ===== 手机端性能优化：降低逐帧重绘与滚动卡顿 ===== */
+@media (max-width: 720px), (prefers-reduced-motion: reduce) {
+  /* 顶栏滚动时背景模糊会逐帧重算合成层，最耗性能；移动端改用半透明实色 */
+  .topbar { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--topbar-bg); }
+  /* 装饰性动效全部静止：卡片入场、金色呼吸、动态光效渐变 */
+  .fade-in-up { animation: none !important; }
+  .post-card.legend-gold-card.legend-prestige { animation: none !important; }
+  .lightfx::after, .lightfx-card::after { animation: none !important; }
+  .post-card { transition: none; }
+}
+/* 长列表优化（桌面同样受益）：跳过视口外卡片的渲染与合成，滚动明显更跟手 */
+.post-card { content-visibility: auto; contain-intrinsic-size: auto 240px; }
+
 /* ===== 校史留名(55-60级) 特权：淡金发光环绕边框 ===== */
 .post-card.legend-gold-card {
   position: relative;

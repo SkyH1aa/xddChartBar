@@ -943,14 +943,21 @@
             ${t.reason ? `<span style="color:var(--faint);font-size:12px">${escapeHtml(t.reason)}</span>` : ''}
             <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(t.created_at)}</span>
           </div>
-          <div style="color:var(--faint);font-size:12px;margin-bottom:10px">${t.expires_at ? `将于 ${formatTime(t.expires_at)} 自动清理` : ''} · ${t.original_id ? '原始 id: ' + escapeHtml(t.original_id) : ''}</div>
-          <div style="display:flex;gap:8px">
+          ${t.preview && t.preview.content
+            ? `<div style="background:var(--card-soft,#eee);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px">
+                <div style="font-size:11px;color:var(--faint);margin-bottom:4px">话题：${escapeHtml(t.preview.topic || '—')} · 作者：${escapeHtml(t.preview.nickname || '匿名')}${t.original_id ? ' · 原始 id: ' + escapeHtml(t.original_id) : ''}</div>
+                <div style="font-size:13px;color:var(--text);white-space:pre-wrap;word-break:break-word">${escapeHtml(t.preview.content)}${escapeHtml(t.preview.content.length >= 80 ? '…' : '')}</div>
+              </div>`
+            : `<div style="color:var(--faint);font-size:12px;margin-bottom:10px">${t.expires_at ? `将于 ${formatTime(t.expires_at)} 自动清理` : ''} · ${t.original_id ? '原始 id: ' + escapeHtml(t.original_id) : '（无快照）'}</div>`}
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn sm" data-tr="view" data-id="${t.id}" ${t.has_snapshot ? '' : 'disabled'}>👁 查看快照</button>
             <button class="btn sm" data-tr="restore" data-id="${t.id}">恢复帖子</button>
             <button class="btn sm danger" data-tr="purge" data-id="${t.id}">彻底删除</button>
           </div>`;
         c.querySelectorAll('[data-tr]').forEach((b) => {
           b.addEventListener('click', async () => {
             const act = b.dataset.tr;
+            if (act === 'view') { openTrashSnapshot(t.id); return; }
             if (act === 'purge' && !confirm('彻底删除后无法恢复，确定？')) return;
             if (act === 'restore' && !confirm('恢复将把帖子和评论还原为未屏蔽状态，确定？')) return;
             b.disabled = true;
@@ -961,6 +968,57 @@
         list.appendChild(c);
       });
     } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
+  }
+  async function openTrashSnapshot(id) {
+    const mask = document.createElement('div');
+    mask.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(10,12,25,.6);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)';
+    mask.innerHTML = `<div style="width:min(600px,96vw);max-height:86vh;overflow:auto;background:var(--card,#fff);border:1px solid var(--line);border-radius:16px;padding:20px 22px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-weight:800;color:var(--text);font-size:17px">👁 帖子快照</span>
+        <span style="font-size:11px;color:var(--accent,#e07a5f)">回收站 · 删除时备份内容</span>
+        <button id="ts-close" style="margin-left:auto;background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer">×</button>
+      </div>
+      <div id="ts-body" style="color:var(--muted);font-size:14px">加载中…</div>
+    </div>`;
+    mask.querySelector('#ts-close').addEventListener('click', () => mask.remove());
+    mask.addEventListener('mousedown', (e) => { if (e.target === mask) mask.remove(); });
+    document.body.appendChild(mask);
+    const body = mask.querySelector('#ts-body');
+    let data;
+    try { data = await callEdge('trash_view', { id }); }
+    catch (e) { body.innerHTML = `<div style="color:#e05e5e">加载失败：${escapeHtml(e.message)}</div>`; return; }
+    const post = data.post || {};
+    const comments = data.comments || [];
+    const meta = [
+      `删除人：${escapeHtml(data.deleted_by || '管理员')}`,
+      `删除时间：${formatTime(data.created_at)}`,
+      data.expires_at ? `自动清理：${formatTime(data.expires_at)}` : '',
+      `原始 id：${escapeHtml(data.original_id || '-')}`,
+      data.reason ? `删除原因：${escapeHtml(data.reason)}` : ''
+    ].filter(Boolean).map((s) => `<div style="padding:3px 0">${s}</div>`).join('');
+    const postHtml = post.id
+      ? `<div style="border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+            <strong>${escapeHtml(post.nickname || '匿名')}</strong>
+            <span class="badge topic">${escapeHtml(post.topic || '闲聊')}</span>
+            ${post.created_at ? `<span style="color:var(--faint);font-size:12px">${formatTime(post.created_at)}</span>` : ''}
+          </div>
+          <div style="color:var(--text);white-space:pre-wrap;word-break:break-word;line-height:1.7;margin-top:6px">${escapeHtml(post.content || '（无正文）')}</div>
+          <div style="font-size:12px;color:var(--faint);margin-top:10px">原 id: ${escapeHtml(post.id)} ｜ 点赞 ${Number(post.like_count) || data.like_users?.length || 0} ｜ 评论 ${comments.length}</div>
+        </div>`
+      : '<div class="empty" style="margin-top:10px">该帖子没有保存正文快照</div>';
+    const commentsHtml = comments.length
+      ? comments.map((c) => `
+        <div style="padding:8px 0;border-bottom:1px dashed var(--line)">
+          <div style="font-size:12px;color:var(--faint);margin-bottom:3px">${escapeHtml(c.nickname || '匿名')} · ${formatTime(c.created_at)}${c.parent_id ? ' · 回复楼层 ' + escapeHtml(String(c.parent_id).slice(0, 8)) : ''}</div>
+          <div style="color:var(--text);font-size:13px;white-space:pre-wrap;word-break:break-word;line-height:1.6">${escapeHtml(c.content || '')}</div>
+        </div>`).join('')
+      : '<div class="empty">（该帖删除时无评论）</div>';
+    body.innerHTML = `
+      <div style="background:var(--card-soft,#eee);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.7">${meta}</div>
+      ${postHtml}
+      <div style="font-weight:700;color:var(--text);margin:16px 0 6px">💬 评论（${comments.length}）</div>
+      ${commentsHtml}`;
   }
   $('trashRefresh').addEventListener('click', loadTrash);
   $('trashPurgeAll').addEventListener('click', async () => {
