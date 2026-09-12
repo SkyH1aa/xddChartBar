@@ -85,6 +85,7 @@
       { key: 'pinned', label: '顶置管理', perm: 'can_pin' },
       { key: 'audit', label: '审计日志', perm: 'can_view_audit' },
       { key: 'blacklist', label: '黑名单', requiresAny: ['can_blacklist', 'can_block', 'can_ban'] },
+      { key: 'userMgmt', label: '用户统一管理', perm: 'can_user_mgmt' },
       { key: 'site', label: '站点开关' },
       { key: 'popups', label: '弹窗公告' },
       { key: 'announces', label: '公告栏', perm: 'can_notice' },
@@ -137,6 +138,7 @@
     if (key === 'trash') loadTrash();
     if (key === 'pinned') loadPinned();
     if (key === 'audit') loadAudit();
+    if (key === 'userMgmt') loadUserMgmt();
     if (key === 'blacklist') {
       if (!hasPerm('can_blacklist') && !hasPerm('can_block') && hasPerm('can_ban')) {
         $('blacklistView').value = 'users';
@@ -335,9 +337,9 @@
       : isRecords
         ? '发帖/评论被敏感词或黑名单关键词拦截时即时记录（同一用户同一内容重复发送不重复记录），最多保留最近 750 条。'
         : '关键词黑名单：内容命中即禁止发布；昵称黑名单：昵称/账号精确匹配即拦截。可在发布/评论/注册时生效。';
-    if (isUsers) loadBanUsers();
-    else if (isRecords) loadInterceptions();
-    else loadBlacklist();
+    if (isUsers) { $('blacklistList').innerHTML = ''; loadBanUsers(); }
+    else if (isRecords) { $('banUserList').innerHTML = ''; loadInterceptions(); }
+    else { $('banUserList').innerHTML = ''; loadBlacklist(); }
   }
   $('blacklistView').addEventListener('change', loadBlacklistPanel);
   $('blacklistRefresh').addEventListener('click', loadBlacklistPanel);
@@ -401,6 +403,62 @@
   });
   $('banUserQ').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('banUserSearch').click(); });
 
+  // ---------- 用户统一管理（can_user_mgmt / 列用户·看信息·编辑等级） ----------
+  const LEVEL_TIERS = [[1,'见习'],[10,'初级'],[20,'活跃'],[30,'骨干'],[40,'资深'],[50,'核心'],[60,'传奇元老']];
+  let userMgmtQ = '';
+  function levelNameMgmt(lv) { for (const t of LEVEL_TIERS) if (lv <= t.max) return lv + ' · ' + t.name; return lv + ' · 传奇元老'; }
+  async function loadUserMgmt() {
+    const list = $('userMgmtList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    let data;
+    try { data = await callEdge('admin_user_mgmt_list', { q: userMgmtQ }); }
+    catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; return; }
+    if (!data.length) { list.innerHTML = '<div class="empty">暂无注册用户</div>'; return; }
+    list.innerHTML = '';
+    data.forEach((u) => {
+      const c = document.createElement('div');
+      c.className = 'panel fade-in-up';
+      c.style.padding = '12px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '10px';
+      const manual = u.fixed_level > 0 ? ' <span class="badge" style="background:#2e8b57">手动设定</span>' : '';
+      const statusBadge = u.banned
+        ? (u.permanent ? '<span class="badge" style="color:#fff;background:var(--danger)">已注销</span>' : '<span class="badge" style="color:#fff;background:#c26">封禁中</span>')
+        : '<span class="badge" style="color:#fff;background:#2e8b57">正常</span>';
+      const initials = escapeHtml((u.nickname || u.username).charAt(0).toUpperCase());
+      c.innerHTML = `
+        <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
+          <span class="avatar" style="width:36px;height:36px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;background:${u.avatar_color || '#e07a5f'}">${initials}</span>
+          <div style="min-width:180px;flex:1">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <strong>@${escapeHtml(u.username)}</strong>
+              <span style="color:var(--faint);font-size:12px">${escapeHtml(u.nickname || '未设置昵称')}</span>
+              <span style="margin-left:auto">${statusBadge}</span>
+            </div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.7">
+              注册于 ${formatTime(u.created_at)} ｜ 帖子 ${u.post_count} ｜ 评论 ${u.comment_count} ｜ 获赞 ${u.like_received}<br>
+              经验 ${u.xp} ｜ 自动等级 Lv.${u.auto_level} ｜ 当前等级 <b style="color:var(--accent,#e07a5f)">Lv.${u.level}</b>${manual}
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+              <input type="number" min="0" max="60" value="${u.fixed_level}" data-lv="${u.id}" style="width:76px;padding:4px 6px;border:1px solid var(--line);border-radius:8px;background:var(--input-bg);color:var(--text)" title="0=按经验自动，1-60=固定等级" />
+              <button class="btn sm" data-setlv="${u.id}">修改等级</button>
+            </div>
+            <div style="font-size:12px;color:var(--faint);margin-top:4px">当前将显示：${escapeHtml(levelNameMgmt(u.level))}</div>
+          </div>
+        </div>`;
+      list.appendChild(c);
+      c.querySelector(`[data-setlv="${u.id}"]`).addEventListener('click', async (el) => {
+        const lv = Math.max(0, Math.min(60, Math.floor(Number(c.querySelector(`[data-lv="${u.id}"]`).value || 0))));
+        const tag = lv === 0 ? '自动（按经验计算）' : `Lv.${lv}`;
+        if (!confirm(`确认将 @${u.username} 的等级设为「${tag}」？`)) return;
+        el.currentTarget.disabled = true;
+        try { await callEdge('admin_user_set_level', { user_id: u.id, level: lv }); loadUserMgmt(); }
+        catch (err) { alert(err.message); el.currentTarget.disabled = false; }
+      });
+    });
+  }
+  $('userMgmtSearch').addEventListener('click', () => { userMgmtQ = $('userMgmtQ').value.trim(); loadUserMgmt(); });
+  $('userMgmtQ').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('userMgmtSearch').click(); });
+  $('userMgmtRefresh').addEventListener('click', () => loadUserMgmt());
+
   async function loadInterceptions() {
     const list = $('blacklistList');
     list.innerHTML = '<div class="empty">加载中…</div>';
@@ -434,7 +492,7 @@
       ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
       ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-      ['can_ban', '用户封禁']
+      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理']
     ];
     tags.push(...m.filter(([k]) => hasPerm(k)).map(([, l]) => `<span class="badge">${l}</span>`));
     (profile?.isFounder ? m : m.filter(([k]) => profile?.perms?.[k])).forEach(([k, label]) => {
@@ -985,7 +1043,7 @@
         ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
         ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-        ['can_ban', '用户封禁']
+        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理']
       ];
       const toggles = perms.map(([k, label]) => {
         const on = !!a[k];

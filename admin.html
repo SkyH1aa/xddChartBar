@@ -113,6 +113,21 @@
       <div id="banUserList"></div>
     </section>
 
+    <!-- 用户统一管理（等级）：仅 can_user_mgmt -->
+    <section id="tab-userMgmt" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input id="userMgmtQ" class="input" placeholder="输入用户名 / 昵称检索" style="min-width:200px" maxlength="20" />
+          <button id="userMgmtSearch" class="btn sm">检索</button>
+        </div>
+        <button id="userMgmtRefresh" class="btn sm ghost">刷新</button>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:12px">
+        列出所有注册用户并查看其个人信息；可编辑用户等级（0=按经验自动计算，1-60=管理员固定设定）。操作会写入审计日志。
+      </div>
+      <div id="userMgmtList"></div>
+    </section>
+
     <!-- 回收站 -->
     <section id="tab-trash" class="panel hidden">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">

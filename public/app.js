@@ -98,12 +98,17 @@
     if (xp <= 0) return 1;
     return Math.min(60, 1 + Math.floor(Math.log2(xp + 1)));
   }
+  // 管理员设定了固定等级(level>0)时优先采用，否则按经验自动计算
+  function finalLevel(u) {
+    const f = Number(u && u.level) || 0;
+    return f > 0 ? Math.min(60, f) : levelOf(u);
+  }
   function levelName(lv) {
     for (const t of LEVEL_TIERS) if (lv <= t.max) return t.name;
     return '传奇元老';
   }
   function levelInfo(u) {
-    const level = levelOf(u);
+    const level = finalLevel(u);
     const xp = xpOf(u);
     const lo = Math.max(1, Math.pow(2, level - 1) - 1);
     const hi = Math.max(level, Math.pow(2, level) - 2);
@@ -177,8 +182,8 @@
       return;
     }
     const p = state.user.profile;
-    const lv = levelOf(p);
     const li = levelInfo(p);
+    const lv = li.level;
     const initials = userDisplay(p).charAt(0).toUpperCase();
     host.innerHTML = `
       <div class="user-area">
@@ -518,8 +523,8 @@
     const map = {};
     if (ids.length) {
       const { data } = await supabase.from('forum_users')
-        .select('id, nickname, post_count, comment_count, like_received').in('id', ids);
-      (data || []).forEach((u) => { map[u.id] = { nickname: u.nickname || u.username || '', level: levelOf(u) }; });
+        .select('id, nickname, post_count, comment_count, like_received, level').in('id', ids);
+      (data || []).forEach((u) => { map[u.id] = { nickname: u.nickname || u.username || '', level: finalLevel(u) }; });
     }
     return map;
   }
