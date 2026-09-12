@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="新哲吧 · 校友专栏 · 一方校友的独立小社区" />
+  <title>新哲吧 · 校友专栏</title>
+  <link rel="stylesheet" href="public/theme.css" />
+  <style>
+    /* 顶栏用户区 */
+    .u-chip{display:inline-flex;align-items:center;gap:7px;background:transparent;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:4px 12px;cursor:default}
+    .avatar{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;background:var(--accent-soft);color:var(--accent);flex:0 0 auto}
+    .u-name{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .author-level{font-size:11px;color:var(--accent,#e07a5f);background:rgba(224,122,95,.1);padding:1px 6px;border-radius:999px;margin-left:4px;white-space:nowrap}
+    .post-time{font-size:12px;color:var(--faint);margin-left:auto}
+    .post-head .own-acts{margin-left:auto}
+
+    /* 列表页首屏 */
+    .col-hero{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:linear-gradient(135deg,rgba(189,147,249,.14),rgba(122,162,247,.14));border:1px solid rgba(189,147,249,.3);border-radius:16px;padding:20px 22px;margin-bottom:14px}
+    .col-hero-title{font-size:22px;font-weight:700;color:var(--text)}
+    .col-hero-sub{font-size:13px;color:var(--muted);margin-top:6px;max-width:520px;line-height:1.6}
+    .col-legend{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--faint);margin-bottom:12px}
+    .col-search{display:flex;gap:8px;margin-bottom:18px}
+    .col-search .input{flex:1;max-width:340px}
+    .col-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+    .col-card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;transition:transform .12s,border-color .12s,box-shadow .12s;display:flex;flex-direction:column}
+    .col-card:hover{border-color:var(--accent,#e07a5f);transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.12)}
+    .col-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .col-card-name{font-size:15px;font-weight:700;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .col-card-intro{font-size:13px;color:var(--muted);line-height:1.55;margin:10px 0;min-height:38px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .col-card-foot{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--faint);flex-wrap:wrap;margin-top:auto;padding-bottom:10px}
+    .col-card-enter{width:100%;margin-top:4px}
+
+    /* 专栏详情 */
+    .col-detail{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-bottom:14px}
+    .col-detail-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .col-detail-title{font-size:22px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .col-detail-acts{display:flex;gap:8px;flex-wrap:wrap}
+    .col-notice{margin-top:12px;background:rgba(245,185,66,.1);border:1px solid rgba(245,185,66,.3);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--text);line-height:1.6}
+    .col-detail-intro{margin-top:10px;font-size:14px;color:var(--muted);line-height:1.7}
+    .col-detail-meta{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--faint);border-top:1px dashed var(--line);padding-top:12px}
+    .col-composer textarea{min-height:70px}
+
+    /* 帖子卡片（沿用主论坛 .post-card，但无需主站的帖子专属样式覆盖） */
+    .feed{margin-top:14px}
+    .c-title{font-size:15px;font-weight:700;color:var(--text)}
+    .pinned-post{border-color:rgba(224,122,95,.5)!important}
+    .post-card.pinned-post{box-shadow:none}
+    /* 风云学长+ 动态光效作用于整个帖子卡片块 */
+    .lightfx-card{position:relative;overflow:hidden}
+    .lightfx-card::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 20%,rgba(224,122,95,.10) 45%,rgba(122,162,247,.14) 60%,transparent 85%);background-size:220% 100%;animation:lxShift 3.4s linear infinite;pointer-events:none;z-index:0}
+    .lightfx-card>*{position:relative;z-index:1}
+    @keyframes lxShift{0%{background-position:120% 0}100%{background-position:-120% 0}}
+    .own-acts{display:inline-flex;gap:4px;padding:2px 14px}
+    .tiny-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 6px;border-radius:6px}
+    .tiny-btn:hover{color:var(--accent,#e07a5f);background:rgba(127,127,127,.1)}
+    .tiny-btn.danger:hover{color:#e05e5e}
+    .post-actions{display:flex;gap:8px;padding:8px 14px 10px;border-top:1px solid var(--line)}
+    .act-btn{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid transparent;color:var(--muted);font-size:13px;cursor:pointer;padding:5px 11px;border-radius:999px;transition:all .15s}
+    .act-btn:hover{background:rgba(127,127,127,.12);color:var(--text)}
+    .like-btn.active{color:var(--accent,#e07a5f);font-weight:600;border-color:rgba(224,122,95,.35);background:rgba(224,122,95,.08)}
+    .cmt-num{font-variant-numeric:tabular-nums}
+    .post-comments{border-top:1px solid var(--line);padding:10px 14px;background:var(--card-soft)}
+    .post-comments.hidden{display:none}
+    .cmt-empty{color:var(--faint);font-size:13px;padding:8px 0}
+    .cmt-item{padding:7px 0;border-bottom:1px dashed var(--line)}
+    .cmt-item:last-of-type{border-bottom:none}
+    .cmt-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+    .cmt-replyto{color:var(--accent,#e07a5f)}
+    .cmt-time{color:var(--faint);font-size:11px}
+    .cmt-text{font-size:14px;color:var(--text);margin:3px 0 4px;word-break:break-word;white-space:pre-wrap;line-height:1.6}
+    .cmt-reply{background:none;border:none;color:var(--accent,#e07a5f);cursor:pointer;font-size:12px;padding:0}
+    .cmt-compose{margin-top:10px}
+    .cmt-input{width:100%;box-sizing:border-box;background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;resize:vertical}
+    .cmt-input:focus{outline:none;border-color:var(--accent,#e07a5f)}
+    .cmt-bar{display:flex;align-items:center;gap:8px;margin:6px 0 4px;font-size:12px;color:var(--faint)}
+    .cmt-target{flex:1;color:var(--accent,#e07a5f);visibility:hidden}
+    .cmt-target.on{visibility:visible}
+    .cmt-warn{color:#e05e5e;font-size:12px;margin-bottom:6px;min-height:14px}
+    .char-count{font-size:12px;color:var(--muted);margin-left:auto}
+    .char-count.warn{color:var(--warn)}
+    .pager{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:16px}
+    .page-num{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+    .empty .emoji{font-size:40px;margin-bottom:10px}
+    .empty{text-align:center;color:var(--faint);padding:30px 0;font-size:14px}
+
+    /* 我的专栏 / 禁言 弹窗行 */
+    .mycol-row{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+    .mycol-name{font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .mycol-sub{font-size:12px;color:var(--faint);margin:4px 0}
+    .mycol-intro{font-size:13px;color:var(--muted);margin-bottom:6px}
+    .mt-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:13px}
+    .mt-reason{color:var(--faint);font-size:12px;margin-left:8px}
+  </style>
+  <script src="public/sensitive-words.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="dot"></span>
+        新哲吧
+        <span class="tag">校友专栏</span>
+        <a href="index.html" class="tag" style="text-decoration:none" title="返回主论坛">主论坛</a>
+        <a href="rules.html" class="tag" style="text-decoration:none" title="站规与使用说明">站规</a>
+      </div>
+      <div class="spacer"></div>
+      <span id="userBar"></span>
+      <div id="themeSwitcherHost" style="display:inline-flex"></div>
+    </div>
+  </header>
+
+  <main class="wrap" style="max-width:920px">
+    <div id="view"></div>
+  </main>
+
+  <script src="public/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="public/columns.js"></script>
+</body>
+</html>

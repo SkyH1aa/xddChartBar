@@ -48,6 +48,25 @@
       <div id="postList"></div>
     </section>
 
+    <!-- 专栏管理（并入帖子管理；需 can_column 权限） -->
+    <section id="columnMgmt" class="panel hidden" style="margin-top:18px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0 14px">
+        <h3 style="margin:0">🎓 专栏管理（校友专栏）</h3>
+        <select id="colStatusFilter" class="input" style="min-width:110px">
+          <option value="">全部</option>
+          <option value="pending">待审核</option>
+          <option value="open">已开通</option>
+          <option value="closed">已关闭</option>
+        </select>
+        <button id="colMgmtRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div id="colAdminList">
+        <div class="empty">加载中…</div>
+      </div>
+      <!-- 单个专栏的帖子管理子面板 -->
+      <div id="colAdminDetail" class="hidden" style="margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:14px"></div>
+    </section>
+
     <!-- 吃瓜审核 -->
     <section id="tab-review" class="panel hidden">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">

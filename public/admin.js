@@ -535,7 +535,7 @@
       ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
       ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理']
+      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理']
     ];
     tags.push(...m.filter(([k]) => hasPerm(k)).map(([, l]) => `<span class="badge">${l}</span>`));
     (profile?.isFounder ? m : m.filter(([k]) => profile?.perms?.[k])).forEach(([k, label]) => {
@@ -554,8 +554,8 @@
     const data = await callEdge('list_posts', { topic, page: 1, pageSize: 200 });
     const list = $('postList');
     list.innerHTML = '';
-    if (!data.length) { list.innerHTML = '<div class="empty">没有帖子</div>'; return; }
-    data.forEach((p) => {
+    if (!data || !data.length) list.innerHTML = '<div class="empty">没有帖子</div>';
+    (data || []).forEach((p) => {
       const card = document.createElement('div');
       card.className = 'panel fade-in-up';
       card.style.padding = '14px 16px';
@@ -587,6 +587,7 @@
       card.addEventListener('click', onPostAction);
       list.appendChild(card);
     });
+    renderColAdminSection();
   }
   async function toggleInlineComments(postId, box) {
     if (box.style.display !== 'none') { box.style.display = 'none'; return; }
@@ -650,6 +651,136 @@
   }
   $('postFilter').addEventListener('change', loadPosts);
   $('postRefresh').addEventListener('click', loadPosts);
+
+  // ---------- 专栏管理（并入帖子管理；can_column） ----------
+  let colMgtStatus = '';
+  function renderColAdminSection() {
+    const box = $('columnMgmt');
+    if (!box) return;
+    if (!hasPerm('can_column')) { box.classList.add('hidden'); return; }
+    box.classList.remove('hidden');
+    loadColAdminMgmt();
+  }
+  async function loadColAdminMgmt() {
+    const list = $('colAdminList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    try {
+      const rows = await callEdge('column_admin_list', { status: colMgtStatus });
+      if (!rows.length) { list.innerHTML = '<div class="empty">暂无专栏记录</div>'; return; }
+      const stMap = { pending: '待审核', open: '已开通', closed: '已关闭' };
+      const stC = { pending: '#e0a030', open: '#3fae6b', closed: '#888' };
+      const html = rows.map((c) => {
+        const btns = [];
+        btns.push(`<button class="btn sm ghost" data-ca="detail" data-id="${c.id}">管理内容</button>`);
+        if (c.status === 'pending') {
+          btns.push(`<button class="btn sm" data-ca="approve" data-id="${c.id}">开通</button>`);
+          btns.push(`<button class="btn sm danger" data-ca="reject" data-id="${c.id}">驳回</button>`);
+        } else if (c.status === 'open') {
+          btns.push(`<button class="btn sm ghost" data-ca="close" data-id="${c.id}">关闭</button>`);
+        } else {
+          btns.push(`<button class="btn sm" data-ca="close" data-id="${c.id}">重新开通</button>`);
+        }
+        return `<div class="panel fade-in-up" style="padding:12px 14px;box-shadow:none;margin-bottom:10px">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px">
+            <strong style="font-size:14px">${escapeHtml(c.name)}</strong>
+            <span class="badge" style="color:#fff;background:${stC[c.status] || '#888'}">${stMap[c.status] || c.status}</span>
+            <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(c.created_at)}</span>
+          </div>
+          <div style="color:var(--muted);font-size:13px;margin-bottom:6px">创始人 <b>${escapeHtml(c.founder_name || '匿名')}</b> · Lv.${c.founder_level}
+            ${c.contact ? ` · 联系 <span style="color:var(--text)">${escapeHtml(c.contact)}</span>` : ''}</div>
+          ${c.intro ? `<div style="color:var(--text);font-size:13px;line-height:1.6;white-space:pre-wrap;border-left:3px solid var(--line);padding-left:10px;margin-bottom:8px">${escapeHtml(truncate(c.intro, 200))}</div>` : ''}
+          <div style="font-size:12px;color:var(--faint);margin-bottom:8px">${Number(c.post_count) || 0} 帖 · ${Number(c.comment_count) || 0} 评论</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">${btns.join('')}</div>
+          <div class="col-inline-detail" data-colid="${c.id}" style="display:none;margin-top:10px"></div>
+        </div>`;
+      }).join('');
+      list.innerHTML = html;
+      document.querySelectorAll('#colAdminList [data-ca]').forEach((b) => {
+        b.addEventListener('click', colAdminAction);
+      });
+    } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
+  }
+  async function colAdminAction(e) {
+    const btn = e.target.closest('button[data-ca]');
+    if (!btn) return;
+    const { ca, id } = btn.dataset;
+    if (ca === 'detail') {
+      const box = document.querySelector(`#colAdminList .col-inline-detail[data-colid="${id}"]`);
+      if (!box) return;
+      if (box.style.display !== 'none') { box.style.display = 'none'; return; }
+      box.style.display = 'block';
+      loadColDetailPosts(id, box);
+      return;
+    }
+    if (ca === 'reject' && !confirm('确定驳回该专栏申请？该申请将被删除。')) return;
+    if (ca === 'close' && !confirm('确定切换该专栏的开通状态？（帖子将由创始人运营）')) return;
+    btn.disabled = true;
+    try {
+      if (ca === 'approve') await callEdge('column_approve', { column_id: id });
+      else if (ca === 'reject') await callEdge('column_reject', { column_id: id });
+      else if (ca === 'close') await callEdge('column_close', { column_id: id });
+      loadColAdminMgmt();
+    } catch (err) { alert(err.message); btn.disabled = false; }
+  }
+  async function loadColDetailPosts(colId, box) {
+    box.innerHTML = '<div class="empty" style="padding:8px">加载帖子…</div>';
+    try {
+      const posts = await callEdge('col_feed', { column_id: colId, page: 1, page_size: 50 });
+      if (!posts.length) { box.innerHTML = '<div class="empty" style="padding:8px">暂无帖子</div>'; return; }
+      box.innerHTML = '<div style="font-size:12px;color:var(--faint);margin-bottom:8px">本专栏帖子（置顶在前）：</div>' +
+        posts.map((p) => `
+        <div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--card-soft)">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <strong style="font-size:13px">${escapeHtml(p.nickname || '匿名')}</strong>
+            ${p.pinned ? '<span class="badge pinned">置顶</span>' : ''}
+            <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(p.created_at)} · 👍 ${Number(p.like_count) || 0}</span>
+          </div>
+          <div style="font-size:13px;line-height:1.6;color:var(--text);white-space:pre-wrap;margin:6px 0 8px">${escapeHtml(truncate(p.content, 140))}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn sm ghost" data-cpin="${p.id}" data-v="${p.pinned ? 'false' : 'true'}">${p.pinned ? '取消置顶' : '置顶'}</button>
+            <button class="btn sm ghost" data-cima="show" data-post="${p.id}" data-title="评论">💬 评论 (${Number(p.comment_count) || 0})</button>
+            <button class="btn sm danger" data-cdel="${p.id}">删除帖子</button>
+          </div>
+          <div class="col-comments-inline" data-post="${p.id}" style="display:none;margin-top:8px"></div>
+        </div>`).join('');
+      box.querySelectorAll('[data-cpin]').forEach((b) => b.addEventListener('click', async () => {
+        b.disabled = true;
+        try { await callEdge('col_post_pin', { post_id: b.dataset.cpin, pinned: b.dataset.v === 'true' }); loadColDetailPosts(colId, box); }
+        catch (err) { alert(err.message); b.disabled = false; }
+      }));
+      box.querySelectorAll('[data-cdel]').forEach((b) => b.addEventListener('click', async () => {
+        if (!confirm('删除该专栏帖及其评论（软删，计入回退经验）？')) return;
+        b.disabled = true;
+        try { await callEdge('col_post_delete', { post_id: b.dataset.cdel }); loadColDetailPosts(colId, box); }
+        catch (err) { alert(err.message); b.disabled = false; }
+      }));
+      box.querySelectorAll('[data-cima="show"]').forEach((b) => {
+        b.addEventListener('click', async () => {
+          const cbox = box.querySelector(`.col-comments-inline[data-post="${b.dataset.post}"]`);
+          if (!cbox) return;
+          if (cbox.style.display !== 'none') { cbox.style.display = 'none'; return; }
+          cbox.style.display = 'block';
+          cbox.innerHTML = '<div class="empty" style="padding:8px">加载评论…</div>';
+          try {
+            const cs = await callEdge('col_comment_list', { post_id: b.dataset.post });
+            if (!cs.length) { cbox.innerHTML = '<div class="empty" style="padding:8px">暂无评论</div>'; return; }
+            cbox.innerHTML = '';
+            cs.forEach((c) => {
+              const cc = document.createElement('div');
+              cc.style.cssText = 'border-top:1px dashed var(--line);padding:6px 0';
+              cc.innerHTML = `<div style="font-size:12px;color:var(--muted)">${escapeHtml(c.nickname || '匿名')} ${c.parent_id ? '<span style="color:var(--accent,#e07a5f)">（回复）</span>' : ''} · ${formatTime(c.created_at)}</div>
+                <div style="font-size:13px;color:var(--text);margin:2px 0 4px">${escapeHtml(c.content)}</div>
+                <button class="btn sm danger" data-cdelc="${c.id}">删除评论</button>`;
+              cc.querySelector('[data-cdelc]').addEventListener('click', async (ccb) => { ccb.disabled = true; try { await callEdge('col_comment_delete', { comment_id: c.id }); b.click(); } catch (err) { alert(err.message); ccb.disabled = false; } });
+              cbox.appendChild(cc);
+            });
+          } catch (err) { cbox.innerHTML = `<div class="empty" style="padding:8px">加载失败：${escapeHtml(err.message)}</div>`; }
+        });
+      });
+    } catch (e) { box.innerHTML = `<div class="empty" style="padding:8px">加载失败：${escapeHtml(e.message)}</div>`; }
+  }
+  $('colStatusFilter').addEventListener('change', () => { colMgtStatus = $('colStatusFilter').value; loadColAdminMgmt(); });
+  $('colMgmtRefresh').addEventListener('click', loadColAdminMgmt);
 
   // ---------- 回收站 ----------
   async function loadTrash() {
@@ -1086,7 +1217,7 @@
         ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
         ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理']
+        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理']
       ];
       const toggles = perms.map(([k, label]) => {
         const on = !!a[k];

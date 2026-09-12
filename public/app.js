@@ -92,6 +92,7 @@
   ];
   function xpOf(u) {
     return (Number(u && u.post_count) || 0) * 2 + (Number(u && u.comment_count) || 0) + (Number(u && u.like_received) || 0)
+      + (Number(u && u.col_post_count) || 0) * 2 + (Number(u && u.col_comment_count) || 0) + (Number(u && u.col_like_received) || 0)
       + (Number(u && u.bonus_xp) || 0) + (Number(u && u.checkin_xp) || 0);
   }
   function cumMin(L) { return 12 * L * (L - 1); } // 达到 L 级所需累计经验（累加 24*i）
@@ -455,14 +456,14 @@
         return obj;
       };
       // 本地敏感词 + 黑名单检测（不上传服务器判定）
-      const combined = Object.entries(collect()).map(([k, v]) => String(v)).join(' ') + collect().tags.join(' ');
+      const payload = collect();
+      const combined = Object.entries(payload).map(([k, v]) => String(v)).join(' ') + payload.tags.join(' ');
       const hits = sensitiveHits(combined);
       if (hits.length) {
         errEl.textContent = `⚠️ 主页内容存在敏感词（${hits.map((h) => '"' + h + '"').join('')}），请修改后保存。`;
         errEl.style.color = '#e05e5e'; return;
       }
-      const payload = { token: state.user.token, ...collect() };
-      try { await callEdge('profile_save', payload); window.alert('主页已保存'); openProfile(myId()); }
+      try { await callEdge('profile_save', { token: state.user.token, ...payload }); window.alert('主页已保存'); openProfile(myId()); }
       catch (e) { errEl.textContent = e.message; errEl.style.color = '#e05e5e'; }
     });
   }
@@ -748,7 +749,7 @@
     const map = {};
     if (ids.length) {
       const { data } = await supabase.from('forum_users')
-        .select('id, nickname, post_count, comment_count, like_received, level, bonus_xp').in('id', ids);
+        .select('id, nickname, post_count, comment_count, like_received, level, bonus_xp, checkin_xp, col_post_count, col_comment_count, col_like_received').in('id', ids);
       (data || []).forEach((u) => { map[u.id] = { nickname: u.nickname || u.username || '', level: finalLevel(u) }; });
     }
     return map;
@@ -756,8 +757,12 @@
 
   // ---------------- 卡片渲染 ----------------
   function makeCard(post, ctx = {}) {
+    const cardLv = post.author_id && ctx.authorMap && ctx.authorMap[post.author_id]
+      ? Number(ctx.authorMap[post.author_id].level) || 0 : 0;
+    // 风云学长(36级)+ 动态光效作用于整个帖子卡片块（背景扫光）
+    const lightfxCard = cardLv >= 36;
     const card = document.createElement('article');
-    card.className = 'post-card' + (ctx.pinned ? ' pinned-post' : '');
+    card.className = 'post-card' + (ctx.pinned ? ' pinned-post' : '') + (lightfxCard ? ' lightfx-card' : '');
     card.dataset.id = post.id;
     const isAnon = !post.nickname;
     const nickHtml = isAnon ? '<span class="anonymous">匿名</span>' : escapeHtml(post.nickname);
@@ -770,12 +775,8 @@
     const isOwn = myId() && post.author_id === myId();
     const favOn = state.favSet.has(post.id);
     const floor = ctx.floor != null ? `<span class="post-floor">#${ctx.floor ? ctx.floor : ''}</span>` : '';
-    const authorLv = post.author_id && ctx.authorMap && ctx.authorMap[post.author_id]
-      ? Number(ctx.authorMap[post.author_id].level) || 0 : 0;
-    const lightfx = authorLv >= 36;
-    const levelTag = authorLv ? levelBadgeHtml(ctx.authorMap[post.author_id]) : '';
+    const levelTag = cardLv ? levelBadgeHtml(ctx.authorMap[post.author_id]) : '';
     const isBoosted = !!post.boost_until && new Date(post.boost_until).getTime() > Date.now();
-    // 校园传说：带「传说推荐」标签（学长背书，顶置1h）
     const isRecommended = !!post.recommend_until && new Date(post.recommend_until).getTime() > Date.now();
     if (isRecommended) {
       badges += '<span class="badge recommend">🏆 传说推荐</span>';
@@ -789,14 +790,14 @@
          </span>` : '';
     card.innerHTML = `
       <div class="post-head">
-        <span class="nickname">${nickHtml}${levelTag}</span>
+        <span class="nickname">${isAnon ? nickHtml : `<span class="nickname-link" data-open-profile="${post.author_id || ''}">${nickHtml}${levelTag}</span>`}</span>
         ${badges}
         <span class="badge seen">新</span>
         ${isOwn ? '<span class="badge pinned" style="color:#4dabf7">自己</span>' : ''}
         <span class="post-time">${formatTime(post.created_at)}</span>
         ${floor}
       </div>
-      <div class="post-content${lightfx ? ' lightfx' : ''}">${escapeHtml(post.content)}${ownActs}</div>
+      <div class="post-content">${escapeHtml(post.content)}${ownActs}</div>
       <div class="post-actions">
         <button class="act-btn like-btn${liked ? ' active' : ''}" title="点赞">
           <span class="like-ico">👍</span><span class="like-num">${formatCount(post.like_count)}</span>
@@ -818,6 +819,8 @@
     });
     const recBtn = card.querySelector('[data-act="recommend"]');
     if (recBtn) recBtn.addEventListener('click', () => recommendPost(post, recBtn));
+    const profLink = card.querySelector('[data-open-profile]');
+    if (profLink) profLink.addEventListener('click', () => { if (profLink.dataset.openProfile) openProfile(profLink.dataset.openProfile); else openUserModal(); });
     // 作者编辑/删除/推流
     if (isOwn) {
       const bBoost = card.querySelector('[data-act="boost"]');
@@ -1045,6 +1048,8 @@
       }
       const rep = e.target.closest('[data-rep]');
       if (rep) { openReport('comment', rep.dataset.rep); return; }
+      const prof = e.target.closest('[data-open-profile]');
+      if (prof && prof.dataset.openProfile) { openProfile(prof.dataset.openProfile); return; }
       const pin = e.target.closest('[data-pin]');
       if (pin) { pinOwnComment(box, pin.dataset.pin, post); return; }
       const edit = e.target.closest('[data-edit]');
@@ -1071,7 +1076,9 @@
     const map = {};
     list.forEach((x) => { map[x.id] = x; });
     const parent = c.parent_id ? map[c.parent_id] : null;
-    const name = c.nickname ? escapeHtml(c.nickname) : '<span class="anonymous">匿名</span>';
+    const name = c.nickname
+      ? (c.author_id ? `<span class="nickname-link" data-open-profile="${c.author_id}">${escapeHtml(c.nickname)}</span>` : escapeHtml(c.nickname))
+      : '<span class="anonymous">匿名</span>';
     const cLv = c.author_id && authorMap[c.author_id] ? Number(authorMap[c.author_id].level) || 0 : 0;
     const lv = cLv ? levelBadgeHtml(authorMap[c.author_id]) : '';
     const isOwn = myId() && c.author_id === myId();
@@ -1582,6 +1589,7 @@
       state.page = 1;
       await Promise.all([loadPinned(), loadFeed()]);
       if (state.mode === 'mine') loadFeed();
+      armScheduledTimer();
       refreshProfile();
       loadTopics();
     };
@@ -1644,7 +1652,19 @@
   function scheduleReload() {
     if (reloading) return;
     reloading = true;
-    setTimeout(() => { reloading = false; loadPinned(); loadFeed(); }, 2000);
+    setTimeout(() => { reloading = false; loadPinned(); loadFeed(); armScheduledTimer(); }, 2000);
+  }
+  // 定时帖：查询最近一条尚未到点的帖子，设定时器在到点时自动刷新刷出（适用于定时发布与实时频道无事件的场景）
+  let schedTimer = null;
+  async function armScheduledTimer() {
+    if (schedTimer) { clearTimeout(schedTimer); schedTimer = null; }
+    try {
+      const res = await callEdge('scheduled_next', { token: state.user.token || '' });
+      const t = new Date(res.next).getTime();
+      if (!Number.isFinite(t) || t <= Date.now()) return;
+      const delay = Math.min(t - Date.now() + 1500, 2147483647);
+      schedTimer = setTimeout(() => { schedTimer = null; loadPinned(); loadFeed(); armScheduledTimer(); }, delay);
+    } catch (_e) { /* 内部错误不影响主流程 */ }
   }
   function subscribeRealtime() {
     if (state.channel) return;
@@ -1744,11 +1764,15 @@
     loadLeaderboard();
     if (loggedIn()) { loadFavIds(); syncLikedFromServer(); refreshProfile(); checkBanStatus(); }
     subscribeRealtime();
+    armScheduledTimer();
     if (unreadTimer) clearInterval(unreadTimer);
     unreadTimer = setInterval(() => { refreshUnread(); checkBanStatus(); }, 60000);
     // 从通知中心跳转过来的「帖子页面」：index.html#post-<pid>
     const m = location.hash.match(/^#post-(.+)$/);
     if (m) setTimeout(() => scrollToPost(decodeURIComponent(m[1])), 400);
+    // 从专栏页等跳转过来的「个人主页」：index.html#profile-<uid>
+    const pm = location.hash.match(/^#profile-(.+)$/);
+    if (pm) setTimeout(() => openProfile(decodeURIComponent(pm[1])), 300);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init, { once: true });

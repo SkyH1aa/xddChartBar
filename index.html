@@ -182,6 +182,10 @@
     .lightfx::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 20%,rgba(224,122,95,.16) 45%,rgba(122,162,247,.2) 60%,transparent 85%);background-size:220% 100%;animation:lxShift 3.4s linear infinite;pointer-events:none}
     @keyframes lxShift{from{background-position:120% 0}to{background-position:-120% 0}}
     .post-content.lightfx,.cmt-text.lightfx{position:relative;z-index:1}
+    /* 风云学长+：帖子动态光效作用于整个帖子卡片块（背景扫光，而非仅内容区） */
+    .lightfx-card{position:relative;overflow:hidden}
+    .lightfx-card::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 20%,rgba(224,122,95,.10) 45%,rgba(122,162,247,.14) 60%,transparent 85%);background-size:220% 100%;animation:lxShift 3.4s linear infinite;pointer-events:none;z-index:0}
+    .lightfx-card>*{position:relative;z-index:1}
     /* 发帖特权行 */
     .composer-priv{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
     .composer-priv.hidden{display:none}
@@ -192,6 +196,8 @@
     /* 传说推荐 / 评论置顶 */
     .badge.recommend{background:rgba(255,193,90,.18);color:#f5b942;border:1px solid rgba(245,185,66,.4)}
     .pin-cell{color:var(--accent,#e07a5f)}
+    .nickname-link{cursor:pointer}
+    .nickname-link:hover{color:var(--accent,#e07a5f);text-decoration:underline}
   </style>
   <script src="public/sensitive-words.js"></script>
 </head>
@@ -203,6 +209,7 @@
         <span class="dot"></span>
         新哲吧
         <span class="tag">公共论坛</span>
+        <a href="columns.html" class="tag" style="text-decoration:none" title="校友专栏 · 独立小社区">专栏</a>
         <a href="rules.html" class="tag" style="text-decoration:none" title="站规与使用说明">站规</a>
       </div>
       <div class="search-box">
