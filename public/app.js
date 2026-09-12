@@ -172,6 +172,16 @@
   function readAdminSession() {
     try { state.session = { token: localStorage.getItem(ADMIN_TOKEN_KEY) }; } catch (_e) {}
   }
+  // 若浏览器存有管理员会话，则拉取其权限，用于主页展示快捷管理按钮
+  async function loadAdminPerms() {
+    state.adminPerms = null;
+    try {
+      const tok = state.session && state.session.token;
+      if (!tok) return;
+      const p = await callEdge('whoami', { token: tok });
+      if (p && p.perms) state.adminPerms = p.perms;
+    } catch (_e) { state.adminPerms = null; }
+  }
   function readUserSession() {
     try {
       state.user.token = localStorage.getItem(USER_TOKEN_KEY) || null;
@@ -811,6 +821,13 @@
            <button class="tiny-btn" data-act="edit">编辑</button>
            <button class="tiny-btn danger" data-act="del">删除</button>
          </span>` : '';
+    // 已登录且有对应权限的管理员：主页快捷 屏蔽/删除/封禁
+    const adminActs = state.adminPerms
+      ? `<span class="admin-actions">
+           ${state.adminPerms.can_block ? '<button class="act-btn adm" data-act="block" title="屏蔽帖子（首页不再显示）">🚫 屏蔽</button><button class="act-btn adm" data-act="del" title="删除帖子（移入回收站）">🗑 删除</button>' : ''}
+           ${state.adminPerms.can_ban && post.author_id ? '<button class="act-btn adm" data-act="ban" title="封禁该作者 7 天">⛔ 封禁7天</button>' : ''}
+         </span>`
+      : '';
     card.innerHTML = `
       <div class="post-head">
         <span class="nickname">${isAnon ? nickHtml : `<span class="nickname-link" data-open-profile="${post.author_id || ''}">${nickHtml}${levelTag}</span>`}</span>
@@ -832,6 +849,7 @@
         <button class="act-btn fav-btn${favOn ? ' active' : ''}" data-pid="${post.id}" title="收藏">⭐</button>
         ${!isOwn && loggedIn() && myPriv().recommend ? `<button class="act-btn rec-btn" data-act="recommend" data-id="${post.id}" title="传说推荐（顶置1h，每日${myPriv().recommend}次）">🏆 推荐</button>` : ''}
         <button class="act-btn rep-btn" data-type="post" data-id="${post.id}" title="举报">🚩</button>
+        ${adminActs}
       </div>
       <div class="post-comments hidden" data-cmtbox></div>`;
     card.querySelector('.like-btn').addEventListener('click', (e) => { likePost(post, e.currentTarget); });
@@ -842,6 +860,17 @@
     });
     const recBtn = card.querySelector('[data-act="recommend"]');
     if (recBtn) recBtn.addEventListener('click', () => recommendPost(post, recBtn));
+    // 管理员快捷操作
+    if (state.adminPerms && state.adminPerms.can_block) {
+      const abk = card.querySelector('[data-act="block"]');
+      if (abk) abk.addEventListener('click', () => adminBlockPost(post, abk));
+      const adel = card.querySelector('[data-act="del"]');
+      if (adel) adel.addEventListener('click', () => adminDeletePost(post));
+    }
+    if (state.adminPerms && state.adminPerms.can_ban) {
+      const aban = card.querySelector('[data-act="ban"]');
+      if (aban) aban.addEventListener('click', () => adminBanUser(post, aban));
+    }
     const profLink = card.querySelector('[data-open-profile]');
     if (profLink) profLink.addEventListener('click', () => { if (profLink.dataset.openProfile) openProfile(profLink.dataset.openProfile); else openUserModal(); });
     // 作者编辑/删除/推流
@@ -852,6 +881,33 @@
       card.querySelector('[data-act="del"]').addEventListener('click', () => deleteOwnPost(post));
     }
     return card;
+  }
+
+  // ---------------- 管理员主页快捷操作：屏蔽 / 删除 / 封禁7天 ----------------
+  async function adminBlockPost(post, btn) {
+    if (!confirm('屏蔽该帖子？原作者仍可看到，但首页不再公开显示。')) return;
+    btn.disabled = true;
+    try {
+      await callEdge('block_post', { token: state.session.token, id: post.id, blocked: true });
+      loadFeed(); loadPinned();
+    } catch (e) { window.alert(e.message); btn.disabled = false; }
+  }
+  async function adminDeletePost(post) {
+    if (!confirm('确认删除该帖子？帖子将移入回收站，可在后台恢复。')) return;
+    try {
+      await callEdge('delete_post', { token: state.session.token, id: post.id });
+      loadFeed(); loadPinned();
+    } catch (e) { window.alert(e.message); }
+  }
+  async function adminBanUser(post, btn) {
+    if (!post.author_id) return;
+    if (!confirm('确认封禁该作者 7 天？封禁期间其无法发帖/点赞/评论/创建话题。')) return;
+    btn.disabled = true;
+    try {
+      await callEdge('admin_user_ban', { token: state.session.token, user_id: post.author_id, days: 7 });
+      window.alert('已封禁该作者 7 天。');
+    } catch (e) { window.alert(e.message); }
+    finally { btn.disabled = false; }
   }
 
   // ---------------- 等级特权：推流 / 助推 ----------------
@@ -1775,8 +1831,9 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
   });
 
   // ---------------- 启动 ----------------
-  function init() {
+  async function init() {
     readAdminSession();
+    await loadAdminPerms();
     readUserSession();
     state.likedSet = getLikedSet();
     loadTopics();
