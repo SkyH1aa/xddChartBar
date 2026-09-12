@@ -39,11 +39,20 @@
     return `${d.getMonth() + 1}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
   }
   function formatCount(n) { n = Number(n) || 0; return n > 9999 ? '9999+' : String(n); }
+  const SAFE_WORDS = ['牛奶', '奶茶', '奶酪', '奶牛', '酸奶', '奶粉', '奶昔', '奶嘴', '奶奶', '奶油', '蜜奶'] // 误伤豁免词，可按需增删
   function sensitiveHits(text) {
     if (!text) return [];
     const words = window.NEWTHEBA_SENSITIVE_WORDS || [];
     const found = []; const lower = String(text).toLowerCase();
-    for (const w of words) { const s = String(w || '').trim(); if (s && lower.includes(s.toLowerCase()) && found.indexOf(s) === -1) found.push(s); }
+    for (const w of words) {
+      const s = String(w || '').trim();
+      if (!s) continue;
+      const sl = s.toLowerCase();
+      if (!lower.includes(sl)) continue;
+      // 命中词被某个“更长”的豁免词完整包裹则不算违规（如单字“奶”被“牛奶”豁免）
+      if (SAFE_WORDS.some((sw) => sw.length > s.length && sw.includes(s) && lower.includes(sw.toLowerCase()))) continue;
+      if (found.indexOf(s) === -1) found.push(s);
+    }
     return found;
   }
   const LEVEL_TIERS = [

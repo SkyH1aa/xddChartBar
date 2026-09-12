@@ -70,6 +70,9 @@
            `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
   }
   function topicLimit(t) { return t === '吃瓜' ? 5000 : 500; }
+  // 敏感词命中：只有内容中出现与词库“整个词条”完全一致的连续子串才命中（不做字符级/局部匹配）。
+  // 若命中词被 SAFE_WORDS 里的某个豁免词完整包含（如单字“奶”被“牛奶”包含），则不算命中，避免误伤正常词。
+  const SAFE_WORDS = ['牛奶', '奶茶', '奶酪', '奶牛', '酸奶', '奶粉', '奶昔', '奶嘴', '奶妈', '奶奶', '奶油', '蜜奶'] // 可按需增删
   function sensitiveHits(text) {
     if (!text) return [];
     const words = window.NEWTHEBA_SENSITIVE_WORDS || [];
@@ -77,7 +80,13 @@
     const lower = String(text).toLowerCase();
     for (const w of words) {
       const s = String(w || '').trim();
-      if (s && lower.includes(s.toLowerCase()) && found.indexOf(s) === -1) found.push(s);
+      if (!s) continue;
+      const sl = s.toLowerCase();
+      if (!lower.includes(sl)) continue;
+      // 若该命中词被某个“更长”的豁免词完整包裹，则认为属于正常用词，不判定违规
+      // （如单字“奶”被“牛奶”包含则豁免；但敏感词若本身是“牛奶”，不会被豁免）
+      if (SAFE_WORDS.some((sw) => sw.length > s.length && sw.includes(s) && lower.includes(sw.toLowerCase()))) continue;
+      if (found.indexOf(s) === -1) found.push(s);
     }
     return found;
   }
