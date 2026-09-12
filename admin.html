@@ -57,6 +57,22 @@
       <div id="reviewList"></div>
     </section>
 
+    <!-- 评论管理 -->
+    <section id="tab-comments" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">评论管理（全服最近评论）</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="commentTopic" class="input" style="min-width:130px">
+            <option value="">全部话题</option>
+            <option>闲聊</option><option>社团活动</option><option>食堂</option>
+            <option>宿舍</option><option>学习</option><option>吃瓜</option>
+          </select>
+          <button id="commentRefresh" class="btn ghost sm">刷新</button>
+        </div>
+      </div>
+      <div id="commentList"></div>
+    </section>
+
     <!-- 顶置管理 -->
     <section id="tab-pinned" class="panel hidden">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">

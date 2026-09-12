@@ -58,14 +58,17 @@
   function topicLimit(t) { return t === '吃瓜' ? 5000 : 500; }
 
   // 敏感词检测（词库由站长在 sensitive-words.js 维护）
-  function sensitiveHit(text) {
-    if (!text) return null;
+  // 返回所有命中该文本的敏感词（去重）
+  function sensitiveHits(text) {
+    if (!text) return [];
     const words = window.NEWTHEBA_SENSITIVE_WORDS || [];
+    const found = [];
+    const lower = String(text).toLowerCase();
     for (const w of words) {
       const s = String(w || '').trim();
-      if (s && text.toLowerCase().includes(s.toLowerCase())) return s;
+      if (s && lower.includes(s.toLowerCase()) && found.indexOf(s) === -1) found.push(s);
     }
-    return null;
+    return found;
   }
 
   async function callEdge(action, payload, token) {
@@ -152,6 +155,18 @@
   }
 
   // ---------------- 卡片渲染与渐入渐出 ----------------
+  function formatCount(n) {
+    n = Number(n) || 0;
+    return n > 9999 ? '9999+' : String(n);
+  }
+  function getLikedSet() {
+    try { return JSON.parse(localStorage.getItem('nzb_liked_posts') || '[]') || []; }
+    catch (_e) { return []; }
+  }
+  function saveLikedSet(arr) {
+    try { localStorage.setItem('nzb_liked_posts', JSON.stringify(arr)); } catch (_e) { /* ignore */ }
+  }
+
   function makeCard(post, { pinned = false } = {}) {
     const card = document.createElement('article');
     card.className = 'post-card' + (pinned ? ' pinned-post' : '');
@@ -162,6 +177,7 @@
     let badges = pinned
       ? '<span class="badge pinned">置顶</span>'
       : '<span class="badge topic">' + escapeHtml(post.topic) + '</span>';
+    const liked = getLikedSet().indexOf(post.id) > -1;
     card.innerHTML = `
       <div class="post-head">
         <span class="nickname">${nickHtml}</span>
@@ -169,8 +185,145 @@
         <span class="badge seen">新</span>
         <span class="post-time">${formatTime(post.created_at)}</span>
       </div>
-      <div class="post-content">${escapeHtml(post.content)}</div>`;
+      <div class="post-content">${escapeHtml(post.content)}</div>
+      <div class="post-actions">
+        <button class="act-btn like-btn${liked ? ' active' : ''}" title="点赞">
+          <span class="like-ico">👍</span><span class="like-num">${formatCount(post.like_count)}</span>
+        </button>
+        <button class="act-btn cmt-toggle" title="评论">
+          <span>💬</span><span class="cmt-num">${formatCount(post.comment_count)}</span>
+          <span class="cmt-label">展开评论</span>
+        </button>
+      </div>
+      <div class="post-comments hidden" data-cmtbox></div>`;
+    card.querySelector('.like-btn').addEventListener('click', (e) => likePost(post, e.currentTarget));
+    card.querySelector('.cmt-toggle').addEventListener('click', () => toggleComments(card, post));
     return card;
+  }
+
+  // ---------------- 点赞 ----------------
+  async function likePost(post, btn) {
+    const arr = getLikedSet();
+    const on = arr.indexOf(post.id) > -1;
+    btn.disabled = true;
+    try {
+      const { data, error } = await supabase.rpc('bump_like', { pid: post.id, delta: on ? -1 : 1 });
+      if (error) throw error;
+      if (on) saveLikedSet(arr.filter((x) => x !== post.id));
+      else { arr.push(post.id); saveLikedSet(arr); }
+      btn.classList.toggle('active', !on);
+      const num = btn.querySelector('.like-num');
+      if (num) num.textContent = formatCount(data);
+    } catch (_e) { /* ignore */ }
+    btn.disabled = false;
+  }
+
+  // ---------------- 评论 ----------------
+  function toggleComments(card, post) {
+    const box = card.querySelector('[data-cmtbox]');
+    const label = card.querySelector('.cmt-label');
+    if (!box.classList.contains('hidden')) {
+      box.classList.add('hidden');
+      label.textContent = '展开评论';
+      return;
+    }
+    box.classList.remove('hidden');
+    label.textContent = '收起评论';
+    if (!box.dataset.loaded) {
+      box.dataset.loaded = '1';
+      loadComments(box, post);
+    }
+  }
+
+  async function loadComments(box, post) {
+    box.innerHTML = '<div class="cmt-empty">加载中…</div>';
+    try {
+      const { data, error } = await supabase.from('forum_comments')
+        .select('*').eq('post_id', post.id).order('created_at', { ascending: true }).limit(1000);
+      if (error) throw error;
+      renderComments(box, data || [], post);
+    } catch (_e) {
+      box.innerHTML = '<div class="cmt-empty">评论加载失败</div>';
+      delete box.dataset.loaded;
+    }
+  }
+
+  function renderComments(box, list, post) {
+    const map = {};
+    list.forEach((c) => { map[c.id] = c; });
+    let html = '';
+    if (!list.length) html = '<div class="cmt-empty">暂无评论，来抢沙发吧</div>';
+    list.forEach((c) => {
+      const parent = c.parent_id ? map[c.parent_id] : null;
+      const name = c.nickname ? escapeHtml(c.nickname) : '<span class="anonymous">匿名</span>';
+      const replyTag = parent
+        ? ' <span class="cmt-replyto">回复 @' + (parent.nickname ? escapeHtml(parent.nickname) : '匿名') + '</span>'
+        : '';
+      const rname = c.nickname ? c.nickname : '匿名';
+      html += `<div class="cmt-item">
+        <div class="cmt-head">${name}${replyTag}<span class="cmt-time">${formatTime(c.created_at)}</span></div>
+        <div class="cmt-text">${escapeHtml(c.content)}</div>
+        <button class="cmt-reply" data-reply="${c.id}" data-rname="${escapeHtml(rname)}">回复</button>
+      </div>`;
+    });
+    html += `<div class="cmt-compose">
+      <input class="cmt-input" maxlength="250" placeholder="写下你的评论…（250字内）">
+      <div class="cmt-row">
+        <input class="cmt-nick" maxlength="24" placeholder="昵称（不填显示匿名，最多24字）">
+        <button class="btn sm cmt-submit">发表</button>
+      </div>
+      <div class="cmt-bar"><span class="cmt-target"></span><span class="cmt-count">0/250</span></div>
+      <div class="cmt-warn"></div>
+    </div>`;
+    box.innerHTML = html;
+    const tinput = box.querySelector('.cmt-input');
+    tinput.addEventListener('input', () => {
+      box.querySelector('.cmt-count').textContent = tinput.value.length + '/250';
+    });
+    box.querySelectorAll('.cmt-reply').forEach((b) => {
+      b.addEventListener('click', () => {
+        box._replyTo = b.dataset.reply;
+        box.querySelector('.cmt-target').textContent = '正在回复 @' + b.dataset.rname;
+        box.querySelector('.cmt-target').classList.add('on');
+        tinput.focus();
+      });
+    });
+    box.querySelector('.cmt-submit').addEventListener('click', () => postComment(box, post));
+  }
+
+  async function postComment(box, post) {
+    const w = box.querySelector('.cmt-warn');
+    w.textContent = '';
+    const content = box.querySelector('.cmt-input').value.trim();
+    const nickname = box.querySelector('.cmt-nick').value.trim().slice(0, 24);
+    if (!content) { w.textContent = '评论内容不能为空'; return; }
+    if (content.length > 250) { w.textContent = '评论最多 250 字'; return; }
+    const hitWords = sensitiveHits(content).concat(sensitiveHits(nickname));
+    if (hitWords.length) {
+      w.textContent = '⚠️ 评论存在敏感词（' + hitWords.map((x) => '“' + x + '”').join('、') + '），不得发布。';
+      return;
+    }
+    const btn = box.querySelector('.cmt-submit');
+    btn.disabled = true;
+    try {
+      const parent_id = box._replyTo || null;
+      const { error } = await supabase.from('forum_comments').insert({ post_id: post.id, parent_id, nickname, content });
+      if (error) throw error;
+      box._replyTo = null;
+      box.querySelector('.cmt-target').textContent = '';
+      box.querySelector('.cmt-target').classList.remove('on');
+      box.querySelector('.cmt-input').value = '';
+      box.querySelector('.cmt-count').textContent = '0/250';
+      const { data } = await supabase.from('forum_comments')
+        .select('*').eq('post_id', post.id).order('created_at', { ascending: true }).limit(1000);
+      renderComments(box, data || [], post);
+      const toggle = box.closest('.post-card').querySelector('.cmt-toggle');
+      const num = toggle.querySelector('.cmt-num');
+      num.textContent = formatCount((parseInt(num.textContent.replace('+', ''), 10) || 0) + 1);
+    } catch (_e) {
+      w.textContent = '发布失败，请稍后再试';
+    }
+    btn.disabled = false;
   }
 
   function observeReveal(root) {
@@ -300,9 +453,9 @@
     if (!content) { warn.textContent = '内容不能为空'; return; }
     if (content.length > limit) { warn.textContent = `内容超出${limit}字上限`; return; }
 
-    const hit = sensitiveHit(content) || sensitiveHit(nickname);
-    if (hit) {
-      warn.textContent = '⚠️ 发布内容存在敏感词，不得发布。';
+    const hitWords = sensitiveHits(content).concat(sensitiveHits(nickname));
+    if (hitWords.length) {
+      warn.textContent = '⚠️ 发布内容存在敏感词（' + hitWords.map((x) => '“' + x + '”').join('、') + '），不得发布。';
       els.content.classList.add('bad');
       return;
     }

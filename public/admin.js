@@ -78,12 +78,14 @@
   function renderTabs() {
     const tabs = [
       { key: 'posts', label: '帖子管理' },
+      { key: 'comments', label: '评论管理' },
       { key: 'review', label: '吃瓜审核' },
       { key: 'pinned', label: '顶置管理' },
       { key: 'site', label: '站点开关' },
       { key: 'popups', label: '弹窗公告' }
     ];
     if (profile?.isFounder) tabs.push({ key: 'admins', label: '管理员' });
+    else if (!hasPerm('can_block')) tabs.splice(tabs.findIndex((t) => t.key === 'comments'), 1);
     const nav = $('tabs');
     nav.innerHTML = '';
     tabs.forEach((t) => {
@@ -100,6 +102,7 @@
     $('tab-' + key).classList.remove('hidden');
     renderTabs();
     if (key === 'posts') loadPosts();
+    if (key === 'comments') loadComments();
     if (key === 'review') loadReview();
     if (key === 'pinned') loadPinned();
     if (key === 'site') loadSite();
@@ -177,6 +180,63 @@
   }
   $('postFilter').addEventListener('change', loadPosts);
   $('postRefresh').addEventListener('click', loadPosts);
+
+  // ---------- 评论管理 ----------
+  let commentTimer = null;
+  $('commentRefresh').addEventListener('click', loadComments);
+  $('commentTopic').addEventListener('change', () => {
+    clearTimeout(commentTimer);
+    commentTimer = setTimeout(loadComments, 150);
+  });
+  async function loadComments() {
+    const topic = $('commentTopic').value || '';
+    const list = $('commentList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    try {
+      const data = await callEdge('comment_admin_list', { topic, limit: 300 });
+      if (!data.length) { list.innerHTML = '<div class="empty">暂无评论</div>'; return; }
+      list.innerHTML = '';
+      data.forEach((c) => {
+        const card = document.createElement('div');
+        card.className = 'panel fade-in-up';
+        card.style.padding = '12px 14px';
+        card.style.boxShadow = 'none';
+        card.style.marginBottom = '10px';
+        const name = c.nickname ? escapeHtml(c.nickname) : '<span style="color:var(--faint)">匿名</span>';
+        const topicTag = c.topic ? `<span class="badge topic">${escapeHtml(c.topic)}</span>` : '';
+        const stateTag = c.blocked
+          ? '<span class="badge" style="color:#fff;background:#e05e5e">已屏蔽</span>'
+          : '<span class="badge topic">正常</span>';
+        const replyTag = c.parent_id ? '<span style="color:var(--accent,#e07a5f);font-size:12px">（回复）</span>' : '';
+        card.innerHTML = `
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+            <strong style="font-size:13px">${name}</strong> ${replyTag} ${topicTag} ${stateTag}
+            <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(c.created_at)}</span>
+          </div>
+          <div style="color:var(--text);font-size:14px;line-height:1.7;word-break:break-word;margin-bottom:10px">${escapeHtml(c.content)}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn sm ${c.blocked ? 'ghost' : ''}" data-block="${c.id}" data-to="${c.blocked ? 'false' : 'true'}">
+              ${c.blocked ? '解除屏蔽' : '屏蔽'}
+            </button>
+            <button class="btn sm danger" data-del="${c.id}">删除</button>
+          </div>`;
+        card.querySelector('[data-block]').addEventListener('click', async (b) => {
+          b.currentTarget.disabled = true;
+          try { await callEdge('comment_toggle_block', { id: c.id, blocked: b.currentTarget.dataset.to === 'true' }); loadComments(); }
+          catch (err) { alert(err.message); b.currentTarget.disabled = false; }
+        });
+        card.querySelector('[data-del]').addEventListener('click', async (b) => {
+          if (!confirm('确定删除该评论？（不可恢复）')) return;
+          b.currentTarget.disabled = true;
+          try { await callEdge('comment_delete', { id: c.id }); loadComments(); }
+          catch (err) { alert(err.message); b.currentTarget.disabled = false; }
+        });
+        list.appendChild(card);
+      });
+    } catch (err) {
+      list.innerHTML = `<div class="empty">加载失败：${escapeHtml(err.message)}</div>`;
+    }
+  }
 
   // ---------- 吃瓜审核 ----------
   async function loadReview() {

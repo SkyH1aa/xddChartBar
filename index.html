@@ -6,6 +6,35 @@
   <meta name="description" content="新哲吧 · 同学们的匿名讨论广场" />
   <title>新哲吧 · 匿名讨论广场</title>
   <link rel="stylesheet" href="public/theme.css" />
+  <style>
+    .post-actions{display:flex;gap:8px;padding:8px 14px 10px;border-top:1px solid var(--line)}
+    .post-actions .act-btn{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid transparent;color:var(--muted);font-size:13px;cursor:pointer;padding:5px 11px;border-radius:999px;transition:all .15s}
+    .post-actions .act-btn:hover{background:rgba(127,127,127,.12);color:var(--text)}
+    .post-actions .like-btn.active{color:var(--accent,#e07a5f);font-weight:600;border-color:rgba(224,122,95,.35);background:rgba(224,122,95,.08)}
+    .cmt-toggle .cmt-num{font-variant-numeric:tabular-nums}
+    .post-comments{border-top:1px solid var(--line);padding:10px 14px;background:var(--card-soft)}
+    .post-comments.hidden{display:none}
+    .cmt-empty{color:var(--faint);font-size:13px;padding:8px 0}
+    .cmt-item{padding:7px 0;border-bottom:1px dashed var(--line)}
+    .cmt-item:last-of-type{border-bottom:none}
+    .cmt-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+    .cmt-head .anonymous{color:var(--faint);font-style:italic}
+    .cmt-replyto{color:var(--accent,#e07a5f)}
+    .cmt-time{margin-left:auto;color:var(--faint);font-size:11px}
+    .cmt-text{font-size:14px;color:var(--text);margin:3px 0 4px;word-break:break-word;white-space:pre-wrap;line-height:1.6}
+    .cmt-reply{background:none;border:none;color:var(--accent,#e07a5f);cursor:pointer;font-size:12px;padding:0}
+    .cmt-compose{margin-top:10px}
+    .cmt-input{width:100%;box-sizing:border-box;background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit}
+    .cmt-input:focus{outline:none;border-color:var(--accent,#e07a5f)}
+    .cmt-row{display:flex;gap:8px;margin-top:6px;align-items:center}
+    .cmt-nick{flex:1;min-width:0;background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit}
+    .cmt-nick:focus{outline:none;border-color:var(--accent,#e07a5f)}
+    .cmt-bar{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:var(--faint)}
+    .cmt-target{flex:1;color:var(--accent,#e07a5f);visibility:hidden}
+    .cmt-target.on{visibility:visible}
+    .cmt-bar .cmt-count,.cmt-count{font-variant-numeric:tabular-nums}
+    .cmt-warn{color:#e05e5e;font-size:12px;margin-top:4px;min-height:14px}
+  </style>
   <script src="public/sensitive-words.js"></script>
 </head>
 <body>
