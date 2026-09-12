@@ -48,6 +48,16 @@
       <div id="postList"></div>
     </section>
 
+    <!-- 精华聚合管理（需 can_digest 权限） -->
+    <section id="tab-digests" class="panel hidden" style="margin-top:18px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0 14px">
+        <h3 style="margin:0">💎 精华聚合</h3>
+        <button id="digestRefresh" class="btn ghost sm">刷新</button>
+        <span style="color:var(--faint);font-size:12px">在「帖子管理」或主论坛帖子卡片点「💎 加入精华」即可把帖子收录到这里，普通用户可在主论坛「💎 精华」栏浏览。</span>
+      </div>
+      <div id="digestList"></div>
+    </section>
+
     <!-- 专栏管理（并入帖子管理；需 can_column 权限） -->
     <section id="columnMgmt" class="panel hidden" style="margin-top:18px">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0 14px">

@@ -1368,6 +1368,8 @@
     els.viewTitle.style.display = 'none';
     els.searchBanner.classList.add('hidden');
     els.emptyState.classList.add('hidden');
+    // 每次加载前清空主列表，避免从“全部”切到其它视图时残留上一次的帖子
+    els.feed.innerHTML = '';
 
     let rows = [];
     if (state.mode === 'search') {
@@ -1412,6 +1414,7 @@
       els.viewTitle.style.display = '';
       els.viewTitle.textContent = '💎 精华聚合';
       els.pager.classList.add('hidden');
+      els.pinnedSection.classList.add('hidden');
       try { rows = await callEdge('digest_list', { token: state.user.token || '' }); }
       catch (_e) { rows = []; }
       if (!rows.length) {

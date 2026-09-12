@@ -100,6 +100,7 @@
       { key: 'blacklist', label: '黑名单', requiresAny: ['can_blacklist', 'can_block', 'can_ban'] },
       { key: 'userMgmt', label: '用户统一管理', perm: 'can_user_mgmt' },
       { key: 'site', label: '站点开关' },
+      { key: 'digests', label: '精华聚合', perm: 'can_digest' },
       { key: 'popups', label: '弹窗公告' },
       { key: 'announces', label: '公告栏', perm: 'can_notice' },
       { key: 'bugs', label: 'Bug反馈', perm: 'can_bug' },
@@ -152,6 +153,7 @@
     if (key === 'pinned') loadPinned();
     if (key === 'audit') loadAudit();
     if (key === 'userMgmt') loadUserMgmt();
+    if (key === 'digests') loadDigests();
     if (key === 'blacklist') {
       if (!hasPerm('can_blacklist') && !hasPerm('can_block') && hasPerm('can_ban')) {
         $('blacklistView').value = 'users';
@@ -673,6 +675,38 @@
       loadPosts();
     } catch (err) { alert(err.message); btn.disabled = false; }
   }
+  // 精华聚合管理：展示已收录的精华帖，支持移出
+  function loadDigests() {
+    const list = $('digestList');
+    if (!list) return;
+    list.innerHTML = '加载中…';
+    callEdge('digest_list', {}).then((data) => {
+      if (!data || !data.length) { list.innerHTML = '<div class="empty">暂无精华帖，可到「帖子管理」里点「加入精华」</div>'; return; }
+      list.innerHTML = '';
+      (data || []).forEach((p) => {
+        const card = document.createElement('div');
+        card.className = 'panel';
+        card.style.marginBottom = '10px';
+        card.innerHTML = `
+        <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px">
+          <strong>${escapeHtml(p.nickname || '匿名')}</strong>
+          <span class="badge">${escapeHtml(p.topic)}</span>
+          <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(p.created_at)}</span>
+          <button class="btn sm ghost" data-digid="${p.id}">💎 移出精华</button>
+        </div>
+        <div class="post-content">${escapeHtml(p.content)}</div>`;
+        card.querySelector('[data-digid]').addEventListener('click', async () => {
+          if (!confirm('把该帖移出精华聚合？原帖保留在主论坛。')) return;
+          try { await callEdge('digest_remove', { post_id: p.id }); loadDigests(); }
+          catch (err) { alert(err.message); }
+        });
+        list.appendChild(card);
+      });
+    }).catch((err) => {
+      list.innerHTML = '<div class="empty">加载失败：' + escapeHtml(err.message) + '</div>';
+    });
+  }
+  $('digestRefresh').addEventListener('click', loadDigests);
   $('postFilter').addEventListener('change', loadPosts);
   $('postRefresh').addEventListener('click', loadPosts);
 
