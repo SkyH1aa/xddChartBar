@@ -76,29 +76,31 @@
 
   // ---------- 渲染布局 ----------
   function renderTabs() {
-    const tabs = [
+    const all = [
       { key: 'dashboard', label: '看板' },
       { key: 'posts', label: '帖子管理' },
-      { key: 'comments', label: '评论管理' },
-      { key: 'review', label: '吃瓜审核' },
-      { key: 'reports', label: '举报', can_block: true },
-      { key: 'pinned', label: '顶置管理' },
-      { key: 'audit', label: '审计日志' },
-      { key: 'blacklist', label: '黑名单', can_block: true },
+      { key: 'review', label: '吃瓜审核', perm: 'can_review' },
+      { key: 'reports', label: '举报', requiresAny: ['can_report', 'can_block'] },
+      { key: 'trash', label: '回收站', perm: 'can_block' },
+      { key: 'pinned', label: '顶置管理', perm: 'can_pin' },
+      { key: 'audit', label: '审计日志', perm: 'can_view_audit' },
+      { key: 'blacklist', label: '黑名单', requiresAny: ['can_blacklist', 'can_block'] },
       { key: 'site', label: '站点开关' },
       { key: 'popups', label: '弹窗公告' }
     ];
-    if (profile?.isFounder) tabs.push({ key: 'admins', label: '管理员' });
-    else {
-      const filtered = tabs.filter((t) => !t.can_block || hasPerm('can_block'));
-      filtered.splice(filtered.findIndex((t) => t.key === 'comments'), 1);
-      filtered.splice(filtered.findIndex((t) => t.key === 'posts'), 1);
-      filtered.splice(filtered.findIndex((t) => t.key === 'reports'), 0, { key: 'reports', label: '举报' });
-      tabs.length = 0; tabs.push(...filtered);
+    if (profile?.isFounder) {
+      all.push({ key: 'admins', label: '管理员' });
+    } else {
+      const filtered = all.filter((t) => {
+        if (t.perm) return hasPerm(t.perm);
+        if (t.requiresAny) return t.requiresAny.some((p) => hasPerm(p));
+        return true;
+      });
+      all.length = 0; all.push(...filtered);
     }
     const nav = $('tabs');
     nav.innerHTML = '';
-    tabs.forEach((t) => {
+    all.forEach((t) => {
       const b = document.createElement('button');
       b.className = 'chip' + (activeTab === t.key ? ' active' : '');
       b.dataset.tabkey = t.key;
@@ -127,9 +129,9 @@
     renderTabs();
     if (key === 'dashboard') loadDashboard();
     if (key === 'posts') loadPosts();
-    if (key === 'comments') loadComments();
     if (key === 'review') loadReview();
     if (key === 'reports') loadReports();
+    if (key === 'trash') loadTrash();
     if (key === 'pinned') loadPinned();
     if (key === 'audit') loadAudit();
     if (key === 'blacklist') loadBlacklist();
@@ -222,6 +224,25 @@
   $('reportRefresh').addEventListener('click', loadReports);
 
   // ---------- 审计日志 ----------
+  async function showAuditSource(id) {
+    let r;
+    try { r = await callEdge('audit_source', { id }); }
+    catch (e) { alert(e.message); return; }
+    $('auditSrcTitle').textContent = (r.type === 'comment' ? '评论原文' : '帖子原文') + (r.from === 'snapshot' ? '（快照）' : '（现查）');
+    let body = '';
+    if (r.nickname) {
+      body += `<div style="color:var(--muted);margin-bottom:10px"><strong>${escapeHtml(r.nickname)}</strong>` +
+        (r.topic ? ` · ${escapeHtml(r.topic)}` : '') +
+        (r.blocked ? ' <span class="badge" style="color:#fff;background:var(--danger)">已屏蔽</span>' : '') + '</div>';
+    }
+    body += `<div style="white-space:pre-wrap;color:var(--text)">${escapeHtml(r.content)}</div>`;
+    $('auditSrcBody').innerHTML = body;
+    $('auditSrcModal').classList.remove('hidden');
+  }
+  function closeAuditSrc() { $('auditSrcModal').classList.add('hidden'); }
+  $('auditSrcClose').addEventListener('click', closeAuditSrc);
+  $('auditSrcModal').addEventListener('click', (e) => { if (e.target === $('auditSrcModal')) closeAuditSrc(); });
+
   async function loadAudit() {
     const list = $('auditList');
     list.innerHTML = '<div class="empty">加载中…</div>';
@@ -239,7 +260,9 @@
         c.innerHTML = `<span style="color:var(--accent,#e07a5f);font-weight:600">${escapeHtml(a.admin_name)}</span>
           <span style="margin:0 8px;color:var(--muted)">${escapeHtml(a.action)}</span>
           <span style="color:var(--faint)">${escapeHtml(a.detail)}</span>
-          <span style="float:right;color:var(--faint);font-size:12px">${formatTime(a.created_at)}</span>`;
+          <span style="float:right;color:var(--faint);font-size:12px">${formatTime(a.created_at)}</span>
+          ${a.target_type ? `<div style="margin-top:6px"><button class="btn sm ghost" data-src="${a.id}" data-type="${escapeHtml(a.target_type)}">查看${a.target_type === 'comment' ? '评论' : '帖子'}原文</button></div>` : ''}`;
+        c.querySelector('[data-src]')?.addEventListener('click', (b) => showAuditSource(a.id));
         list.appendChild(c);
       });
     } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
@@ -293,7 +316,8 @@
     $('whoami').textContent = profile?.isFounder ? '创始人' : `${profile?.className || ''} ${profile?.name || '管理员'}`;
     const tags = [];
     const m = [
-      ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗']
+      ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
+      ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理']
     ];
     (profile?.isFounder ? m : m.filter(([k]) => profile?.perms?.[k])).forEach(([k, label]) => {
       tags.push(`<span class="badge topic">${label}</span>`);
@@ -323,6 +347,7 @@
       if (!p.reviewed) tag += ' <span class="badge" style="color:#fff;background:var(--warn)">待审核</span>';
       const buttons = [];
       if (hasPerm('can_block')) {
+        buttons.push(`<button class="btn sm ghost" data-a="comments" data-id="${p.id}">💬 评论 (${Number(p.comment_count) || 0})</button>`);
         buttons.push(`<button class="btn sm ghost" data-a="block" data-id="${p.id}" data-v="${p.blocked ? 'false' : 'true'}">${p.blocked ? '解除屏蔽' : '屏蔽'}</button>`);
         buttons.push(`<button class="btn sm danger" data-a="del" data-id="${p.id}">删除</button>`);
       }
@@ -338,16 +363,63 @@
           <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(p.created_at)}</span>
         </div>
         <div style="color:var(--text);font-size:14px;line-height:1.7;white-space:pre-wrap;margin-bottom:10px">${escapeHtml(p.content)}</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">${buttons.join('')}</div>`;
+        <div style="display:flex;gap:8px;flex-wrap:wrap">${buttons.join('')}</div>
+        <div class="pc-comments" data-cid="${p.id}" style="display:none;margin-top:10px;border-top:1px dashed var(--line);padding-top:6px"></div>`;
       card.addEventListener('click', onPostAction);
       list.appendChild(card);
     });
+  }
+  async function toggleInlineComments(postId, box) {
+    if (box.style.display !== 'none') { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    loadInlineComments(postId, box);
+  }
+  async function loadInlineComments(postId, box) {
+    box.innerHTML = '<div class="empty" style="padding:8px">加载评论…</div>';
+    try {
+      const cs = await callEdge('admin_post_comments', { post_id: postId });
+      if (!cs.length) { box.innerHTML = '<div class="empty" style="padding:8px">暂无评论</div>'; return; }
+      box.innerHTML = '';
+      cs.forEach((c) => {
+        const cc = document.createElement('div');
+        cc.style.cssText = 'border-left:3px solid var(--line);padding:8px 10px;margin-top:8px;background:var(--card-soft);border-radius:8px';
+        const state = c.blocked ? '<span class="badge" style="color:#fff;background:#e05e5e">已屏蔽</span>' : '<span class="badge topic">正常</span>';
+        cc.innerHTML = `
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            <strong style="font-size:13px">${escapeHtml(c.nickname || '匿名')}</strong>
+            ${c.parent_id ? '<span style="color:var(--accent,#e07a5f);font-size:12px">（回复）</span>' : ''} ${state}
+            <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(c.created_at)}</span>
+          </div>
+          <div style="font-size:13px;line-height:1.6;word-break:break-word;margin-bottom:8px">${escapeHtml(c.content)}</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn sm ghost" data-cb="${c.id}" data-to="${c.blocked ? 'false' : 'true'}">${c.blocked ? '解除屏蔽' : '屏蔽'}</button>
+            <button class="btn sm danger" data-cd="${c.id}">删除</button>
+          </div>`;
+        cc.querySelector('[data-cb]').addEventListener('click', async (b) => {
+          b.currentTarget.disabled = true;
+          try { await callEdge('comment_toggle_block', { id: c.id, blocked: b.currentTarget.dataset.to === 'true' }); loadInlineComments(postId, box); }
+          catch (err) { alert(err.message); b.currentTarget.disabled = false; }
+        });
+        cc.querySelector('[data-cd]').addEventListener('click', async (b) => {
+          if (!confirm('确定删除该评论？（不可恢复）')) return;
+          b.currentTarget.disabled = true;
+          try { await callEdge('comment_delete', { id: c.id }); loadInlineComments(postId, box); }
+          catch (err) { alert(err.message); b.currentTarget.disabled = false; }
+        });
+        box.appendChild(cc);
+      });
+    } catch (e) { box.innerHTML = `<div class="empty" style="padding:8px">加载失败：${escapeHtml(e.message)}</div>`; }
   }
   async function onPostAction(e) {
     const btn = e.target.closest('button[data-a]');
     if (!btn) return;
     const { a, id, v } = btn.dataset;
-    if (a === 'del' && !confirm('确定删除该帖子？（不可恢复）')) return;
+    if (a === 'comments') {
+      const card = btn.closest('.panel');
+      toggleInlineComments(id, card.querySelector('.pc-comments'));
+      return;
+    }
+    if (a === 'del' && !confirm('删除后该帖将进入回收站（可恢复），确定删除？')) return;
     btn.disabled = true;
     try {
       if (a === 'block') await callEdge('block_post', { id, blocked: v === 'true' });
@@ -360,62 +432,55 @@
   $('postFilter').addEventListener('change', loadPosts);
   $('postRefresh').addEventListener('click', loadPosts);
 
-  // ---------- 评论管理 ----------
-  let commentTimer = null;
-  $('commentRefresh').addEventListener('click', loadComments);
-  $('commentTopic').addEventListener('change', () => {
-    clearTimeout(commentTimer);
-    commentTimer = setTimeout(loadComments, 150);
-  });
-  async function loadComments() {
-    const topic = $('commentTopic').value || '';
-    const list = $('commentList');
+  // ---------- 回收站 ----------
+  async function loadTrash() {
+    const list = $('trashList');
     list.innerHTML = '<div class="empty">加载中…</div>';
     try {
-      const data = await callEdge('comment_admin_list', { topic, limit: 300 });
-      if (!data.length) { list.innerHTML = '<div class="empty">暂无评论</div>'; return; }
+      const data = await callEdge('trash_list');
+      if (!data.length) { list.innerHTML = '<div class="empty">回收站为空 ✅</div>'; return; }
       list.innerHTML = '';
-      data.forEach((c) => {
-        const card = document.createElement('div');
-        card.className = 'panel fade-in-up';
-        card.style.padding = '12px 14px';
-        card.style.boxShadow = 'none';
-        card.style.marginBottom = '10px';
-        const name = c.nickname ? escapeHtml(c.nickname) : '<span style="color:var(--faint)">匿名</span>';
-        const topicTag = c.topic ? `<span class="badge topic">${escapeHtml(c.topic)}</span>` : '';
-        const stateTag = c.blocked
-          ? '<span class="badge" style="color:#fff;background:#e05e5e">已屏蔽</span>'
-          : '<span class="badge topic">正常</span>';
-        const replyTag = c.parent_id ? '<span style="color:var(--accent,#e07a5f);font-size:12px">（回复）</span>' : '';
-        card.innerHTML = `
-          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
-            <strong style="font-size:13px">${name}</strong> ${replyTag} ${topicTag} ${stateTag}
-            <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(c.created_at)}</span>
+      data.forEach((t) => {
+        const c = document.createElement('div');
+        c.className = 'panel fade-in-up';
+        c.style.padding = '12px 14px';
+        c.style.boxShadow = 'none';
+        c.style.marginBottom = '10px';
+        c.innerHTML = `
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+            <strong style="font-size:13px">被删除帖子</strong>
+            <span class="badge">${escapeHtml(t.deleted_by || '管理员')}</span>
+            ${t.reason ? `<span style="color:var(--faint);font-size:12px">${escapeHtml(t.reason)}</span>` : ''}
+            <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(t.created_at)}</span>
           </div>
-          <div style="color:var(--text);font-size:14px;line-height:1.7;word-break:break-word;margin-bottom:10px">${escapeHtml(c.content)}</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn sm ${c.blocked ? 'ghost' : ''}" data-block="${c.id}" data-to="${c.blocked ? 'false' : 'true'}">
-              ${c.blocked ? '解除屏蔽' : '屏蔽'}
-            </button>
-            <button class="btn sm danger" data-del="${c.id}">删除</button>
+          <div style="color:var(--faint);font-size:12px;margin-bottom:10px">${t.expires_at ? `将于 ${formatTime(t.expires_at)} 自动清理` : ''} · ${t.original_id ? '原始 id: ' + escapeHtml(t.original_id) : ''}</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn sm" data-tr="restore" data-id="${t.id}">恢复帖子</button>
+            <button class="btn sm danger" data-tr="purge" data-id="${t.id}">彻底删除</button>
           </div>`;
-        card.querySelector('[data-block]').addEventListener('click', async (b) => {
-          b.currentTarget.disabled = true;
-          try { await callEdge('comment_toggle_block', { id: c.id, blocked: b.currentTarget.dataset.to === 'true' }); loadComments(); }
-          catch (err) { alert(err.message); b.currentTarget.disabled = false; }
+        c.querySelectorAll('[data-tr]').forEach((b) => {
+          b.addEventListener('click', async () => {
+            const act = b.dataset.tr;
+            if (act === 'purge' && !confirm('彻底删除后无法恢复，确定？')) return;
+            if (act === 'restore' && !confirm('恢复将把帖子和评论还原为未屏蔽状态，确定？')) return;
+            b.disabled = true;
+            try { await callEdge(act === 'restore' ? 'trash_restore' : 'trash_purge', { id: t.id }); loadTrash(); }
+            catch (err) { alert(err.message); b.disabled = false; }
+          });
         });
-        card.querySelector('[data-del]').addEventListener('click', async (b) => {
-          if (!confirm('确定删除该评论？（不可恢复）')) return;
-          b.currentTarget.disabled = true;
-          try { await callEdge('comment_delete', { id: c.id }); loadComments(); }
-          catch (err) { alert(err.message); b.currentTarget.disabled = false; }
-        });
-        list.appendChild(card);
+        list.appendChild(c);
       });
-    } catch (err) {
-      list.innerHTML = `<div class="empty">加载失败：${escapeHtml(err.message)}</div>`;
-    }
+    } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
   }
+  $('trashRefresh').addEventListener('click', loadTrash);
+  $('trashPurgeAll').addEventListener('click', async () => {
+    if (!confirm('确定清空全部回收站？（每条立即彻底删除，无法恢复）')) return;
+    try {
+      const data = await callEdge('trash_list');
+      for (const t of data) await callEdge('trash_purge', { id: t.id });
+      loadTrash();
+    } catch (e) { alert(e.message); }
+  });
 
   // ---------- 吃瓜审核 ----------
   async function loadReview() {
@@ -634,7 +699,8 @@
       c.className = 'panel fade-in-up';
       c.style.padding = '12px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px';
       const perms = [
-        ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗']
+        ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
+        ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理']
       ];
       const toggles = perms.map(([k, label]) => {
         const on = !!a[k];

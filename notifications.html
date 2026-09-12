@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="新哲吧 · 通知中心" />
+  <title>新哲吧 · 通知中心</title>
+  <link rel="stylesheet" href="public/theme.css" />
+  <style>
+    .wrap{padding:0 0 40px}
+    .nf-header{display:flex;align-items:center;gap:12px;padding:16px 0}
+    .nf-header h2{margin:0;font-size:20px}
+    .nf-count{color:var(--faint);font-size:13px}
+    .nf-list{display:flex;flex-direction:column;gap:0}
+    .nf-item{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:12px;background:var(--card-bg);border:1px solid var(--line);cursor:pointer;transition:background .15s;margin-bottom:10px}
+    .nf-item:hover{background:var(--card-soft)}
+    .nf-item.unread{border-color:var(--accent,#e07a5f)}
+    .nf-ico{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;background:var(--card-soft)}
+    .nf-ico.reply{background:rgba(224,122,95,.14)}
+    .nf-ico.like{background:rgba(245,185,66,.14)}
+    .nf-body{flex:1;min-width:0}
+    .nf-msg{font-size:14px;color:var(--text);word-break:break-word;line-height:1.5}
+    .nf-msg .unread-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff5252;margin-right:6px;vertical-align:middle}
+    .nf-time{color:var(--faint);font-size:12px;margin-top:4px}
+    .nf-arrow{flex:none;color:var(--faint);font-size:16px;align-self:center}
+    .nf-empty{text-align:center;color:var(--faint);padding:60px 0;font-size:14px}
+    .nf-empty .emoji{font-size:44px;margin-bottom:10px}
+    .nfb{display:flex;gap:10px}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="dot"></span>新哲吧 · 通知中心</div>
+      <div class="spacer"></div>
+      <a href="index.html" class="btn ghost sm">返回主页</a>
+      <div id="themeSwitcherHost" style="display:inline-flex"></div>
+    </div>
+  </header>
+
+  <main class="wrap" style="max-width:620px;margin:0 auto">
+    <div class="nf-header">
+      <h2>通知中心</h2>
+      <span class="nf-count" id="countLabel"></span>
+    </div>
+    <div class="nfb" style="margin-bottom:14px">
+      <button id="markReadBtn" class="btn ghost sm">全部标记为已读</button>
+    </div>
+    <div id="notifList" class="nf-list"></div>
+  </main>
+
+  <script src="public/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    (function () {
+      'use strict';
+      const SUPABASE_URL = 'https://jgezpvmlnhycxslqbwcx.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_B29ClgwZagW32Ow5x6VdKQ_IL65F7dl';
+      const EDGE_URL = `${SUPABASE_URL}/functions/v1/newtheba`;
+      const TOKEN_KEY = 'nzb_user_token';
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      const $ = (id) => document.getElementById(id);
+      const listEl = $('notifList');
+      const labelEl = $('countLabel');
+
+      function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+      function formatTime(iso) {
+        const d = new Date(iso); const p = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+      }
+      function readToken() { try { return localStorage.getItem(TOKEN_KEY); } catch (_e) { return null; } }
+      async function callEdge(action, payload) {
+        const res = await fetch(EDGE_URL, {
+          method: 'POST', headers: { 'content-type': 'application/json', apikey: SUPABASE_KEY },
+          body: JSON.stringify({ action, token: readToken(), ...payload })
+        });
+        let data = {};
+        try { data = await res.json(); } catch (_e) {}
+        if (!res.ok || data.ok === false) throw new Error(data.error || ('请求失败 ' + res.status));
+        return data.data;
+      }
+      function icoOf(t) {
+        const type = String(t || '');
+        if (type.includes('reply') || type.includes('comment')) return { c: 'reply', ic: '💬' };
+        if (type.includes('like')) return { c: 'like', ic: '❤️' };
+        if (type.includes('follow') || type.includes('system')) return { c: 'system', ic: '📢' };
+        if (type.includes('mention')) return { c: 'mention', ic: '📣' };
+        return { c: '', ic: '🔔' };
+      }
+      async function load() {
+        if (!readToken()) {
+          listEl.innerHTML = `<div class="nf-empty"><div class="emoji">👤</div>你还未登录<br><a href="index.html" class="btn ghost sm" style="margin-top:12px">返回主页登录</a></div>`;
+          return;
+        }
+        listEl.innerHTML = '<div class="nf-empty">加载中…</div>';
+        try {
+          const list = await callEdge('notifications_list', {});
+          const unread = list.filter((n) => !n.read).length;
+          labelEl.textContent = list.length ? `共 ${list.length} 条` : '';
+          if (!list.length) {
+            listEl.innerHTML = '<div class="nf-empty"><div class="emoji">🔔</div>暂无通知</div>';
+          } else {
+            listEl.innerHTML = list.map((n) => {
+              const ico = icoOf(n.type);
+              return `<div class="nf-item${n.read ? '' : ' unread'}" data-pid="${n.post_id || ''}">
+                <div class="nf-ico ${ico.c}">${ico.ic}</div>
+                <div class="nf-body">
+                  <div class="nf-msg">${n.read ? '' : '<span class="unread-dot"></span>'}${escapeHtml(n.message)}</div>
+                  <div class="nf-time">${formatTime(n.created_at)}</div>
+                </div>
+                ${n.post_id ? '<div class="nf-arrow">›</div>' : ''}
+              </div>`;
+            }).join('');
+            listEl.querySelectorAll('.nf-item[data-pid]').forEach((el) => {
+              el.addEventListener('click', () => {
+                location.href = `index.html#post-${encodeURIComponent(el.dataset.pid)}`;
+              });
+            });
+          }
+          // 进入即全部标记已读
+          if (unread > 0) { try { await callEdge('notifications_mark_read', {}); } catch (_e) {} }
+        } catch (e) {
+          listEl.innerHTML = `<div class="nf-empty">加载失败：${escapeHtml(e.message)}</div>`;
+        }
+      }
+      $('markReadBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        try { await callEdge('notifications_mark_read', {}); load(); } catch (_e) {}
+      });
+      load();
+    })();
+  </script>
+</body>
+</html>

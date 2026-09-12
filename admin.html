@@ -102,20 +102,16 @@
       <div id="blacklistList"></div>
     </section>
 
-    <!-- 评论管理 -->
-    <section id="tab-comments" class="panel hidden">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-        <h3 style="margin:0">评论管理（全服最近评论）</h3>
-        <div style="display:flex;gap:8px;align-items:center">
-          <select id="commentTopic" class="input" style="min-width:130px">
-            <option value="">全部话题</option>
-            <option>闲聊</option><option>社团活动</option><option>食堂</option>
-            <option>宿舍</option><option>学习</option><option>吃瓜</option>
-          </select>
-          <button id="commentRefresh" class="btn ghost sm">刷新</button>
+    <!-- 回收站 -->
+    <section id="tab-trash" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">回收站（最多 500 条 · 保存 14 天自动清理）</h3>
+        <div style="display:flex;gap:8px">
+          <button id="trashRefresh" class="btn ghost sm">刷新</button>
+          <button id="trashPurgeAll" class="btn sm danger">清空回收站</button>
         </div>
       </div>
-      <div id="commentList"></div>
+      <div id="trashList"></div>
     </section>
 
     <!-- 顶置管理 -->
@@ -163,6 +159,17 @@
       <h4 style="margin:18px 0 8px">在职管理员</h4>
       <div id="adminList"></div>
     </section>
+  </div>
+
+  <!-- 审计原文查看弹窗 -->
+  <div id="auditSrcModal" class="modal-overlay hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px">
+    <div class="panel" style="max-width:640px;width:100%;max-height:80vh;overflow:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <h3 id="auditSrcTitle" style="margin:0">原文查看</h3>
+        <button id="auditSrcClose" class="btn ghost sm">关闭</button>
+      </div>
+      <div id="auditSrcBody" style="font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--text)"></div>
+    </div>
   </div>
 
   <script src="public/sensitive-words.js"></script>

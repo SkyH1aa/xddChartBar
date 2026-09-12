@@ -80,12 +80,32 @@
     n = Number(n) || 0;
     return n > 9999 ? '9999+' : String(n);
   }
-  // 等级：经验 = 发帖*2 + 评论 + 获赞
+  // 等级：经验 = 发帖*2 + 评论 + 获赞；等级 = 1+floor(log2(经验+1))，上限 60
+  const LEVEL_TIERS = [
+    { max: 3, name: '见习社员' }, { max: 7, name: '初级社员' }, { max: 12, name: '活跃社员' },
+    { max: 20, name: '骨干社员' }, { max: 35, name: '资深社员' }, { max: 49, name: '核心成员' },
+    { max: 60, name: '传奇元老' }
+  ];
+  function xpOf(u) {
+    return (Number(u && u.post_count) || 0) * 2 + (Number(u && u.comment_count) || 0) + (Number(u && u.like_received) || 0);
+  }
   function levelOf(u) {
-    if (!u) return 1;
-    const xp = (Number(u.post_count) || 0) * 2 + (Number(u.comment_count) || 0) + (Number(u.like_received) || 0);
+    const xp = xpOf(u);
     if (xp <= 0) return 1;
     return Math.min(60, 1 + Math.floor(Math.log2(xp + 1)));
+  }
+  function levelName(lv) {
+    for (const t of LEVEL_TIERS) if (lv <= t.max) return t.name;
+    return '传奇元老';
+  }
+  function levelInfo(u) {
+    const level = levelOf(u);
+    const xp = xpOf(u);
+    const lo = Math.max(1, Math.pow(2, level - 1) - 1);
+    const hi = Math.max(level, Math.pow(2, level) - 2);
+    const span = Math.max(1, hi - lo);
+    const progress = span > 0 ? Math.min(1, Math.max(0, (xp - lo) / span)) : 1;
+    return { level, name: levelName(level), xp, progress, nextNeed: Math.max(0, (hi + 1) - xp), hi };
   }
   function userDisplay(u) { return u && (u.nickname || u.username) ? (u.nickname || u.username) : '匿名'; }
 
@@ -131,6 +151,17 @@
   const loggedIn = () => !!(state.user.token && state.user.profile);
   function myId() { return loggedIn() ? state.user.profile.id : null; }
 
+  // 登录用户不允许自定义昵称：直接显示/使用用户名，隐藏匿名昵称框
+  function updateComposerIdentity() {
+    const nick = els.nickname;
+    if (!nick) return;
+    if (loggedIn()) {
+      nick.style.display = 'none';
+    } else {
+      nick.style.display = '';
+    }
+  }
+
   // ---------------- 顶栏：用户栏 ----------------
   function renderUserBar() {
     const host = els.userBar;
@@ -138,20 +169,36 @@
     if (!loggedIn()) {
       host.innerHTML = `<button class="btn ghost sm" id="userLoginBtn2">登录 / 注册</button>`;
       host.querySelector('#userLoginBtn2').addEventListener('click', openUserModal);
+      updateComposerIdentity();
       return;
     }
     const p = state.user.profile;
     const lv = levelOf(p);
+    const li = levelInfo(p);
     const initials = userDisplay(p).charAt(0).toUpperCase();
     host.innerHTML = `
       <div class="user-area">
-        <button class="icon-btn" id="bellBtn" title="通知">🔔<span class="dot-badge" id="notifBadge"></span></button>
+        <button class="icon-btn" id="bellBtn" title="通知中心">🔔</button>
         <button class="user-chip" id="userChip">
-          <span class="avatar" style="background:${p.avatar_color || '#e07a5f'}">${escapeHtml(initials)}</span>
+          <span class="avatar-wrap">
+            <span class="avatar" style="background:${p.avatar_color || '#e07a5f'}">${escapeHtml(initials)}</span>
+            <span class="dot-badge notif-badge" id="notifBadge"></span>
+          </span>
           <span class="u-name">${escapeHtml(p.nickname || p.username)}</span>
-          <span class="u-level">Lv.${lv}</span>
+          <span class="u-level" title="经验 ${li.xp}">Lv.${lv}</span>
         </button>
         <div class="user-pop" id="userPop">
+          <div class="pop-level" style="padding:12px 14px;border-bottom:1px solid var(--line,#e5e5e5);margin-bottom:6px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="font-weight:800;color:var(--accent,#e07a5f);font-size:17px">Lv.${li.level}</span>
+              <span style="font-weight:600;font-size:14px">${escapeHtml(li.name)}</span>
+              <span style="margin-left:auto;color:var(--faint,#999);font-size:12px">${li.xp} 经验</span>
+            </div>
+            <div style="height:6px;border-radius:99px;background:var(--line,#e5e5e5);overflow:hidden">
+              <div style="height:100%;width:${Math.round(li.progress * 100)}%;background:linear-gradient(90deg,#e07a5f,#f2cc8f);border-radius:99px"></div>
+            </div>
+            <div style="margin-top:6px;color:var(--muted,#888);font-size:12px">距 Lv.${li.level + 1} 还需 ${li.nextNeed} 经验</div>
+          </div>
           <button class="pop-item" data-act="fav">⭐ 我的收藏</button>
           <button class="pop-item" data-act="mine">📄 我的帖子</button>
           <button class="pop-item" data-act="history">🕘 浏览历史</button>
@@ -160,7 +207,7 @@
           <button class="pop-item" data-act="logout">🚪 退出登录</button>
         </div>
       </div>`;
-    host.querySelector('#bellBtn').addEventListener('click', (e) => { e.stopPropagation(); toggleNotif(); });
+    host.querySelector('#bellBtn').addEventListener('click', (e) => { e.stopPropagation(); location.href = 'notifications.html'; });
     host.querySelector('#userChip').addEventListener('click', (e) => { e.stopPropagation(); toggleUserPop(); });
     host.querySelector('#userPop').addEventListener('click', (e) => {
       const btn = e.target.closest('[data-act]');
@@ -169,7 +216,7 @@
       if (act === 'fav') showFavorites();
       else if (act === 'mine') showMyPosts();
       else if (act === 'history') showHistory();
-      else if (act === 'notif') toggleNotif();
+      else if (act === 'notif') { closePops(); location.href = 'notifications.html'; }
       else if (act === 'logout') clearUserSession();
       closePops();
     });
@@ -178,66 +225,53 @@
       if (!e.target.closest('.user-area') && !e.target.closest('.notif-panel')) closePops();
     }, { once: false });
     refreshUnread();
+    updateComposerIdentity();
   }
   function toggleUserPop() { document.querySelector('#userPop')?.classList.toggle('open'); }
-  function toggleNotif() {
-    const open = els.notifPanel.classList.toggle('open');
-    if (open) { loadNotifs(); hideUnreadBadge(); }
-  }
   function closePops() {
     document.querySelector('#userPop')?.classList.remove('open');
-    els.notifPanel.classList.remove('open');
+    if (els.notifPanel) els.notifPanel.classList.remove('open');
   }
 
-  // ---------------- 通知中心 ----------------
+  // ---------------- 通知中心（头像红点数字角标） ----------------
   let unreadTimer = null;
   async function refreshUnread() {
-    if (!loggedIn() || !document.querySelector('#notifBadge')) return;
+    if (!loggedIn()) return;
+    const badge = document.querySelector('#notifBadge');
+    if (!badge) return;
     try {
       const n = await callEdge('notifications_unread', { token: state.user.token });
-      const badge = document.querySelector('#notifBadge');
-      if (badge) {
-        badge.classList.toggle('on', n > 0);
-        badge.textContent = n > 99 ? '99+' : n;
-      }
+      badge.classList.toggle('on', n > 0);
+      badge.textContent = n > 99 ? '99+' : n;
     } catch (_e) {}
   }
-  function hideUnreadBadge() { const b = document.querySelector('#notifBadge'); if (b) b.classList.remove('on'); }
-  async function loadNotifs() {
-    const box = els.notifList;
-    if (!box) return;
-    box.innerHTML = '<div class="notif-empty">加载中…</div>';
-    try {
-      const list = await callEdge('notifications_list', { token: state.user.token });
-      if (!list.length) { box.innerHTML = '<div class="notif-empty">暂无通知</div>'; return; }
-      box.innerHTML = list.map((n) => `
-        <div class="notif-item${n.read ? '' : ' unread'}" data-pid="${n.post_id || ''}">
-          <div class="n-msg">${escapeHtml(n.message)}</div>
-          <div class="n-time">${formatTime(n.created_at)}</div>
-        </div>`).join('');
-      box.querySelectorAll('.notif-item').forEach((el) => {
-        el.addEventListener('click', () => {
-          const pid = el.dataset.pid;
-          if (pid) scrollToPost(pid);
-          closePops();
-        });
-      });
-      // 打开即标记已读
-      try { await callEdge('notifications_mark_read', { token: state.user.token }); } catch (_e) {}
-    } catch (e) {
-      box.innerHTML = `<div class="notif-empty">加载失败：${escapeHtml(e.message)}</div>`;
-    }
-  }
   function scrollToPost(pid) {
-    // 切到 feed 视图定位（若在 feed 且可见则滚动）
-    if (state.mode !== 'feed') { state.mode = 'feed'; state.page = 1; loadFeed(); }
-    const known = [`post-card[data-id="${pid}"]`, `article[data-id="${pid}"]`];
-    let el = null;
-    for (const sel of known) { el = document.querySelector(sel); if (el) break; }
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // 统一切回 feed 视图并重载（顶置帖也被 makeCard 渲染为 article，可被查找到）
+    if (state.mode !== 'feed' || document.readyState !== 'complete') {
+      state.mode = 'feed'; state.page = 1;
+    }
+    loadFeed();
+    const find = () => document.querySelector(`article[data-id="${pid}"], .post-card[data-id="${pid}"]`);
+    // feed 是异步加载，需等渲染后再定位；顶置帖可能延迟挂载，多次尝试
+    let tried = 0;
+    const t = setInterval(() => {
+      tried++;
+      const el = find();
+      if (el) {
+        // 自动展开该帖评论（相当于打开帖子页面）
+        const tgl = el.querySelector('.cmt-toggle');
+        const box = el.querySelector('[data-cmtbox]');
+        if (tgl && box && box.classList.contains('hidden')) tgl.click();
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        clearInterval(t);
+      } else if (tried > 8) {
+        clearInterval(t);
+      }
+    }, 150);
   }
-  els.notifClear.addEventListener('click', async () => {
-    try { await callEdge('notifications_mark_read', { token: state.user.token }); loadNotifs(); } catch (_e) {}
+  if (els.notifClear) els.notifClear.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try { await callEdge('notifications_mark_read', { token: state.user.token }); refreshUnread(); } catch (_e) {}
   });
 
   // ---------------- 用户登录 / 注册 ----------------
@@ -262,22 +296,20 @@
         username: $('userLoginName').value.trim(), password: $('userLoginPass').value
       });
       state.user = { token: data.token, profile: data.user };
-      saveUserSession(); renderUserBar(); closeUserModal(); loadFavIds();
+      saveUserSession(); renderUserBar(); closeUserModal(); loadFavIds(); syncLikedFromServer();
     } catch (e) { err.textContent = e.message; }
   });
   $('userRegBtn').addEventListener('click', async () => {
     const err = $('userRegError');
     err.textContent = '';
+    const username = $('userRegName').value.trim();
     const password = $('userRegPass').value;
+    if (!username) { err.textContent = '请填写用户名'; return; }
     if (password.length < 6) { err.textContent = '密码至少 6 位'; return; }
     try {
-      const data = await callEdge('user_register', {
-        username: $('userRegName').value.trim(),
-        nickname: $('userRegNick').value.trim(),
-        password
-      });
+      const data = await callEdge('user_register', { username, password });
       state.user = { token: data.token, profile: data.user };
-      saveUserSession(); renderUserBar(); closeUserModal(); loadFavIds();
+      saveUserSession(); renderUserBar(); closeUserModal(); loadFavIds(); syncLikedFromServer();
     } catch (e) { err.textContent = e.message; }
   });
 
@@ -406,7 +438,7 @@
     const favOn = state.favSet.has(post.id);
     const floor = ctx.floor != null ? `<span class="post-floor">#${ctx.floor ? ctx.floor : ''}</span>` : '';
     const levelTag = post.author_id && ctx.authorMap && ctx.authorMap[post.author_id]
-      ? `<span class="author-level">Lv.${ctx.authorMap[post.author_id].level}</span>` : '';
+      ? `<span class="author-level" title="${escapeHtml(levelName(ctx.authorMap[post.author_id].level))}">Lv.${ctx.authorMap[post.author_id].level}</span>` : '';
     const ownActs = isOwn
       ? `<span class="own-acts">
            <button class="tiny-btn" data-act="edit">编辑</button>
@@ -484,17 +516,45 @@
     try { localStorage.setItem('nzb_liked_posts', JSON.stringify([...state.likedSet]).slice(0, 20000)); } catch (_e) {}
   }
   async function likePost(post, btn) {
+    if (!loggedIn()) { window.alert('请先登录后点赞'); openUserModal(); return; }
     const on = state.likedSet.has(post.id);
     btn.disabled = true;
     try {
-      await callEdge('set_like', { token: state.user.token || '', post_id: post.id, liked: !on });
+      await callEdge('set_like', { token: state.user.token, post_id: post.id, liked: !on });
+      const newCount = Math.max(0, Number(post.like_count) + (on ? -1 : 1));
+      const num = btn.querySelector('.like-num');
+      if (num) num.textContent = formatCount(newCount);
       if (on) state.likedSet.delete(post.id); else state.likedSet.add(post.id);
       saveLikedSet();
       btn.classList.toggle('active', !on);
-      const num = btn.querySelector('.like-num');
-      if (num) num.textContent = formatCount(Math.max(0, Number(post.like_count) + (on ? -1 : 1)));
+      refreshProfile();
     } catch (e) { window.alert(e.message); }
     btn.disabled = false;
+  }
+  // 端到端刷新个人资料（含经验计数），保证顶栏/等级与页面一致
+  async function refreshProfile() {
+    if (!loggedIn()) return;
+    try {
+      const p = await callEdge('user_whoami', { token: state.user.token });
+      if (p && p.id) { state.user.profile = p; saveUserSession(); renderUserBar(); }
+    } catch (_e) {}
+  }
+  // 登录后从服务端同步「已点赞」集合，保证一个账号对一帖只赞一次
+  async function syncLikedFromServer() {
+    if (!loggedIn()) return;
+    try {
+      const { data, error } = await supabase.from('forum_like_users')
+        .select('post_id').eq('user_id', myId());
+      if (error) return;
+      const newSet = new Set((data || []).map((r) => r.post_id));
+      state.likedSet = newSet;
+      saveLikedSet();
+      // 修复：点赞按钮在卡片上，按卡片 data-id 反查
+      document.querySelectorAll('article.post-card').forEach((card) => {
+        const btn = card.querySelector('.like-btn');
+        if (btn) btn.classList.toggle('active', state.likedSet.has(card.dataset.id));
+      });
+    } catch (_e) {}
   }
 
   // ---------------- 评论 ----------------
@@ -591,7 +651,7 @@
     list.forEach((x) => { map[x.id] = x; });
     const parent = c.parent_id ? map[c.parent_id] : null;
     const name = c.nickname ? escapeHtml(c.nickname) : '<span class="anonymous">匿名</span>';
-    const lv = c.author_id && authorMap[c.author_id] ? `<span class="author-level">Lv.${authorMap[c.author_id].level}</span>` : '';
+    const lv = c.author_id && authorMap[c.author_id] ? `<span class="author-level" title="${escapeHtml(levelName(authorMap[c.author_id].level))}">Lv.${authorMap[c.author_id].level}</span>` : '';
     const isOwn = myId() && c.author_id === myId();
     const ownActs = isOwn
       ? `<span class="own-acts"><button class="tiny-btn" data-edit="${c.id}">编辑</button><button class="tiny-btn danger" data-del="${c.id}">删除</button></span>` : '';
@@ -650,6 +710,7 @@
   }
 
   async function postComment(box, post) {
+    if (!loggedIn()) { window.alert('请先登录后评论'); openUserModal(); return; }
     const w = box.querySelector('.cmt-warn');
     w.textContent = '';
     const content = box.querySelector('.cmt-input').value.trim();
@@ -673,6 +734,7 @@
       box.querySelector('.cmt-input').value = '';
       box.querySelector('.cmt-count').textContent = '0/250';
       await loadComments(box, post);
+      refreshProfile();
       const toggle = box.closest('.post-card').querySelector('.cmt-toggle');
       const num = toggle.querySelector('.cmt-num');
       num.textContent = formatCount((parseInt(num.textContent.replace('+', ''), 10) || 0) + 1);
@@ -701,8 +763,7 @@
 
   // ---------------- 数据加载 ----------------
   function currentQueryBase() {
-    let q = supabase.from('forum_posts')
-      .eq('reviewed', true).eq('blocked', false);
+    let q = supabase.from('forum_posts').select('*').eq('reviewed', true).eq('blocked', false);
     if (state.activeTopic) q = q.eq('topic', state.activeTopic);
     return q;
   }
@@ -794,6 +855,10 @@
       els.emptyState.classList.remove('hidden');
       if (state.mode === 'search') {
         els.emptyState.innerHTML = `<div class="emoji">🔍</div>没有找到“${escapeHtml(state.keyword)}”相关的内容`;
+      } else if (state.mode === 'favorites') {
+        els.emptyState.innerHTML = `<div class="emoji">⭐</div>还没有收藏，点击帖子下方的 ⭐ 即可收藏`;
+      } else if (state.mode === 'mine') {
+        els.emptyState.innerHTML = `<div class="emoji">📄</div>你还没有发布任何帖子`;
       }
       els.pager.classList.add('hidden');
       return;
@@ -932,7 +997,8 @@
   async function publish() {
     const topic = els.topicSelect.value;
     const content = els.content.value.trim();
-    const nickname = els.nickname.value.trim().slice(0, 24);
+    // 登录用户直接使用用户名（后端强制），不采用自定义昵称
+    const nickname = loggedIn() ? '' : els.nickname.value.trim().slice(0, 24);
     const limit = topicLimit(topic);
     const warn = els.composeWarn;
     const basePayload = () => ({ token: state.user.token || '', topic, nickname, content });
@@ -945,6 +1011,7 @@
       state.page = 1;
       await Promise.all([loadPinned(), loadFeed()]);
       if (state.mode === 'mine') loadFeed();
+      refreshProfile();
     };
 
     els.composeHint.textContent = '';
@@ -1097,10 +1164,13 @@
     loadPinned();
     loadFeed();
     loadLeaderboard();
-    if (loggedIn()) loadFavIds();
+    if (loggedIn()) { loadFavIds(); syncLikedFromServer(); refreshProfile(); }
     subscribeRealtime();
     if (unreadTimer) clearInterval(unreadTimer);
     unreadTimer = setInterval(refreshUnread, 60000);
+    // 从通知中心跳转过来的「帖子页面」：index.html#post-<pid>
+    const m = location.hash.match(/^#post-(.+)$/);
+    if (m) setTimeout(() => scrollToPost(decodeURIComponent(m[1])), 400);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init, { once: true });
