@@ -286,7 +286,7 @@
         c.style.boxShadow = 'none';
         c.style.marginBottom = '8px';
         c.style.fontSize = '13px';
-        c.innerHTML = `<span style="color:var(--accent,#e07a5f);font-weight:600">${escapeHtml(a.admin_name)}</span>
+        c.innerHTML = `<span style="color:var(--accent,#e07a5f);font-weight:600">${escapeHtml(a.admin_name || '未知')}</span>
           <span style="margin:0 8px;color:var(--muted)">${escapeHtml(a.action)}</span>
           <span style="color:var(--faint)">${escapeHtml(a.detail)}</span>
           <span style="float:right;color:var(--faint);font-size:12px">${formatTime(a.created_at)}</span>
@@ -939,7 +939,7 @@
         c.innerHTML = `
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
             <strong style="font-size:13px">被删除帖子</strong>
-            <span class="badge">${escapeHtml(t.deleted_by || '管理员')}</span>
+            <span class="badge">操作人：${escapeHtml(t.deleted_by || '未知')}</span>
             ${t.reason ? `<span style="color:var(--faint);font-size:12px">${escapeHtml(t.reason)}</span>` : ''}
             <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(t.created_at)}</span>
           </div>
