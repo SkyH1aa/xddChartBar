@@ -406,7 +406,7 @@
   // ---------- 用户统一管理（can_user_mgmt / 列用户·看信息·编辑等级） ----------
   const LEVEL_TIERS = [[1,'见习'],[10,'初级'],[20,'活跃'],[30,'骨干'],[40,'资深'],[50,'核心'],[60,'传奇元老']];
   let userMgmtQ = '';
-  function levelNameMgmt(lv) { for (const t of LEVEL_TIERS) if (lv <= t.max) return lv + ' · ' + t.name; return lv + ' · 传奇元老'; }
+  function levelNameMgmt(lv) { for (const t of LEVEL_TIERS) if (lv <= t[0]) return lv + ' · ' + t[1]; return lv + ' · 传奇元老'; }
   async function loadUserMgmt() {
     const list = $('userMgmtList');
     list.innerHTML = '<div class="empty">加载中…</div>';

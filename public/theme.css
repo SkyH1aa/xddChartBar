@@ -87,8 +87,17 @@ a { color: var(--accent); text-decoration: none; }
   padding: 12px 18px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  row-gap: 8px;
+  column-gap: 12px;
 }
+/* 顶栏自适应：各部分不压缩换行，避免文字被挤碎堆叠 */
+.topbar-inner .brand { flex: 0 0 auto; white-space: nowrap; }
+.topbar-inner .search-box { flex: 1 1 220px; min-width: 150px; }
+.topbar-inner .spacer { flex: 1; min-width: 8px; }
+.topbar-inner > :is(#userBar, #openAdmin, #openBugBtn, #themeSwitcherHost),
+.topbar-inner .user-area,
+.topbar-inner .btn { flex: 0 0 auto; white-space: nowrap; }
 .brand {
   font-size: 20px;
   font-weight: 800;
@@ -468,6 +477,11 @@ select.input { appearance: auto; }
 
 .hidden { display: none !important; }
 
+/* 顶栏移动端：搜索框独立占满一行，右侧各控件保持在首行 */
+@media (max-width: 720px) {
+  .topbar-inner .search-box { flex-basis: 100%; order: 10; }
+  .topbar-inner .spacer { display: none; }
+}
 /* 小屏幕 */
 @media (max-width: 560px) {
   .topbar-inner { padding: 10px 14px; }

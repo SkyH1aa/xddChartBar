@@ -84,7 +84,7 @@
     n = Number(n) || 0;
     return n > 9999 ? '9999+' : String(n);
   }
-  // 等级：经验 = 发帖*2 + 评论 + 获赞；等级 = 1+floor(log2(经验+1))，上限 60
+  // 等级：经验 = 发帖*2 + 评论 + 获赞；线性升级：升到下一级需 12×当前等级 经验，上限 60
   const LEVEL_TIERS = [
     { max: 3, name: '见习社员' }, { max: 7, name: '初级社员' }, { max: 12, name: '活跃社员' },
     { max: 20, name: '骨干社员' }, { max: 35, name: '资深社员' }, { max: 49, name: '核心成员' },
@@ -93,10 +93,11 @@
   function xpOf(u) {
     return (Number(u && u.post_count) || 0) * 2 + (Number(u && u.comment_count) || 0) + (Number(u && u.like_received) || 0);
   }
+  function cumMin(L) { return 6 * L * (L - 1); } // 达到 L 级所需累计经验（累加 12*i）
   function levelOf(u) {
     const xp = xpOf(u);
     if (xp <= 0) return 1;
-    return Math.min(60, 1 + Math.floor(Math.log2(xp + 1)));
+    return Math.min(60, Math.floor((1 + Math.sqrt(1 + xp * (2 / 3))) / 2));
   }
   // 管理员设定了固定等级(level>0)时优先采用，否则按经验自动计算
   function finalLevel(u) {
@@ -108,13 +109,19 @@
     return '传奇元老';
   }
   function levelInfo(u) {
+    const fixed = Number(u && u.level) > 0;
     const level = finalLevel(u);
     const xp = xpOf(u);
-    const lo = Math.max(1, Math.pow(2, level - 1) - 1);
-    const hi = Math.max(level, Math.pow(2, level) - 2);
-    const span = Math.max(1, hi - lo);
-    const progress = span > 0 ? Math.min(1, Math.max(0, (xp - lo) / span)) : 1;
-    return { level, name: levelName(level), xp, progress, nextNeed: Math.max(0, (hi + 1) - xp), hi };
+    const maxed = level >= 60;
+    let progress, nextNeed;
+    if (fixed || maxed) { progress = 1; nextNeed = 0; }
+    else {
+      const span = 12 * level; // 升到下一级需 12×当前等级 经验
+      const inLevel = xp - cumMin(level);
+      progress = Math.min(1, Math.max(0, inLevel / span));
+      nextNeed = Math.max(0, span - inLevel);
+    }
+    return { level, name: levelName(level), xp, progress, nextNeed, hi: xp, fixed, maxed };
   }
   function userDisplay(u) { return u && (u.nickname || u.username) ? (u.nickname || u.username) : '匿名'; }
 
@@ -206,7 +213,7 @@
             <div style="height:6px;border-radius:99px;background:var(--line,#e5e5e5);overflow:hidden">
               <div style="height:100%;width:${Math.round(li.progress * 100)}%;background:linear-gradient(90deg,#e07a5f,#f2cc8f);border-radius:99px"></div>
             </div>
-            <div style="margin-top:6px;color:var(--muted,#888);font-size:12px">距 Lv.${li.level + 1} 还需 ${li.nextNeed} 经验</div>
+            <div style="margin-top:6px;color:var(--muted,#888);font-size:12px">${li.fixed ? '已达到管理员设定等级' : (li.maxed ? '已达最高等级 Lv.60' : `距 Lv.${li.level + 1} 还需 ${li.nextNeed} 经验`)}</div>
           </div>
           <button class="pop-item" data-act="fav">⭐ 我的收藏</button>
           <button class="pop-item" data-act="mine">📄 我的帖子</button>
