@@ -77,38 +77,217 @@
   // ---------- 渲染布局 ----------
   function renderTabs() {
     const tabs = [
+      { key: 'dashboard', label: '看板' },
       { key: 'posts', label: '帖子管理' },
       { key: 'comments', label: '评论管理' },
       { key: 'review', label: '吃瓜审核' },
+      { key: 'reports', label: '举报', can_block: true },
       { key: 'pinned', label: '顶置管理' },
+      { key: 'audit', label: '审计日志' },
+      { key: 'blacklist', label: '黑名单', can_block: true },
       { key: 'site', label: '站点开关' },
       { key: 'popups', label: '弹窗公告' }
     ];
     if (profile?.isFounder) tabs.push({ key: 'admins', label: '管理员' });
-    else if (!hasPerm('can_block')) tabs.splice(tabs.findIndex((t) => t.key === 'comments'), 1);
+    else {
+      const filtered = tabs.filter((t) => !t.can_block || hasPerm('can_block'));
+      filtered.splice(filtered.findIndex((t) => t.key === 'comments'), 1);
+      filtered.splice(filtered.findIndex((t) => t.key === 'posts'), 1);
+      filtered.splice(filtered.findIndex((t) => t.key === 'reports'), 0, { key: 'reports', label: '举报' });
+      tabs.length = 0; tabs.push(...filtered);
+    }
     const nav = $('tabs');
     nav.innerHTML = '';
     tabs.forEach((t) => {
       const b = document.createElement('button');
       b.className = 'chip' + (activeTab === t.key ? ' active' : '');
-      b.textContent = t.label;
+      b.dataset.tabkey = t.key;
+      b.innerHTML = t.label + '<span class="tab-badge" data-badgetab="' + t.key + '"></span>';
       b.addEventListener('click', () => switchTab(t.key));
       nav.appendChild(b);
     });
+    refreshQueueBadges();
+  }
+  async function refreshQueueBadges() {
+    try {
+      const q = await callEdge('queue_unread', {});
+      document.querySelectorAll('[data-badgetab]').forEach((s) => {
+        let n = 0;
+        if (s.dataset.badgetab === 'review') n = q.review || 0;
+        if (s.dataset.badgetab === 'reports') n = q.reports || 0;
+        s.textContent = n > 0 ? n : '';
+        s.style.display = n > 0 ? 'inline-block' : 'none';
+      });
+    } catch (_e) {}
   }
   function switchTab(key) {
     activeTab = key;
     document.querySelectorAll('[id^="tab-"]').forEach((s) => s.classList.add('hidden'));
     $('tab-' + key).classList.remove('hidden');
     renderTabs();
+    if (key === 'dashboard') loadDashboard();
     if (key === 'posts') loadPosts();
     if (key === 'comments') loadComments();
     if (key === 'review') loadReview();
+    if (key === 'reports') loadReports();
     if (key === 'pinned') loadPinned();
+    if (key === 'audit') loadAudit();
+    if (key === 'blacklist') loadBlacklist();
     if (key === 'site') loadSite();
     if (key === 'popups') loadPopups();
     if (key === 'admins') loadAdmins();
   }
+
+  // ---------- 数据看板 ----------
+  async function loadDashboard() {
+    const box = $('dashStats');
+    box.innerHTML = '<div class="empty">加载中…</div>';
+    try {
+      const s = await callEdge('dashboard_stats', { sensitive_words: window.NEWTHEBA_SENSITIVE_WORDS || [] });
+      const grid = document.createElement('div');
+      grid.style.display = 'grid';
+      grid.style.gridTemplateColumns = 'repeat(auto-fill,minmax(150px,1fr))';
+      grid.style.gap = '10px';
+      const cells = [
+        ['今日发帖', s.today_posts], ['今日评论', s.today_comments], ['今日新增用户', s.today_users],
+        ['帖子总数', s.total_posts], ['评论总数', s.total_comments], ['用户总数', s.total_users],
+        ['待审核吃瓜', s.open_review], ['待处理举报', s.open_reports],
+        ['敏感词命中帖', s.sensitive_posts], ['敏感词命中评论', s.sensitive_comments]
+      ];
+      cells.forEach(([label, v]) => {
+        grid.insertAdjacentHTML('beforeend', `<div style="background:var(--card-soft);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center">
+          <div style="font-size:24px;font-weight:700;color:var(--accent,#e07a5f)">${v}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">${label}</div></div>`);
+      });
+      box.innerHTML = '';
+      box.appendChild(grid);
+      const dist = s.topic_dist || [];
+      if (dist.length) {
+        const p = document.createElement('div');
+        p.className = 'panel';
+        p.style.boxShadow = 'none';
+        p.style.marginTop = '14px';
+        p.innerHTML = '<h4 style="margin:0 0 10px">话题分布（全站可见帖）</h4>' +
+          dist.map((d) => `<div class="topicact-link"><span>${escapeHtml(d.topic)}</span><span class="topicact-count">${d.count} 帖</span></div>`).join('');
+        box.appendChild(p);
+      }
+    } catch (e) { box.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
+  }
+  $('dashRefresh').addEventListener('click', loadDashboard);
+
+  // ---------- 举报队列 ----------
+  async function loadReports() {
+    const list = $('reportList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    try {
+      const items = await callEdge('report_list', {});
+      if (!items.length) { list.innerHTML = '<div class="empty">暂无待处理举报 ✅</div>'; return; }
+      list.innerHTML = '';
+      items.forEach(({ report, content }) => {
+        const card = document.createElement('div');
+        card.className = 'panel fade-in-up';
+        card.style.padding = '12px 14px';
+        card.style.boxShadow = 'none';
+        card.style.marginBottom = '10px';
+        const src = content ? `
+          <div style="border-left:3px solid var(--line);padding-left:10px;margin:8px 0;color:var(--text);font-size:13px;white-space:pre-wrap">
+            ${content.blocked ? '<span class="badge" style="color:#fff;background:var(--danger)">已屏蔽</span> ' : ''}
+            <strong>${escapeHtml(content.nickname || '匿名')}</strong> · ${escapeHtml(content.topic || '评论')} ：
+            ${escapeHtml(truncate(content.content, 120))}
+          </div>` : '<div class="empty" style="padding:6px">（目标内容已被删除）</div>';
+        card.innerHTML = `
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <strong style="font-size:13px">${report.target_type === 'post' ? '帖子' : '评论'}举报</strong>
+            <span class="badge topic">${escapeHtml(report.reason.slice(0, 20))}</span>
+            <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(report.created_at)}</span>
+          </div>
+          ${src}
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn sm" data-verdict="ignore" data-rid="${report.id}">忽略</button>
+            <button class="btn sm ghost" data-verdict="block" data-rid="${report.id}">屏蔽目标</button>
+            <button class="btn sm danger" data-verdict="delete" data-rid="${report.id}">删除目标</button>
+          </div>`;
+        card.querySelectorAll('[data-verdict]').forEach((b) => {
+          b.addEventListener('click', async () => {
+            if (b.dataset.verdict === 'delete' && !confirm('确定删除该目标及其关联内容？')) return;
+            b.disabled = true;
+            try { await callEdge('report_resolve', { report_id: b.dataset.rid, verdict: b.dataset.verdict }); loadReports(); refreshQueueBadges(); }
+            catch (err) { alert(err.message); b.disabled = false; }
+          });
+        });
+        list.appendChild(card);
+      });
+    } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
+  }
+  $('reportRefresh').addEventListener('click', loadReports);
+
+  // ---------- 审计日志 ----------
+  async function loadAudit() {
+    const list = $('auditList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    try {
+      const data = await callEdge('audit_list', {});
+      if (!data.length) { list.innerHTML = '<div class="empty">暂无审计日志</div>'; return; }
+      list.innerHTML = '';
+      data.forEach((a) => {
+        const c = document.createElement('div');
+        c.className = 'panel fade-in-up';
+        c.style.padding = '10px 14px';
+        c.style.boxShadow = 'none';
+        c.style.marginBottom = '8px';
+        c.style.fontSize = '13px';
+        c.innerHTML = `<span style="color:var(--accent,#e07a5f);font-weight:600">${escapeHtml(a.admin_name)}</span>
+          <span style="margin:0 8px;color:var(--muted)">${escapeHtml(a.action)}</span>
+          <span style="color:var(--faint)">${escapeHtml(a.detail)}</span>
+          <span style="float:right;color:var(--faint);font-size:12px">${formatTime(a.created_at)}</span>`;
+        list.appendChild(c);
+      });
+    } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
+  }
+  $('auditRefresh').addEventListener('click', loadAudit);
+
+  // ---------- 发布/昵称黑名单 ----------
+  async function loadBlacklist() {
+    const list = $('blacklistList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    try {
+      const data = await callEdge('blacklist_list');
+      if (!data.length) { list.innerHTML = '<div class="empty">暂无黑名单条目</div>'; return; }
+      list.innerHTML = '';
+      data.forEach((b) => {
+        const c = document.createElement('div');
+        c.className = 'panel fade-in-up';
+        c.style.padding = '10px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px';
+        c.style.display = 'flex'; c.style.alignItems = 'center'; c.style.gap = '10px'; c.style.flexWrap = 'wrap';
+        const kindTag = b.kind === 'nickname'
+          ? '<span class="badge topic">昵称</span>' : '<span class="badge" style="color:#fff;background:#6a6a8a">关键词</span>';
+        c.innerHTML = `
+          <strong style="font-size:13px">${escapeHtml(b.value)}</strong> ${kindTag}
+          ${b.note ? `<span style="color:var(--faint);font-size:12px">${escapeHtml(b.note)}</span>` : ''}
+          <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(b.created_at)}</span>
+          <button class="btn sm danger" data-blkdel="${b.id}">移除</button>`;
+        c.querySelector('[data-blkdel]').addEventListener('click', async (btn) => {
+          if (!confirm(`确定移除「${b.value}」？`)) return;
+          btn.currentTarget.disabled = true;
+          try { await callEdge('blacklist_remove', { id: b.id }); loadBlacklist(); }
+          catch (err) { alert(err.message); btn.currentTarget.disabled = false; }
+        });
+        list.appendChild(c);
+      });
+    } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
+  }
+  function blkAdd() {
+    const kind = $('blkKind').value;
+    const value = $('blkValue').value.trim();
+    if (!value) { alert('请填写内容'); return; }
+    $('blkAdd').disabled = true;
+    callEdge('blacklist_add', { kind, value })
+      .then(() => { $('blkValue').value = ''; loadBlacklist(); })
+      .catch((err) => alert(err.message))
+      .finally(() => { $('blkAdd').disabled = false; });
+  }
+  $('blkAdd').addEventListener('click', blkAdd);
+  $('blkValue').addEventListener('keydown', (e) => { if (e.key === 'Enter') blkAdd(); });
 
   function renderWhoami() {
     $('whoami').textContent = profile?.isFounder ? '创始人' : `${profile?.className || ''} ${profile?.name || '管理员'}`;

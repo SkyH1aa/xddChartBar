@@ -34,6 +34,78 @@
     .cmt-target.on{visibility:visible}
     .cmt-bar .cmt-count,.cmt-count{font-variant-numeric:tabular-nums}
     .cmt-warn{color:#e05e5e;font-size:12px;margin-top:4px;min-height:14px}
+    .cmt-more-wrap{margin:4px 0;text-align:center}
+    .cmt-more-wrap.hidden{display:none}
+    .cmt-more{background:none;border:1px dashed var(--line);color:var(--muted);border-radius:999px;padding:4px 14px;font-size:12px;cursor:pointer}
+    .cmt-more:hover{color:var(--accent,#e07a5f);border-color:rgba(224,122,95,.4)}
+    /* ============ 公共级论坛新增样式 ============ */
+    .search-box{position:relative;display:flex;align-items:center}
+    .search-box input{width:190px;background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:7px 30px 7px 14px;font-size:13px;font-family:inherit;transition:width .2s}
+    .search-box input:focus{outline:none;border-color:var(--accent,#e07a5f);width:240px}
+    .search-box .search-clear{position:absolute;right:9px;cursor:pointer;color:var(--faint);display:none;font-size:14px}
+    .sortbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+    .legendhint{margin-left:auto;font-size:12px;color:var(--faint)}
+    .layout2{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
+    @media (max-width:860px){.layout2{grid-template-columns:1fr}.side-col{display:none}}
+    .side-col{position:sticky;top:70px}
+    .side-title{font-size:14px;margin:0 0 10px;color:var(--text);display:flex;align-items:center;gap:6px}
+    .side-col .panel{padding:16px}
+    .leader-item{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--line);cursor:pointer}
+    .leader-item:last-child{border-bottom:none}
+    .leader-rank{flex:0 0 20px;text-align:center;font-weight:700;color:var(--faint)}
+    .leader-item:nth-child(1) .leader-rank{color:#ffca3a}
+    .leader-item:nth-child(2) .leader-rank{color:#b8c0d0}
+    .leader-item:nth-child(3) .leader-rank{color:#c98a5a}
+    .leader-main{min-width:0}
+    .leader-title{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+    .leader-meta{font-size:11px;color:var(--faint);margin-top:1px}
+    .topicact-link{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--line);color:var(--muted)}
+    .topicact-link:last-child{border-bottom:none}
+    .topicact-count{color:var(--accent,#e07a5f);font-weight:600}
+    /* 顶栏用户区 */
+    .user-area{display:flex;align-items:center;gap:8px;position:relative}
+    .avatar{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 auto;user-select:none}
+    .user-chip{display:inline-flex;align-items:center;gap:7px;background:transparent;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:4px 12px;cursor:pointer}
+    .user-chip:hover{border-color:var(--accent,#e07a5f)}
+    .u-name{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .u-level{font-size:11px;color:var(--accent,#e07a5f);font-weight:700}
+    .icon-btn{position:relative;background:var(--input-bg);border:1px solid var(--line);color:var(--muted);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:15px;display:inline-flex;align-items:center;justify-content:center}
+    .icon-btn:hover{color:var(--text);border-color:var(--accent,#e07a5f)}
+    .dot-badge{position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#e05e5e;color:#fff;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;line-height:1}
+    .dot-badge.on{display:flex}
+    /* 用户下拉 */
+    .user-pop{position:absolute;right:0;top:calc(100% + 6px);min-width:170px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.18);z-index:40;padding:6px;display:none}
+    .user-pop.open{display:block}
+    .user-pop .pop-item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:none;color:var(--text);font-size:13px;padding:9px 12px;border-radius:8px;cursor:pointer}
+    .user-pop .pop-item:hover{background:rgba(127,127,127,.12)}
+    .user-pop .pop-sep{height:1px;background:var(--line);margin:5px 8px}
+    /* 通知面板 */
+    .notif-panel{position:fixed;right:14px;top:58px;width:340px;max-height:70vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.22);z-index:50;display:none}
+    .notif-panel.open{display:block}
+    .notif-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line);font-size:14px;font-weight:600}
+    .notif-item{padding:11px 14px;border-bottom:1px dashed var(--line);cursor:pointer}
+    .notif-item:last-child{border-bottom:none}
+    .notif-item .n-msg{font-size:13px;color:var(--text);line-height:1.5}
+    .notif-item .n-time{font-size:11px;color:var(--faint);margin-top:3px}
+    .notif-item.unread{background:rgba(224,122,95,.06)}
+    .notif-empty{padding:24px;text-align:center;color:var(--faint);font-size:13px}
+    /* 帖子卡片新增 */
+    .post-floor{color:var(--faint);font-size:11px;margin-left:auto}
+    .author-level{font-size:11px;color:var(--accent,#e07a5f);background:rgba(224,122,95,.1);padding:1px 6px;border-radius:999px;margin-left:4px}
+    .own-acts{display:inline-flex;gap:4px;margin-left:6px}
+    .tiny-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 6px;border-radius:6px}
+    .tiny-btn:hover{color:var(--accent,#e07a5f);background:rgba(127,127,127,.1)}
+    .tiny-btn.danger:hover{color:#e05e5e}
+    .post-actions .act-btn.is-own{border-color:rgba(224,122,95,.35);color:var(--accent,#e07a5f)}
+    /* 评论区新增 */
+    .cmt-bar2{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--faint);margin-bottom:6px}
+    .cmt-floor{color:var(--faint);font-size:11px;margin-left:auto}
+    .filter-author{background:none;border:1px dashed var(--line);color:var(--muted);border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer}
+    .filter-author.on{color:var(--accent,#e07a5f);border-color:rgba(224,122,95,.4)}
+    /* 搜索态 */
+    .search-banner{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:16px 0 6px}
+    .search-banner .kill{color:var(--accent,#e07a5f);cursor:pointer;border:none;background:none}
+    .empty.ok{min-height:120px}
   </style>
   <script src="public/sensitive-words.js"></script>
 </head>
@@ -44,13 +116,25 @@
       <div class="brand">
         <span class="dot"></span>
         新哲吧
-        <span class="tag">匿名广场</span>
+        <span class="tag">公共论坛</span>
+        <a href="rules.html" class="tag" style="text-decoration:none" title="站规与使用说明">站规</a>
+      </div>
+      <div class="search-box">
+        <input id="searchInput" type="text" placeholder="搜索 内容 / 昵称…" autocomplete="off" />
+        <span id="searchClear" class="search-clear">×</span>
       </div>
       <div class="spacer"></div>
+      <span id="userBar"></span>
       <button id="openAdmin" class="btn ghost sm">管理员</button>
       <div id="themeSwitcherHost" style="display:inline-flex"></div>
     </div>
   </header>
+
+  <!-- ================= 通知面板 ================= -->
+  <div id="notifPanel" class="notif-panel">
+    <div class="notif-head"><span>我的通知</span><button class="tiny-btn danger" id="notifClear">全部已读</button></div>
+    <div id="notifList"></div>
+  </div>
 
   <!-- ================= 主内容 ================= -->
   <main class="wrap">
@@ -69,31 +153,113 @@
       <div id="composeHint" class="hint-line"></div>
     </section>
 
-    <!-- 话题筛选 -->
+    <!-- 话题筛选 + 排序 -->
     <section class="panel" style="margin-top:16px">
-      <div class="filter-bar" id="filterBar"></div>
+      <div class="sortbar">
+        <div class="filter-bar" id="filterBar"></div>
+        <span class="legendhint">💡 登录后可编辑/删除自己的内容、收藏与通知</span>
+      </div>
+      <div class="sort-tabs" id="sortTabs" style="margin-top:12px;display:flex;gap:8px">
+        <button class="chip active" data-sort="latest">🕒 最新</button>
+        <button class="chip" data-sort="hot">🔥 最热</button>
+      </div>
     </section>
 
-    <!-- 顶置帖 -->
-    <section id="pinnedSection" class="hidden" style="margin-top:22px">
-      <h2 class="section-title">置顶</h2>
-      <div class="feed" id="pinnedFeed"></div>
-    </section>
+    <!-- 搜索态横幅（动态） -->
+    <div id="searchBanner" class="search-banner hidden"></div>
 
-    <!-- 普通留言 -->
-    <section>
-      <div class="feed" id="feed"></div>
-      <div id="emptyState" class="empty hidden">
-        <div class="emoji">🍃</div>
-        这里还没有留言，来发第一条吧
+    <!-- 版块 -->
+    <section class="layout2" style="margin-top:18px">
+      <div class="feed-col">
+        <!-- 顶置帖 -->
+        <div id="pinnedSection" class="hidden" style="margin-bottom:8px">
+          <h2 class="section-title">置顶</h2>
+          <div class="feed" id="pinnedFeed"></div>
+        </div>
+        <div id="viewTitle" class="section-title" style="display:none"></div>
+        <div class="feed" id="feed"></div>
+        <div id="emptyState" class="empty hidden">
+          <div class="emoji">🍃</div>
+          这里还没有留言，来发第一条吧
+        </div>
+        <div class="pager hidden" id="pager">
+          <button class="btn ghost sm" id="prevPage">上一页</button>
+          <span class="page-num" id="pageNum">第 1 页</span>
+          <button class="btn ghost sm" id="nextPage">下一页</button>
+        </div>
       </div>
-      <div class="pager hidden" id="pager">
-        <button class="btn ghost sm" id="prevPage">上一页</button>
-        <span class="page-num" id="pageNum">第 1 页</span>
-        <button class="btn ghost sm" id="nextPage">下一页</button>
-      </div>
+
+      <aside class="side-col">
+        <div class="panel">
+          <h3 class="side-title">🔥 本周热帖</h3>
+          <div id="weekHot"></div>
+          <div class="panel" style="margin-top:16px;padding-top:4px">
+            <h3 class="side-title">📈 本周话题活跃度</h3>
+            <div id="topicAct"></div>
+          </div>
+        </div>
+      </aside>
     </section>
   </main>
+
+  <!-- ================= 普通用户 登录 / 注册 弹窗 ================= -->
+  <div id="userModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <h3 id="userModalTitle">登录 / 注册</h3>
+      <div id="userFormLogin" class="form-body">
+        <div class="form-field">
+          <label>账号</label>
+          <input id="userLoginName" class="input" type="text" autocomplete="username" />
+        </div>
+        <div class="form-field">
+          <label>密码</label>
+          <input id="userLoginPass" class="input" type="password" autocomplete="current-password" />
+        </div>
+        <div class="form-error" id="userLoginError"></div>
+        <button id="userLoginBtn" class="btn" style="width:100%">登录</button>
+        <div style="margin-top:14px;display:flex;justify-content:space-between;font-size:13px">
+          <button class="btn ghost sm" id="switchToUserReg">没有账号？注册</button>
+          <button class="btn ghost sm" id="closeUserModal">关闭</button>
+        </div>
+      </div>
+      <div id="userFormRegister" class="form-body hidden">
+        <div class="form-field">
+          <label>账号（2-20 位中文/字母/数字/下划线，用于登录）</label>
+          <input id="userRegName" class="input" type="text" maxlength="20" autocomplete="username" />
+        </div>
+        <div class="form-field">
+          <label>昵称（发帖时显示，可不填）</label>
+          <input id="userRegNick" class="input" type="text" maxlength="24" />
+        </div>
+        <div class="form-field">
+          <label>密码（至少 6 位）</label>
+          <input id="userRegPass" class="input" type="password" autocomplete="new-password" />
+        </div>
+        <div class="form-error" id="userRegError"></div>
+        <button id="userRegBtn" class="btn" style="width:100%">注册并登录</button>
+        <div style="margin-top:14px;display:flex;justify-content:space-between;font-size:13px">
+          <button class="btn ghost sm" id="switchToUserLogin">返回登录</button>
+          <button class="btn ghost sm" id="closeUserModal2">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 举报弹窗 ================= -->
+  <div id="reportModal" class="modal-backdrop hidden">
+    <div class="modal-card" style="max-width:430px">
+      <h3>举报</h3>
+      <div class="form-field">
+        <label>举报理由（必填，管理员将收到）</label>
+        <textarea id="reportReason" class="input" rows="3" maxlength="300" placeholder="请简要说明违规原因…"></textarea>
+      </div>
+      <div class="form-error" id="reportError"></div>
+      <button id="reportSubmitBtn" class="btn" style="width:100%">提交举报</button>
+      <div style="margin-top:14px;text-align:right">
+        <button class="btn ghost sm" id="closeReportModal">取消</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ================= 管理员登录 / 注册弹窗 ================= -->
   <div id="adminModal" class="modal-backdrop hidden">
