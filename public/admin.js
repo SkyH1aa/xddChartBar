@@ -565,6 +565,11 @@
   async function loadPosts() {
     const topic = $('postFilter').value || null;
     const data = await callEdge('list_posts', { topic, page: 1, pageSize: 200 });
+    // 当前已在精华聚合的帖子 id 集合（供后台显示“移出精华/加入精华”状态）
+    let digSet = new Set();
+    if (hasPerm('can_digest')) {
+      try { const d = await callEdge('digest_list', {}); digSet = new Set((d || []).map((x) => x.id)); } catch (_e) {}
+    }
     const list = $('postList');
     list.innerHTML = '';
     if (!data || !data.length) list.innerHTML = '<div class="empty">没有帖子</div>';
@@ -588,6 +593,10 @@
       }
       if (hasPerm('can_pin')) {
         buttons.push(`<button class="btn sm ghost" data-a="pin" data-id="${p.id}">置顶</button>`);
+      }
+      if (hasPerm('can_digest')) {
+        const digested = digSet.has(p.id);
+        buttons.push(`<button class="btn sm ghost" data-a="digest" data-id="${p.id}" data-digest="${digested ? '1' : '0'}">${digested ? '💎 移出精华' : '💎 加入精华'}</button>`);
       }
       card.innerHTML = `
         <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px">
@@ -653,12 +662,14 @@
       return;
     }
     if (a === 'del' && !confirm('删除后该帖将进入回收站（可恢复），确定删除？')) return;
+    if (a === 'digest' && v === '1' && !confirm('把帖子移出精华聚合？原帖保留在主论坛，不受影响。')) return;
     btn.disabled = true;
     try {
       if (a === 'block') await callEdge('block_post', { id, blocked: v === 'true' });
       else if (a === 'del') await callEdge('delete_post', { id });
       else if (a === 'review') await callEdge('review_post', { id, reviewed: true });
       else if (a === 'pin') await callEdge('pin_post', { id, pinned: true });
+      else if (a === 'digest') await callEdge(v === '1' ? 'digest_remove' : 'digest_add', { post_id: id });
       loadPosts();
     } catch (err) { alert(err.message); btn.disabled = false; }
   }
