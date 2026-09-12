@@ -899,7 +899,7 @@
       if (adig) adig.addEventListener('click', () => adminDigestToggle(post, adig));
     }
     const profLink = card.querySelector('[data-open-profile]');
-    if (profLink) profLink.addEventListener('click', () => { if (profLink.dataset.openProfile) openProfile(profLink.dataset.openProfile); else openUserModal(); });
+    if (profLink) profLink.addEventListener('click', () => { if (profLink.dataset.openProfile) openProfile(profLink.dataset.openProfile); else window.alert('该用户为匿名用户，无法访问个人主页'); });
     // 作者编辑/删除/推流
     if (isOwn) {
       const bBoost = card.querySelector('[data-act="boost"]');
@@ -1368,8 +1368,9 @@
     els.viewTitle.style.display = 'none';
     els.searchBanner.classList.add('hidden');
     els.emptyState.classList.add('hidden');
-    // 每次加载前清空主列表，避免从“全部”切到其它视图时残留上一次的帖子
+    // 每次加载前清空主列表和空态文案，避免残留上一次视图的内容
     els.feed.innerHTML = '';
+    els.emptyState.innerHTML = '';
 
     let rows = [];
     if (state.mode === 'search') {
@@ -1452,6 +1453,10 @@
         els.emptyState.innerHTML = `<div class="emoji">⭐</div>还没有收藏，点击帖子下方的 ⭐ 即可收藏`;
       } else if (state.mode === 'mine') {
         els.emptyState.innerHTML = `<div class="emoji">📄</div>你还没有发布任何帖子`;
+      } else {
+        els.emptyState.innerHTML = state.activeTopic
+          ? `<div class="emoji">🍃</div>「${escapeHtml(state.activeTopic)}」暂无帖子，来发布第一条吧`
+          : `<div class="emoji">🍃</div>这里还空空如也，来发布第一条吧`;
       }
       els.pager.classList.add('hidden');
       return;

@@ -385,7 +385,7 @@
 
   function wirePostHandlers() {
     document.querySelectorAll('#colFeed .nickname[data-openprofile]').forEach((el) => {
-      el.addEventListener('click', (e) => { e.stopPropagation(); openProfile(el.dataset.openprofile); });
+      el.addEventListener('click', (e) => { e.stopPropagation(); if (el.dataset.openprofile) openProfile(el.dataset.openprofile); else window.alert('该用户为匿名用户，无法访问个人主页'); });
     });
     document.querySelectorAll('#colFeed [data-like]').forEach((btn) => {
       btn.addEventListener('click', async () => {
@@ -529,7 +529,7 @@
       inp.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { const s = box.querySelector('[data-cmtsend]'); if (s) s.click(); } });
     });
     box.querySelectorAll('#colFeed .nickname[data-openprofile]').forEach((el) => {
-      el.addEventListener('click', (e) => { e.stopPropagation(); openProfile(el.dataset.openprofile); });
+      el.addEventListener('click', (e) => { e.stopPropagation(); if (el.dataset.openprofile) openProfile(el.dataset.openprofile); else window.alert('该用户为匿名用户，无法访问个人主页'); });
     });
   }
 
