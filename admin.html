@@ -88,15 +88,22 @@
     <section id="tab-blacklist" class="panel hidden">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <select id="blkKind" class="input" style="min-width:120px">
-            <option value="keyword">屏蔽关键词</option>
-            <option value="nickname">屏蔽昵称</option>
+          <select id="blacklistView" class="input" style="min-width:150px">
+            <option value="items">黑名单条目</option>
+            <option value="records">拦截记录</option>
           </select>
-          <input id="blkValue" class="input" placeholder="输入内容（按回车添加）" style="min-width:180px" maxlength="32" />
         </div>
+        <button id="blacklistRefresh" class="btn sm ghost">刷新</button>
+      </div>
+      <div id="blkEditor" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <select id="blkKind" class="input" style="min-width:120px">
+          <option value="keyword">屏蔽关键词</option>
+          <option value="nickname">屏蔽昵称</option>
+        </select>
+        <input id="blkValue" class="input" placeholder="输入内容（按回车添加）" style="min-width:180px" maxlength="32" />
         <button id="blkAdd" class="btn sm">添加</button>
       </div>
-      <div style="font-size:12px;color:var(--faint);margin-bottom:12px">
+      <div id="blacklistHint" style="font-size:12px;color:var(--faint);margin-bottom:12px">
         关键词黑名单：内容命中即禁止发布；昵称黑名单：昵称/账号精确匹配即拦截。可在发布/评论/注册时生效。
       </div>
       <div id="blacklistList"></div>

@@ -472,6 +472,15 @@
   // 敏感词误屏蔽通用提示
   const MISBLOCK_HINT = ' 如果你认为我们误屏蔽了关键词，请在「🐞 反馈」中选「关键词误屏蔽」粘贴你的原文！';
 
+  // 上报一次拦截记录（发帖/评论被敏感词或黑名单拦截时调用；后端按「同用户同内容」去重）
+  function reportInterception(kind, content, words, nicknameVal) {
+    const user = loggedIn()
+      ? (state.user.profile && (state.user.profile.nickname || state.user.profile.username)) || '登录用户'
+      : (nicknameVal && nicknameVal.trim()) || '匿名';
+    const arr = Array.isArray(words) ? words : (words ? [String(words)] : []);
+    callEdge('interception_log', { kind, user_key: user, content, words: arr }).catch(() => {});
+  }
+
   // ---------------- 作者信息解析（id → {level}） ----------------
   async function resolveAuthors(rows) {
     const ids = Array.from(new Set((rows || []).map((p) => p.author_id).filter(Boolean)));
@@ -551,7 +560,7 @@
     if (!content) { window.alert('内容不能为空'); return; }
     if (content.length > limit) { window.alert(`内容超出${limit}字上限`); return; }
     const hits = sensitiveHits(content);
-    if (hits.length) { window.alert('⚠️ 存在敏感词：' + hits.map((x) => '“' + x + '”').join('、') + MISBLOCK_HINT); return; }
+    if (hits.length) { reportInterception(post.topic ? 'post' : 'comment', content, hits, null); window.alert('⚠️ 存在敏感词：' + hits.map((x) => '“' + x + '”').join('、') + MISBLOCK_HINT); return; }
     try {
       await callEdge('user_edit_post', { token: state.user.token, id: post.id, content });
       post.content = content;
@@ -763,7 +772,7 @@
     if (!content) return;
     if (content.length > 250) { window.alert('评论最多 250 字'); return; }
     const hits = sensitiveHits(content);
-    if (hits.length) { window.alert('⚠️ 存在敏感词：' + hits.map((x) => '“' + x + '”').join('、') + MISBLOCK_HINT); return; }
+    if (hits.length) { reportInterception('comment', content, hits, null); window.alert('⚠️ 存在敏感词：' + hits.map((x) => '“' + x + '”').join('、') + MISBLOCK_HINT); return; }
     try {
       await callEdge('user_edit_comment', { token: state.user.token, id, content });
       loadComments(box, post);
@@ -781,6 +790,7 @@
     const hitWords = sensitiveHits(content).concat(sensitiveHits(nickname));
     if (hitWords.length) {
       w.textContent = '⚠️ 评论存在敏感词（' + hitWords.map((x) => '“' + x + '”').join('、') + '），不得发布。' + MISBLOCK_HINT;
+      reportInterception('comment', content, hitWords, nickname);
       return;
     }
     const btn = box.querySelector('.cmt-submit');
@@ -1082,6 +1092,7 @@
     if (hitWords.length) {
       warn.textContent = '⚠️ 发布内容存在敏感词（' + hitWords.map((x) => '“' + x + '”').join('、') + '），不得发布。' + MISBLOCK_HINT;
       els.content.classList.add('bad');
+      reportInterception('post', content, hitWords, nickname);
       return;
     }
     els.content.classList.remove('bad');

@@ -136,7 +136,7 @@
     if (key === 'trash') loadTrash();
     if (key === 'pinned') loadPinned();
     if (key === 'audit') loadAudit();
-    if (key === 'blacklist') loadBlacklist();
+    if (key === 'blacklist') loadBlacklistPanel();
     if (key === 'site') loadSite();
     if (key === 'popups') loadPopups();
     if (key === 'announces') loadAnnounces();
@@ -149,7 +149,7 @@
     const box = $('dashStats');
     box.innerHTML = '<div class="empty">加载中…</div>';
     try {
-      const s = await callEdge('dashboard_stats', { sensitive_words: window.NEWTHEBA_SENSITIVE_WORDS || [] });
+      const s = await callEdge('dashboard_stats');
       const grid = document.createElement('div');
       grid.style.display = 'grid';
       grid.style.gridTemplateColumns = 'repeat(auto-fill,minmax(150px,1fr))';
@@ -158,7 +158,7 @@
         ['今日发帖', s.today_posts], ['今日评论', s.today_comments], ['今日新增用户', s.today_users],
         ['帖子总数', s.total_posts], ['评论总数', s.total_comments], ['用户总数', s.total_users],
         ['待审核吃瓜', s.open_review], ['待处理举报', s.open_reports],
-        ['敏感词命中帖', s.sensitive_posts], ['敏感词命中评论', s.sensitive_comments]
+        ['黑名单/敏感词拦截次数', s.interceptions]
       ];
       cells.forEach(([label, v]) => {
         grid.insertAdjacentHTML('beforeend', `<div style="background:var(--card-soft);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center">
@@ -315,6 +315,45 @@
   }
   $('blkAdd').addEventListener('click', blkAdd);
   $('blkValue').addEventListener('keydown', (e) => { if (e.key === 'Enter') blkAdd(); });
+
+  // 黑名单 / 拦截记录 视图切换
+  function loadBlacklistPanel() {
+    const view = $('blacklistView').value;
+    const isRecords = view === 'records';
+    $('blkEditor').style.display = isRecords ? 'none' : 'flex';
+    $('blacklistHint').textContent = isRecords
+      ? '发帖/评论被敏感词或黑名单关键词拦截时即时记录（同一用户同一内容重复发送不重复记录），最多保留最近 750 条。'
+      : '关键词黑名单：内容命中即禁止发布；昵称黑名单：昵称/账号精确匹配即拦截。可在发布/评论/注册时生效。';
+    if (isRecords) loadInterceptions();
+    else loadBlacklist();
+  }
+  $('blacklistView').addEventListener('change', loadBlacklistPanel);
+  $('blacklistRefresh').addEventListener('click', loadBlacklistPanel);
+
+  async function loadInterceptions() {
+    const list = $('blacklistList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    let data;
+    try { data = await callEdge('interceptions_list'); }
+    catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; return; }
+    if (!data.length) { list.innerHTML = '<div class="empty">暂无拦截记录 ✅</div>'; return; }
+    const KIND_LABEL = { post: '发帖', comment: '评论', nickname: '昵称', keyword: '关键词' };
+    list.innerHTML = '';
+    data.forEach((r) => {
+      const c = document.createElement('div');
+      c.className = 'panel fade-in-up';
+      c.style.padding = '10px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px';
+      c.innerHTML = `
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
+          <span class="badge topic">${escapeHtml(KIND_LABEL[r.kind] || r.kind)}</span>
+          <span style="font-size:13px;color:var(--accent,#e07a5f)">@${escapeHtml(r.user_key)}</span>
+          ${r.words ? `<span class="badge" style="color:#fff;background:#6a6a8a">命中：${escapeHtml(r.words)}</span>` : ''}
+          <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(r.created_at)}</span>
+        </div>
+        <div style="color:var(--muted);font-size:13px;white-space:pre-wrap;border-left:3px solid var(--line);padding-left:10px">${escapeHtml(r.content)}</div>`;
+      list.appendChild(c);
+    });
+  }
 
   function renderWhoami() {
     $('whoami').textContent = profile?.isFounder ? '创始人' : `${profile?.className || ''} ${profile?.name || '管理员'}`;
