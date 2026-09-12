@@ -541,6 +541,9 @@
     const password = $('userRegPass').value;
     if (!username) { err.textContent = '请填写用户名'; return; }
     if (password.length < 6) { err.textContent = '密码至少 6 位'; return; }
+    // 注册用户名同样做敏感词检测（与发帖/昵称一致）
+    const regHits = sensitiveHits(username);
+    if (regHits.length) { err.textContent = '⚠️ 注册用户名存在敏感词（' + regHits.map((x) => '“' + x + '”').join('、') + '），不能使用。'; return; }
     try {
       const data = await callEdge('user_register', { username, password });
       state.user = { token: data.token, profile: data.user };
@@ -1625,7 +1628,7 @@
         els.publish.disabled = true;
         warn.textContent = '';
         try {
-          await callEdge('post_create', { ...basePayload(), captcha_id: cap.id, captcha_ans: num });
+          await callEdge('post_create', { ...basePayload(), captcha_id: cap.id, captcha_ans: num, captcha_sig: cap.sig, captcha_exp: cap.exp });
           await onSuccess(succMsg());
         } catch (e) {
           warn.textContent = '发布失败：' + (e.message || '未知错误');
