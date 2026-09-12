@@ -432,6 +432,7 @@
           <input type="checkbox" data-pf="page_open" ${p.page_open !== false ? 'checked' : ''}> 允许他人访问
         </label>
       </div>
+      <label class="pf-label">昵称（改名后历史帖子/评论同步生效）<input class="pf-input" data-nick maxlength="24" value="${escapeHtml((data.user && data.user.nickname) || '')}"></label>
       <div class="pf-grid">
         ${profileFieldHtml(p)}
       </div>
@@ -466,13 +467,23 @@
       };
       // 本地敏感词 + 黑名单检测（不上传服务器判定）
       const payload = collect();
+      const nickEl = body.querySelector('[data-nick]');
+      const newNick = nickEl ? nickEl.value.trim() : '';
       const combined = Object.entries(payload).map(([k, v]) => String(v)).join(' ') + payload.tags.join(' ');
-      const hits = sensitiveHits(combined);
+      const hits = sensitiveHits(combined).concat(newNick ? sensitiveHits(newNick) : []);
       if (hits.length) {
         errEl.textContent = `⚠️ 主页内容存在敏感词（${hits.map((h) => '"' + h + '"').join('')}），请修改后保存。`;
         errEl.style.color = '#e05e5e'; return;
       }
-      try { await callEdge('profile_save', { token: state.user.token, ...payload }); window.alert('主页已保存'); openProfile(myId()); }
+      try {
+        const oldNick = (data.user && data.user.nickname) || '';
+        if (newNick && newNick !== oldNick) {
+          await callEdge('user_rename', { token: state.user.token, nickname: newNick });
+        }
+        await callEdge('profile_save', { token: state.user.token, ...payload });
+        window.alert('保存成功' + (newNick && newNick !== oldNick ? '（昵称已更新）' : ''));
+        openProfile(myId());
+      }
       catch (e) { errEl.textContent = e.message; errEl.style.color = '#e05e5e'; }
     });
   }
