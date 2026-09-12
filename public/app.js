@@ -415,6 +415,33 @@
     els.popupHost.appendChild(bd);
   }
 
+  // ---------------- 封禁状态轮询（仅提示当前登录用户） ----------------
+  async function checkBanStatus() {
+    if (!loggedIn()) return;
+    const myIdv = myId();
+    const key = 'nzb_user_ban_' + myIdv;
+    let last = { seq: 0, term: false };
+    try { last = JSON.parse(localStorage.getItem(key) || '{"seq":0,"term":false}'); } catch (_e) { last = { seq: 0, term: false }; }
+    let st;
+    try { st = await callEdge('user_ban_status', { token: state.user.token }); }
+    catch (_e) { return; }
+    if (st.terminated) {
+      const msg = st.message || '你的账号已被永久封禁，无法使用本功能。';
+      if (!last.term) {
+        try { localStorage.setItem(key, JSON.stringify({ seq: st.seq || 0, term: true })); } catch (_e) {}
+        renderPopup({ title: '账号已永久封禁', content: msg });
+      }
+      return;
+    }
+    const seq = st.seq || 0;
+    const saved = { seq, term: false };
+    if (seq !== last.seq) {
+      try { localStorage.setItem(key, JSON.stringify(saved)); } catch (_e) {}
+      if (st.banned) renderPopup({ title: '账号封禁提示', content: st.message || '你的账号当前被封禁，无法发帖、点赞、评论或创建话题。' });
+      else renderPopup({ title: '账号已解封', content: st.message || '你的账号已解封，可正常使用各项功能。' });
+    }
+  }
+
   // ---------------- 公告栏 ----------------
   async function loadAnnouncements() {
     const panel = $('announcePanel');
@@ -1313,10 +1340,10 @@
     loadPinned();
     loadFeed();
     loadLeaderboard();
-    if (loggedIn()) { loadFavIds(); syncLikedFromServer(); refreshProfile(); }
+    if (loggedIn()) { loadFavIds(); syncLikedFromServer(); refreshProfile(); checkBanStatus(); }
     subscribeRealtime();
     if (unreadTimer) clearInterval(unreadTimer);
-    unreadTimer = setInterval(refreshUnread, 60000);
+    unreadTimer = setInterval(() => { refreshUnread(); checkBanStatus(); }, 60000);
     // 从通知中心跳转过来的「帖子页面」：index.html#post-<pid>
     const m = location.hash.match(/^#post-(.+)$/);
     if (m) setTimeout(() => scrollToPost(decodeURIComponent(m[1])), 400);

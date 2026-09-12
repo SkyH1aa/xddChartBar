@@ -84,7 +84,7 @@
       { key: 'trash', label: '回收站', perm: 'can_block' },
       { key: 'pinned', label: '顶置管理', perm: 'can_pin' },
       { key: 'audit', label: '审计日志', perm: 'can_view_audit' },
-      { key: 'blacklist', label: '黑名单', requiresAny: ['can_blacklist', 'can_block'] },
+      { key: 'blacklist', label: '黑名单', requiresAny: ['can_blacklist', 'can_block', 'can_ban'] },
       { key: 'site', label: '站点开关' },
       { key: 'popups', label: '弹窗公告' },
       { key: 'announces', label: '公告栏', perm: 'can_notice' },
@@ -137,7 +137,12 @@
     if (key === 'trash') loadTrash();
     if (key === 'pinned') loadPinned();
     if (key === 'audit') loadAudit();
-    if (key === 'blacklist') loadBlacklistPanel();
+    if (key === 'blacklist') {
+      if (!hasPerm('can_blacklist') && !hasPerm('can_block') && hasPerm('can_ban')) {
+        $('blacklistView').value = 'users';
+      }
+      loadBlacklistPanel();
+    }
     if (key === 'site') loadSite();
     if (key === 'popups') loadPopups();
     if (key === 'announces') loadAnnounces();
@@ -322,15 +327,79 @@
   function loadBlacklistPanel() {
     const view = $('blacklistView').value;
     const isRecords = view === 'records';
-    $('blkEditor').style.display = isRecords ? 'none' : 'flex';
-    $('blacklistHint').textContent = isRecords
-      ? '发帖/评论被敏感词或黑名单关键词拦截时即时记录（同一用户同一内容重复发送不重复记录），最多保留最近 750 条。'
-      : '关键词黑名单：内容命中即禁止发布；昵称黑名单：昵称/账号精确匹配即拦截。可在发布/评论/注册时生效。';
-    if (isRecords) loadInterceptions();
+    const isUsers = view === 'users';
+    $('blkEditor').style.display = isUsers || isRecords ? 'none' : 'flex';
+    $('banEditor').style.display = isUsers ? 'flex' : 'none';
+    $('blacklistHint').textContent = isUsers
+      ? '注册用户管理与封禁：按用户名/昵称检索；可封禁（自定义天数）、提前解封或永久注销（注销后该用户名禁止再次登录）。'
+      : isRecords
+        ? '发帖/评论被敏感词或黑名单关键词拦截时即时记录（同一用户同一内容重复发送不重复记录），最多保留最近 750 条。'
+        : '关键词黑名单：内容命中即禁止发布；昵称黑名单：昵称/账号精确匹配即拦截。可在发布/评论/注册时生效。';
+    if (isUsers) loadBanUsers();
+    else if (isRecords) loadInterceptions();
     else loadBlacklist();
   }
   $('blacklistView').addEventListener('change', loadBlacklistPanel);
   $('blacklistRefresh').addEventListener('click', loadBlacklistPanel);
+
+  // ---------- 封禁用户（can_ban） ----------
+  let banSearchQ = '';
+  async function loadBanUsers() {
+    const list = $('banUserList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    let data;
+    try { data = await callEdge('admin_user_search', { q: banSearchQ }); }
+    catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; return; }
+    if (!data.length) { list.innerHTML = '<div class="empty">暂无匹配的用户</div>'; return; }
+    list.innerHTML = '';
+    data.forEach((u) => {
+      const c = document.createElement('div');
+      c.className = 'panel fade-in-up';
+      c.style.padding = '10px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px';
+      const statusBadge = u.permanent
+        ? '<span class="badge" style="color:#fff;background:var(--danger)">永久封禁</span>'
+        : u.banned
+          ? `<span class="badge" style="color:#fff;background:#c26">封禁至 ${formatTime(u.until)}</span>`
+          : '<span class="badge" style="color:#fff;background:#2e8b57">正常</span>';
+      c.innerHTML = `
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+          <span><strong>@${escapeHtml(u.username)}</strong></span>
+          <span style="color:var(--faint);font-size:12px">${escapeHtml(u.nickname || '')} · 注册于 ${formatTime(u.created_at)}</span>
+          <span style="margin-left:auto">${statusBadge}</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input type="number" min="1" max="3650" value="7" data-days="${u.id}" style="width:76px;padding:4px 6px;border:1px solid var(--line);border-radius:8px;background:var(--input-bg);color:var(--text)" />
+          <button class="btn sm danger" data-ban="${u.id}">封禁 N 天</button>
+          <button class="btn sm ghost" data-unban="${u.id}" ${u.banned ? '' : 'disabled'}>提前解封</button>
+          <button class="btn sm danger" data-term="${u.id}">永久注销</button>
+        </div>`;
+      list.appendChild(c);
+      c.querySelector('[data-ban]').addEventListener('click', async (el) => {
+        const days = Number(c.querySelector(`[data-days="${u.id}"]`).value || 7);
+        if (!confirm(`确认封禁 @${u.username} ${days} 天？\n封禁期间其无法发帖、点赞、评论、创建话题。`)) return;
+        el.currentTarget.disabled = true;
+        try { await callEdge('admin_user_ban', { user_id: u.id, days }); loadBanUsers(); }
+        catch (err) { alert(err.message); el.currentTarget.disabled = false; }
+      });
+      c.querySelector('[data-unban]').addEventListener('click', async (el) => {
+        if (!confirm(`确认提前解封 @${u.username}？`)) return;
+        el.currentTarget.disabled = true;
+        try { await callEdge('admin_user_unban', { user_id: u.id }); loadBanUsers(); }
+        catch (err) { alert(err.message); el.currentTarget.disabled = false; }
+      });
+      c.querySelector('[data-term]').addEventListener('click', async (el) => {
+        if (!confirm(`确认永久注销 @${u.username}？\n此操作将删除该账号，且该用户名将永久无法再次登录，不可恢复！`)) return;
+        el.currentTarget.disabled = true;
+        try { await callEdge('admin_user_terminate', { user_id: u.id }); loadBanUsers(); }
+        catch (err) { alert(err.message); el.currentTarget.disabled = false; }
+      });
+    });
+  }
+  $('banUserSearch').addEventListener('click', () => {
+    banSearchQ = $('banUserQ').value.trim();
+    loadBanUsers();
+  });
+  $('banUserQ').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('banUserSearch').click(); });
 
   async function loadInterceptions() {
     const list = $('blacklistList');
@@ -364,8 +433,10 @@
     const m = [
       ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
       ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
-      ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理']
+      ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
+      ['can_ban', '用户封禁']
     ];
+    tags.push(...m.filter(([k]) => hasPerm(k)).map(([, l]) => `<span class="badge">${l}</span>`));
     (profile?.isFounder ? m : m.filter(([k]) => profile?.perms?.[k])).forEach(([k, label]) => {
       tags.push(`<span class="badge topic">${label}</span>`);
     });
@@ -913,7 +984,8 @@
       const perms = [
         ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
         ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
-      ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理']
+      ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
+        ['can_ban', '用户封禁']
       ];
       const toggles = perms.map(([k, label]) => {
         const on = !!a[k];
