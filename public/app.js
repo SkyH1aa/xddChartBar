@@ -469,6 +469,15 @@
         ${profileFieldHtml(p)}
       </div>
       <label class="pf-label">标签（最多 7 个，用逗号分隔）<input class="pf-input" data-pf="tags" value="${escapeHtml(currentTags.join('，'))}"></label>
+      <div style="margin:16px 0 4px;border-top:1px solid var(--line);padding-top:12px">
+        <div style="font-weight:700;color:var(--text);font-size:13px">修改登录密码</div>
+        <div style="color:var(--faint);font-size:11px;margin:4px 0 8px">改名后登录账号已变为你的昵称，请妥善保管新密码</div>
+        <label class="pf-label">原密码<input class="pf-input" type="password" data-pwd-old></label>
+        <label class="pf-label">新密码（至少 6 位）<input class="pf-input" type="password" data-pwd-new></label>
+        <label class="pf-label">确认新密码<input class="pf-input" type="password" data-pwd-confirm></label>
+        <div class="pf-err" data-pwd-error></div>
+        <button class="profile-editbtn" data-pwd-save>修改密码</button>
+      </div>
       <div class="pf-vis">
         <div class="pf-vis-title">每一项是否对他人可见</div>
         ${(['contact', 'gender', 'class_name', 'real_name', 'signature', 'bio', 'tags']).map((k) => {
@@ -484,6 +493,24 @@
       <div class="pf-err" data-pf-error></div>
     </div>`;
     body.querySelector('[data-back]').addEventListener('click', () => renderProfileInto(body, data));
+    const pwdErr = body.querySelector('[data-pwd-error]');
+    const pwdBtn = body.querySelector('[data-pwd-save]');
+    if (pwdBtn) pwdBtn.addEventListener('click', async () => {
+      const oldP = (body.querySelector('[data-pwd-old]')?.value || '').trim();
+      const newP = body.querySelector('[data-pwd-new]')?.value || '';
+      const cf = body.querySelector('[data-pwd-confirm]')?.value || '';
+      pwdErr.textContent = ''; pwdErr.style.color = '#e05e5e';
+      if (!oldP || !newP) { pwdErr.textContent = '请填写原密码和新密码'; return; }
+      if (newP.length < 6) { pwdErr.textContent = '新密码至少 6 位'; return; }
+      if (newP !== cf) { pwdErr.textContent = '两次输入的新密码不一致'; return; }
+      pwdBtn.disabled = true;
+      try {
+        await callEdge('user_change_password', { token: state.user.token, old_password: oldP, new_password: newP });
+        pwdErr.style.color = '#2e9e63'; pwdErr.textContent = '✅ 密码已修改，下次登录请使用新密码';
+        ['data-pwd-old', 'data-pwd-new', 'data-pwd-confirm'].forEach((k) => { const el = body.querySelector('[' + k + ']'); if (el) el.value = ''; });
+      } catch (e) { pwdErr.textContent = e.message; }
+      finally { pwdBtn.disabled = false; }
+    });
     body.querySelector('[data-save]').addEventListener('click', async () => {
       const errEl = body.querySelector('[data-pf-error]');
       const collect = () => {
@@ -511,9 +538,16 @@
         const oldNick = (data.user && data.user.nickname) || '';
         if (newNick && newNick !== oldNick) {
           await callEdge('user_rename', { token: state.user.token, nickname: newNick });
+          // 全局同步：本地会话、顶部用户名、帖子/评论昵称（重拉渲染，历史内容同步改名）
+          if (state.user.profile) state.user.profile.nickname = newNick;
+          if (state.user.profile) state.user.profile.username = newNick;
+          saveUserSession();
+          renderUserBar();
+          await loadFeed();
+          await loadPinned();
         }
         await callEdge('profile_save', { token: state.user.token, ...payload });
-        window.alert('保存成功' + (newNick && newNick !== oldNick ? '（昵称已更新）' : ''));
+        window.alert('保存成功' + (newNick && newNick !== oldNick ? `（新的昵称 = 你的登录账号名：${newNick}，此后请用「${newNick}」登录；历史帖子/评论已同步）` : ''));
         openProfile(myId());
       }
       catch (e) { errEl.textContent = e.message; errEl.style.color = '#e05e5e'; }
