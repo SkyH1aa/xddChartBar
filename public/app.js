@@ -10,7 +10,7 @@
   const SUPABASE_KEY = 'sb_publishable_B29ClgwZagW32Ow5x6VdKQ_IL65F7dl';
   const EDGE_URL = `${SUPABASE_URL}/functions/v1/newtheba`;
 
-  const TOPICS = ['闲聊', '社团活动', '食堂', '宿舍', '学习', '吃瓜'];
+  const TOPICS = ['闲聊', '社团活动', '食堂', '宿舍', '学习', '吃瓜', '失物招领'];
   // 用户自建话题（加载自后端 topics_list）：{display_name, is_permanent, ...}
   let customTopics = [];
   const NEW_TOPIC = '__new_topic__';
@@ -40,6 +40,7 @@
     topicSelect: $('topicSelect'), filterBar: $('filterBar'), sortTabs: $('sortTabs'),
     content: $('contentInput'), nickname: $('nicknameInput'), charCount: $('charCount'),
     publish: $('publishBtn'), composeWarn: $('composeWarn'), composeHint: $('composeHint'),
+    composerPriv: $('composerPriv'), scheduleAt: $('scheduleAt'), minViewLevel: $('minViewLevel'), privHint: $('privHint'),
     haltPage: $('haltPage'), haltTitle: $('haltTitle'), haltSubtitle: $('haltSubtitle'),
     popupHost: $('popupHost'),
     searchInput: $('searchInput'), searchClear: $('searchClear'), searchBanner: $('searchBanner'),
@@ -84,20 +85,20 @@
     n = Number(n) || 0;
     return n > 9999 ? '9999+' : String(n);
   }
-  // 等级：经验 = 发帖*2 + 评论 + 获赞；线性升级：升到下一级需 12×当前等级 经验，上限 60
+  // 等级：经验 = 发帖*2 + 评论 + 获赞 + 助推 + 签到；线性升级：升到下一级需 24×当前等级 经验，上限 60
   const LEVEL_TIERS = [
-    { max: 3, name: '见习社员' }, { max: 7, name: '初级社员' }, { max: 12, name: '活跃社员' },
-    { max: 20, name: '骨干社员' }, { max: 35, name: '资深社员' }, { max: 49, name: '核心成员' },
-    { max: 60, name: '传奇元老' }
+    { max: 10, name: '初来乍到' }, { max: 20, name: '校园萌新' }, { max: 35, name: '校园百事通' },
+    { max: 45, name: '风云学长' }, { max: 54, name: '校园传说' }, { max: 60, name: '校史留名' }
   ];
   function xpOf(u) {
-    return (Number(u && u.post_count) || 0) * 2 + (Number(u && u.comment_count) || 0) + (Number(u && u.like_received) || 0);
+    return (Number(u && u.post_count) || 0) * 2 + (Number(u && u.comment_count) || 0) + (Number(u && u.like_received) || 0)
+      + (Number(u && u.bonus_xp) || 0) + (Number(u && u.checkin_xp) || 0);
   }
-  function cumMin(L) { return 6 * L * (L - 1); } // 达到 L 级所需累计经验（累加 12*i）
+  function cumMin(L) { return 12 * L * (L - 1); } // 达到 L 级所需累计经验（累加 24*i）
   function levelOf(u) {
     const xp = xpOf(u);
     if (xp <= 0) return 1;
-    return Math.min(60, Math.floor((1 + Math.sqrt(1 + xp * (2 / 3))) / 2));
+    return Math.min(60, Math.floor((1 + Math.sqrt(1 + xp / 3)) / 2));
   }
   // 管理员设定了固定等级(level>0)时优先采用，否则按经验自动计算
   function finalLevel(u) {
@@ -106,8 +107,20 @@
   }
   function levelName(lv) {
     for (const t of LEVEL_TIERS) if (lv <= t.max) return t.name;
-    return '传奇元老';
+    return '校史留名';
   }
+  // 等级特权前端镜像（与后端 PRIV_TIERS 一致，用于决定是否展示特权 UI）
+  const PRIV_TIER_RULE = [
+    { max: 10, priv: {} },
+    { max: 20, priv: {} },
+    { max: 35, priv: { topic96: true } },
+    { max: 45, priv: { sched: true, lightfx: true, lvlgate: true, pinComment: 2 } },
+    { max: 54, priv: { sched: true, lightfx: true, lvlgate: true, pinComment: 2, recommend: 3 } },
+    { max: 60, priv: { sched: true, lightfx: true, lvlgate: true, pinComment: 2, recommend: 3, elite: true } }
+  ];
+  function privOf(lv) { for (const t of PRIV_TIER_RULE) if (lv <= t.max) return t.priv; return PRIV_TIER_RULE[5].priv; }
+  function myPriv() { return loggedIn() ? privOf(finalLevel(state.user.profile)) : {}; }
+  function myLevelNow() { return loggedIn() ? finalLevel(state.user.profile) : 1; }
   function levelInfo(u) {
     const fixed = Number(u && u.level) > 0;
     const level = finalLevel(u);
@@ -116,7 +129,7 @@
     let progress, nextNeed;
     if (fixed || maxed) { progress = 1; nextNeed = 0; }
     else {
-      const span = 12 * level; // 升到下一级需 12×当前等级 经验
+      const span = 24 * level; // 升到下一级需 24×当前等级 经验
       const inLevel = xp - cumMin(level);
       progress = Math.min(1, Math.max(0, inLevel / span));
       nextNeed = Math.max(0, span - inLevel);
@@ -124,6 +137,13 @@
     return { level, name: levelName(level), xp, progress, nextNeed, hi: xp, fixed, maxed };
   }
   function userDisplay(u) { return u && (u.nickname || u.username) ? (u.nickname || u.username) : '匿名'; }
+  // 发帖/评论旁展示用户称号徽标
+  function levelBadgeHtml(author) {
+    const lv = author && author.level ? Number(author.level) || 0 : 0;
+    if (!lv) return '';
+    const name = levelName(lv);
+    return `<span class="author-level" title="Lv.${lv} · ${escapeHtml(name)}">${escapeHtml(name)}</span>`;
+  }
 
   // ---------------- Edge 调用 ----------------
   async function callEdge(action, payload) {
@@ -186,6 +206,7 @@
       host.innerHTML = `<button class="btn ghost sm" id="userLoginBtn2">登录 / 注册</button>`;
       host.querySelector('#userLoginBtn2').addEventListener('click', openUserModal);
       updateComposerIdentity();
+      updateComposerPrivileges();
       return;
     }
     const p = state.user.profile;
@@ -218,6 +239,8 @@
           <button class="pop-item" data-act="fav">⭐ 我的收藏</button>
           <button class="pop-item" data-act="mine">📄 我的帖子</button>
           <button class="pop-item" data-act="history">🕘 浏览历史</button>
+          <button class="pop-item" data-act="profile">👤 我的主页</button>
+          <button class="pop-item" data-act="checkin">📅 每日签到 <span class="checkin-state" data-extra="checkin">…</span></button>
           <button class="pop-item" data-act="notif">🔔 通知中心</button>
           <div class="pop-sep"></div>
           <button class="pop-item" data-act="logout">🚪 退出登录</button>
@@ -225,28 +248,223 @@
       </div>`;
     host.querySelector('#bellBtn').addEventListener('click', (e) => { e.stopPropagation(); location.href = 'notifications.html'; });
     host.querySelector('#userChip').addEventListener('click', (e) => { e.stopPropagation(); toggleUserPop(); });
-    host.querySelector('#userPop').addEventListener('click', (e) => {
+    host.querySelector('#userPop').addEventListener('click', async (e) => {
       const btn = e.target.closest('[data-act]');
       if (!btn) return;
       const act = btn.dataset.act;
       if (act === 'fav') showFavorites();
       else if (act === 'mine') showMyPosts();
       else if (act === 'history') showHistory();
+      else if (act === 'profile') openProfile(myId());
+      else if (act === 'checkin') { closePops(); await doCheckin(true); }
       else if (act === 'notif') { closePops(); location.href = 'notifications.html'; }
       else if (act === 'logout') clearUserSession();
       closePops();
     });
+    renderPopExtras();
     // 点击外部关闭
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.user-area') && !e.target.closest('.notif-panel')) closePops();
     }, { once: false });
     refreshUnread();
     updateComposerIdentity();
+    updateComposerPrivileges();
   }
   function toggleUserPop() { document.querySelector('#userPop')?.classList.toggle('open'); }
   function closePops() {
     document.querySelector('#userPop')?.classList.remove('open');
     if (els.notifPanel) els.notifPanel.classList.remove('open');
+  }
+
+  // ---------------- 每日签到 ----------------
+  async function renderPopExtras() {
+    if (!loggedIn()) return;
+    const el = document.querySelector('[data-extra="checkin"]');
+    let s = null;
+    try { s = await callEdge('checkin_status', { token: state.user.token }); } catch (_e) { s = null; }
+    if (!el) return;
+    if (!s) { el.textContent = ''; return; }
+    el.textContent = s.checkedToday
+      ? `已签到 · 连签 ${s.checkedStreak || s.streak || 0} 天`
+      : (s.checkedStreak > 0 ? `签到 +${s.rewardToday}（连签中）` : `今日可签到 +1`);
+  }
+  async function doCheckin(showAlert) {
+    if (!loggedIn()) { openUserModal(); return; }
+    let s = null;
+    try { s = await callEdge('checkin_status', { token: state.user.token }); } catch (_e) { s = null; }
+    if (s && s.checkedToday) {
+      if (showAlert) window.alert(`今日已签到，连签 ${s.checkedStreak || s.streak || 0} 天。`);
+      return;
+    }
+    try {
+      const r = await callEdge('checkin', { token: state.user.token });
+      renderUserBar(); refreshUnread();
+      if (showAlert) window.alert(`签到成功！连续签到 ${r.streak} 天，获得 ${r.gained} 点经验。`);
+    } catch (e) { if (showAlert) window.alert(e.message); }
+  }
+
+  // ---------------- 个人主页 ----------------
+  const PROFILE_FIELDS = [
+    { key: 'contact', label: '联系方式' }, { key: 'gender', label: '性别' },
+    { key: 'class_name', label: '班级' }, { key: 'real_name', label: '姓名' },
+    { key: 'signature', label: '个性签名' }, { key: 'bio', label: '简介' }
+  ];
+  async function openProfile(targetId) {
+    if (!targetId) { if (loggedIn()) targetId = myId(); else { openUserModal(); return; } }
+    profileModalOpenId = targetId;
+    const overlay = document.createElement('div');
+    overlay.className = 'profile-mask';
+    overlay.innerHTML = `<div class="profile-card" data-pid="pcard">
+      <div class="profile-card-head"><span class="profile-loading">正在加载主页…</span><button class="profile-close">×</button></div>
+      <div class="profile-card-body">加载中…</div>
+    </div>`;
+    overlay.querySelector('.profile-close').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('mousedown', (e) => { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+    let data = null;
+    try { data = await callEdge('profile_get', { token: state.user.token || '', user_id: targetId }); }
+    catch (_e) { /* ignore */ }
+    const body = overlay.querySelector('.profile-card-body');
+    if (!data) { body.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted)">主页加载失败</div>'; return; }
+    body.innerHTML = renderProfile(data);
+    body.querySelectorAll('[data-pact]').forEach((b) => b.addEventListener('click', () => { const ps = state.user.profile; renderProfileInto(body, data); }));
+    if (data.canEdit) bindProfileEdit(body, data, overlay);
+  }
+  let profileModalOpenId = null;
+  function renderProfile(data) {
+    if (data.locked) {
+      return `<div style="padding:34px 24px;text-align:center">
+        <div style="font-size:40px">🔒</div>
+        <div style="margin:10px 0 4px;font-weight:700;color:var(--text)">${escapeHtml(data.user.nickname)}</div>
+        <div style="color:var(--muted)">TA 的主页暂不对访客开放</div>
+      </div>`;
+    }
+    const u = data.user || {};
+    const p = data.profile || {};
+    const nick = u.nickname || u.username || '';
+    const title = levelName(u.level);
+    const tagChips = (p.tags && p.tags.length)
+      ? p.tags.map((t) => `<span class="profile-tag">${escapeHtml(t)}</span>`).join('')
+      : '<span style="color:var(--faint)">暂无标签</span>';
+    const rows = PROFILE_FIELDS.map((f) => {
+      const showIt = data.canEdit || data.isAdmin || p.flags[f.key] !== false;
+      const val = p[f.key];
+      if (!data.canEdit && !data.isAdmin && !showIt) return '';
+      if (!val) return '';
+      return `<div class="profile-row"><span class="profile-row-label">${f.label}</span><span class="profile-row-val">${multiLine(val)}</span></div>`;
+    }).join('');
+    return `<div class="profile-cview">
+      <div class="profile-avatar" style="background:${(state.user.profile && myId() === u.id) ? (state.user.profile.avatar_color || '#e07a5f') : '#e07a5f'}">${escapeHtml((nick || '?').charAt(0).toUpperCase())}</div>
+      <div class="profile-mid">
+        <div class="profile-nick">${escapeHtml(nick)}<span class="author-level" style="vertical-align:middle">${escapeHtml(title)} Lv.${u.level}</span></div>
+        ${u.post_count != null ? `<div class="profile-stats">📄 ${u.post_count} 帖 · 💬 ${u.comment_count} 评论 · 👍 ${u.like_received} 赞</div>` : ''}
+      </div>
+      ${data.canEdit ? `<button class="profile-editbtn" data-act="edit">✏️ 编辑主页</button>` : ''}
+      <div class="profile-tags">${tagChips}</div>
+      <div class="profile-rows">${rows || '<div style="color:var(--faint);font-size:12px;padding:8px 0">TA 还没有填写可见的公开资料</div>'}</div>
+      ${data.canEdit && myPriv().elite ? `<div class="prof-elite">
+        <div class="pf-vis-title">🎓 校史留名特权</div>
+        <button class="profile-editbtn" data-act="export">⬇️ 导出我的帖子数据</button>
+        <button class="profile-editbtn" data-act="column">📚 申请个人专栏</button>
+        <button class="profile-editbtn" data-act="cert">🎓 毕业纪念证书</button>
+      </div>` : ''}
+      ${data.canEdit ? `<div style="margin-top:8px;font-size:11px;color:var(--faint)">只能在个人中心（右上角头像 → 我的主页）编辑自己的信息。提示：敏感词会在提交前本地拦截。</div>` : ''}
+    </div>`;
+  }
+  function visibilityFor(p, label, val, data) { void p; void label; void val; void data; return ''; }
+  function multiLine(s) { return String(s || '').replace(/\n/g, '<br>'); }
+  function renderProfileInto(body, data) { body.innerHTML = renderProfile(data); }
+  function profileFieldHtml(p) {
+    return PROFILE_FIELDS.map((f) => {
+      const val = p ? (p[f.key] || '') : '';
+      return `<label class="pf-label">${f.label}<input class="pf-input" data-pf="${f.key}" value="${escapeHtml(String(val).replace(/"/g, '&quot;'))}"></label>`;
+    }).join('');
+  }
+  function bindProfileEdit(body, data, overlay) {
+    const editBtn = body.querySelector('[data-act="edit"]');
+    if (editBtn) editBtn.addEventListener('click', () => { renderProfileEdit(body, data); });
+    const exp = body.querySelector('[data-act="export"]');
+    if (exp) exp.addEventListener('click', async () => {
+      try {
+        const d = await callEdge('export_posts', { token: state.user.token });
+        const rows = [...(d.posts || []), ...(d.pinned || [])]
+          .map((x) => `[${x.topic}]${x.nickname ? ' @' + x.nickname : ''} ${x.created_at ? new Date(x.created_at).toLocaleString() : ''}\n${x.content}`)
+          .join('\n\n────────────────────────\n\n');
+        const blob = new Blob([rows || '暂无帖子数据'], { type: 'text/plain;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = '我的帖子数据导出.txt';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      } catch (e) { window.alert(e.message); }
+    });
+    const col = body.querySelector('[data-act="column"]');
+    if (col) col.addEventListener('click', async () => {
+      try { const r = await callEdge('column_request', { token: state.user.token }); window.alert(r.message); }
+      catch (e) { window.alert(e.message); }
+    });
+    const cert = body.querySelector('[data-act="cert"]');
+    if (cert) cert.addEventListener('click', async () => {
+      try {
+        const r = await callEdge('certificate', { token: state.user.token });
+        const w = window.open('', '_blank');
+        if (w) { w.document.write(r.cert); w.document.close(); }
+      } catch (e) { window.alert(e.message); }
+    });
+  }
+  function renderProfileEdit(body, data) {
+    const p = data.profile || {};
+    const currentTags = Array.isArray(p.tags) ? p.tags : [];
+    body.innerHTML = `<div class="profedit">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-weight:700;color:var(--text)">编辑个人主页</span>
+        <label style="display:flex;align-items:center;gap:4px;color:var(--muted);font-size:12px">
+          <input type="checkbox" data-pf="page_open" ${p.page_open !== false ? 'checked' : ''}> 允许他人访问
+        </label>
+      </div>
+      <div class="pf-grid">
+        ${profileFieldHtml(p)}
+      </div>
+      <label class="pf-label">标签（最多 7 个，用逗号分隔）<input class="pf-input" data-pf="tags" value="${escapeHtml(currentTags.join('，'))}"></label>
+      <div class="pf-vis">
+        <div class="pf-vis-title">每一项是否对他人可见</div>
+        ${(['contact', 'gender', 'class_name', 'real_name', 'signature', 'bio', 'tags']).map((k) => {
+          const label = { contact: '联系方式', gender: '性别', class_name: '班级', real_name: '姓名', signature: '个性签名', bio: '简介', tags: '标签' }[k];
+          const val = p && p.flags ? p.flags[k] : true;
+          return `<label style="display:flex;align-items:center;gap:4px;color:var(--muted);font-size:12px"><input type="checkbox" data-pf="show_${k}" ${val === false ? '' : 'checked'}> ${label}</label>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="profile-editbtn" data-save>保存</button>
+        <button class="profile-editbtn" data-back>返回</button>
+      </div>
+      <div class="pf-err" data-pf-error></div>
+    </div>`;
+    body.querySelector('[data-back]').addEventListener('click', () => renderProfileInto(body, data));
+    body.querySelector('[data-save]').addEventListener('click', async () => {
+      const errEl = body.querySelector('[data-pf-error]');
+      const collect = () => {
+        const obj = { page_open: body.querySelector('[data-pf="page_open"]').checked };
+        PROFILE_FIELDS.forEach((f) => { const el = body.querySelector(`[data-pf="${f.key}"]`); if (el) obj[f.key] = el.value; });
+        const tagsRaw = (body.querySelector('[data-pf="tags"]')?.value || '').split(/[,，]/).map((s) => s.trim()).filter(Boolean);
+        obj.tags = tagsRaw.slice(0, 7);
+        ['contact', 'gender', 'class_name', 'real_name', 'signature', 'bio', 'tags'].forEach((k) => {
+          const el = body.querySelector(`[data-pf="show_${k}"]`);
+          if (el) obj['show_' + k] = el.checked;
+        });
+        return obj;
+      };
+      // 本地敏感词 + 黑名单检测（不上传服务器判定）
+      const combined = Object.entries(collect()).map(([k, v]) => String(v)).join(' ') + collect().tags.join(' ');
+      const hits = sensitiveHits(combined);
+      if (hits.length) {
+        errEl.textContent = `⚠️ 主页内容存在敏感词（${hits.map((h) => '"' + h + '"').join('')}），请修改后保存。`;
+        errEl.style.color = '#e05e5e'; return;
+      }
+      const payload = { token: state.user.token, ...collect() };
+      try { await callEdge('profile_save', payload); window.alert('主页已保存'); openProfile(myId()); }
+      catch (e) { errEl.textContent = e.message; errEl.style.color = '#e05e5e'; }
+    });
   }
 
   // ---------------- 通知中心（头像红点数字角标） ----------------
@@ -530,7 +748,7 @@
     const map = {};
     if (ids.length) {
       const { data } = await supabase.from('forum_users')
-        .select('id, nickname, post_count, comment_count, like_received, level').in('id', ids);
+        .select('id, nickname, post_count, comment_count, like_received, level, bonus_xp').in('id', ids);
       (data || []).forEach((u) => { map[u.id] = { nickname: u.nickname || u.username || '', level: finalLevel(u) }; });
     }
     return map;
@@ -544,16 +762,28 @@
     const isAnon = !post.nickname;
     const nickHtml = isAnon ? '<span class="anonymous">匿名</span>' : escapeHtml(post.nickname);
     let badges = ctx.pinned
-      ? '<span class="badge pinned">置顶</span>'
+      ? (ctx.boosted
+        ? '<span class="badge pinned" style="background:rgba(189,147,249,.2);color:#bd93f9">推流</span>'
+        : '<span class="badge pinned">置顶</span>')
       : '<span class="badge topic">' + escapeHtml(post.topic) + '</span>';
     const liked = state.likedSet.has(post.id);
     const isOwn = myId() && post.author_id === myId();
     const favOn = state.favSet.has(post.id);
     const floor = ctx.floor != null ? `<span class="post-floor">#${ctx.floor ? ctx.floor : ''}</span>` : '';
-    const levelTag = post.author_id && ctx.authorMap && ctx.authorMap[post.author_id]
-      ? `<span class="author-level" title="${escapeHtml(levelName(ctx.authorMap[post.author_id].level))}">Lv.${ctx.authorMap[post.author_id].level}</span>` : '';
+    const authorLv = post.author_id && ctx.authorMap && ctx.authorMap[post.author_id]
+      ? Number(ctx.authorMap[post.author_id].level) || 0 : 0;
+    const lightfx = authorLv >= 36;
+    const levelTag = authorLv ? levelBadgeHtml(ctx.authorMap[post.author_id]) : '';
+    const isBoosted = !!post.boost_until && new Date(post.boost_until).getTime() > Date.now();
+    // 校园传说：带「传说推荐」标签（学长背书，顶置1h）
+    const isRecommended = !!post.recommend_until && new Date(post.recommend_until).getTime() > Date.now();
+    if (isRecommended) {
+      badges += '<span class="badge recommend">🏆 传说推荐</span>';
+    }
     const ownActs = isOwn
       ? `<span class="own-acts">
+           ${isBoosted ? `<span class="tiny-btn" style="color:#bd93f9">推流中至${formatTime(post.boost_until).slice(5, 16)}</span>` : ''}
+           ${!isBoosted ? '<button class="tiny-btn" data-act="boost" title="推流：临时顶置你的帖子">🚀 推流</button>' : ''}
            <button class="tiny-btn" data-act="edit">编辑</button>
            <button class="tiny-btn danger" data-act="del">删除</button>
          </span>` : '';
@@ -566,7 +796,7 @@
         <span class="post-time">${formatTime(post.created_at)}</span>
         ${floor}
       </div>
-      <div class="post-content">${escapeHtml(post.content)}${ownActs}</div>
+      <div class="post-content${lightfx ? ' lightfx' : ''}">${escapeHtml(post.content)}${ownActs}</div>
       <div class="post-actions">
         <button class="act-btn like-btn${liked ? ' active' : ''}" title="点赞">
           <span class="like-ico">👍</span><span class="like-num">${formatCount(post.like_count)}</span>
@@ -576,6 +806,7 @@
           <span class="cmt-label">展开评论</span>
         </button>
         <button class="act-btn fav-btn${favOn ? ' active' : ''}" data-pid="${post.id}" title="收藏">⭐</button>
+        ${!isOwn && loggedIn() && myPriv().recommend ? `<button class="act-btn rec-btn" data-act="recommend" data-id="${post.id}" title="传说推荐（顶置1h，每日${myPriv().recommend}次）">🏆 推荐</button>` : ''}
         <button class="act-btn rep-btn" data-type="post" data-id="${post.id}" title="举报">🚩</button>
       </div>
       <div class="post-comments hidden" data-cmtbox></div>`;
@@ -585,12 +816,87 @@
     card.querySelector('.rep-btn').addEventListener('click', (e) => {
       openReport(e.currentTarget.dataset.type, e.currentTarget.dataset.id);
     });
-    // 作者编辑/删除
+    const recBtn = card.querySelector('[data-act="recommend"]');
+    if (recBtn) recBtn.addEventListener('click', () => recommendPost(post, recBtn));
+    // 作者编辑/删除/推流
     if (isOwn) {
+      const bBoost = card.querySelector('[data-act="boost"]');
+      if (bBoost) bBoost.addEventListener('click', () => boostOwnPost(post, bBoost));
       card.querySelector('[data-act="edit"]').addEventListener('click', () => editOwnPost(card, post));
       card.querySelector('[data-act="del"]').addEventListener('click', () => deleteOwnPost(post));
     }
     return card;
+  }
+
+  // ---------------- 等级特权：推流 / 助推 ----------------
+  async function loadBoostQuota() {
+    if (!loggedIn()) return null;
+    try { return await callEdge('my_boosts', { token: state.user.token }); }
+    catch (_e) { return null; }
+  }
+  async function boostOwnPost(post, btn) {
+    if (!loggedIn()) { openUserModal(); return; }
+    btn.disabled = true;
+    try {
+      const r = await callEdge('post_boost', { token: state.user.token, post_id: post.id });
+      window.alert(`🚀 推流成功！你的帖子已临时顶置至 ${formatTime(r.until)}，本月剩余 ${r.remaining} 次推流。`);
+      loadFeed(); loadPinned();
+    } catch (e) { window.alert(e.message); }
+    finally { btn.disabled = false; }
+  }
+  async function assistNow() {
+    if (!loggedIn()) { openUserModal(); return; }
+    try {
+      const r = await callEdge('post_assist', { token: state.user.token });
+      window.alert(`✨ 助推成功！立刻获得 ${r.gained} 点经验。`);
+      loadFeed(); loadPinned(); renderUserBar();
+    } catch (e) { window.alert(e.message); }
+  }
+  // 校园传说+：推荐他人帖子（带「传说推荐」标签，顶置1h）
+  async function recommendPost(post, btn) {
+    if (!loggedIn()) { openUserModal(); return; }
+    if (myId() === post.author_id) { window.alert('不能推荐自己发布的帖子'); return; }
+    if (btn) btn.disabled = true;
+    try {
+      const r = await callEdge('post_recommend', { token: state.user.token, post_id: post.id });
+      window.alert(`🏆 已推荐该帖（传说推荐·顶置 1 小时）！今日剩余 ${r.remainingRecommend} 次推荐。`);
+      loadPinned(); loadFeed();
+    } catch (e) { window.alert(e.message); }
+    finally { if (btn) btn.disabled = false; }
+  }
+  // 「我的帖子」顶部等级特权面板
+  function renderBoostPanel(bq) {
+    const tier = bq.tier || {};
+    const boostTotal = Number(tier.boosts) || 0;
+    const assistTotal = Number(tier.assist ? 1 : 0) || 0;
+    const boostRemain = Number(bq.remaining && bq.remaining.boost) || 0;
+    const assistRemain = Number(bq.remaining && bq.remaining.assist) || 0;
+    const bar = (remain, total) => (!total ? 0 : Math.round((remain / total) * 100));
+    const div = document.createElement('div');
+    div.className = 'boost-panel';
+    div.innerHTML = `
+      <div class="boost-head">
+        <span class="boost-tier">${escapeHtml(tier.name || '')} · Lv.${bq.level}</span>
+        <span class="boost-xp">经验 ${bq.xp} · 本月剩余额度</span>
+      </div>
+      <div class="boost-metro">
+        <div class="boost-cell">
+          <div class="boost-cell-name">🚀 推流</div>
+          <div class="boost-bar"><i style="width:${bar(boostRemain, boostTotal)}%"></i></div>
+          <div class="boost-num">剩余 ${boostRemain} / ${boostTotal} 次</div>
+          <div class="boost-hint">顶置自己的帖子 ${tier.hours ? tier.hours + 'h' : '—'}</div>
+        </div>
+        <div class="boost-cell">
+          <div class="boost-cell-name">✨ 助推</div>
+          <div class="boost-bar"><i style="width:${bar(assistRemain, assistTotal)}%"></i></div>
+          <div class="boost-num">剩余 ${assistRemain} / ${assistTotal} 次</div>
+          <div class="boost-hint">${tier.assistXp ? '立即 +' + tier.assistXp + ' 经验' : '当前等级暂无'}</div>
+          ${assistRemain > 0 ? '<button class="tiny-btn boost-go" data-act="assist">✨ 立刻助推</button>' : ''}
+        </div>
+      </div>`;
+    const go = div.querySelector('[data-act="assist"]');
+    if (go) go.addEventListener('click', () => assistNow());
+    return div;
   }
 
   async function editOwnPost(card, post) {
@@ -739,6 +1045,8 @@
       }
       const rep = e.target.closest('[data-rep]');
       if (rep) { openReport('comment', rep.dataset.rep); return; }
+      const pin = e.target.closest('[data-pin]');
+      if (pin) { pinOwnComment(box, pin.dataset.pin, post); return; }
       const edit = e.target.closest('[data-edit]');
       if (edit) { editOwnComment(box, edit.dataset.edit, post); return; }
       const del = e.target.closest('[data-del]');
@@ -764,15 +1072,18 @@
     list.forEach((x) => { map[x.id] = x; });
     const parent = c.parent_id ? map[c.parent_id] : null;
     const name = c.nickname ? escapeHtml(c.nickname) : '<span class="anonymous">匿名</span>';
-    const lv = c.author_id && authorMap[c.author_id] ? `<span class="author-level" title="${escapeHtml(levelName(authorMap[c.author_id].level))}">Lv.${authorMap[c.author_id].level}</span>` : '';
+    const cLv = c.author_id && authorMap[c.author_id] ? Number(authorMap[c.author_id].level) || 0 : 0;
+    const lv = cLv ? levelBadgeHtml(authorMap[c.author_id]) : '';
     const isOwn = myId() && c.author_id === myId();
+    const pinable = isOwn && !!myPriv().pinComment && !c.is_pinned;
+    const pinnedTag = c.is_pinned ? '<span class="badge recommend" style="margin-left:4px">📌 已置顶</span>' : '';
     const ownActs = isOwn
-      ? `<span class="own-acts"><button class="tiny-btn" data-edit="${c.id}">编辑</button><button class="tiny-btn danger" data-del="${c.id}">删除</button></span>` : '';
+      ? `<span class="own-acts">${pinable ? `<button class="tiny-btn pin-cell" data-pin="${c.id}">📌 置顶</button>` : ''}<button class="tiny-btn" data-edit="${c.id}">编辑</button><button class="tiny-btn danger" data-del="${c.id}">删除</button></span>` : '';
     const replyTag = parent
       ? ' <span class="cmt-replyto">回复 @' + (parent.nickname ? escapeHtml(parent.nickname) : '匿名') + '</span>' : '';
     const rname = c.nickname ? c.nickname : '匿名';
-    return `<div class="cmt-item" data-cid="${c.id}">
-      <div class="cmt-head">${name}${lv}${replyTag}<span class="cmt-time">#${i + 1} · ${formatTime(c.created_at)}</span></div>
+    return `<div class="cmt-item${cLv >= 36 ? ' lightfx' : ''}" data-cid="${c.id}">
+      <div class="cmt-head">${name}${lv}${pinnedTag}${replyTag}<span class="cmt-time">#${i + 1} · ${formatTime(c.created_at)}</span></div>
       <div class="cmt-text">${escapeHtml(c.content)}${ownActs}</div>
       <button class="cmt-reply" data-reply="${c.id}" data-rname="${escapeHtml(rname)}">回复</button>
       <button class="cmt-reply" style="margin-left:10px" data-rep="${c.id}">举报</button>
@@ -797,6 +1108,14 @@
       if (end >= list.length) wrap.classList.add('hidden');
       else { wrap.classList.remove('hidden'); wrap.querySelector('.cmt-more').textContent = `加载更多评论（${list.length - end} 条）`; }
     }
+  }
+  async function pinOwnComment(box, id, post) {
+    if (!loggedIn()) return;
+    try {
+      const r = await callEdge('comment_pin', { token: state.user.token, comment_id: id });
+      window.alert(`✅ 评论已置顶，今日剩余 ${r.remainingPin} 次。`);
+      loadComments(box, post);
+    } catch (e) { window.alert(e.message); }
   }
   async function doDeleteOwnComment(box, id, post) {
     if (!window.confirm('确定删除这条评论及其回复吗？')) return;
@@ -878,9 +1197,15 @@
   // ---------------- 数据加载 ----------------
   function currentQueryBase() {
     let q = supabase.from('forum_posts').select('*').eq('reviewed', true).eq('blocked', false);
+    // 等级可见门禁：仅展示 min_view_level ≤ 我等级 的帖子（匿名视为 0）
+    q = q.or(`min_view_level.is.null,min_view_level.lte.${viewerViewLevel()}`);
+    // 定时发布：未到发布时间的帖子暂不对外展示
+    q = q.or(`scheduled_for.is.null,scheduled_for.lte.${new Date().toISOString()}`);
     if (state.activeTopic) q = q.eq('topic', state.activeTopic);
     return q;
   }
+  // 查看者等级（未登录视为 0，只可见全等级公开帖）
+  function viewerViewLevel() { return loggedIn() ? myLevelNow() : 0; }
   let floorCounter = 0;
   async function countTotal() {
     const q = currentQueryBase();
@@ -894,9 +1219,22 @@
         .order('pinned_at', { ascending: false });
       if (state.activeTopic) q = q.eq('topic', state.activeTopic);
       const { data } = await q;
+      // 推流/传说推荐的帖子也临时顶置展示
+      let boosted = [];
+      try {
+        const now = new Date().toISOString();
+        const bq = supabase.from('forum_posts').select('*').eq('reviewed', true).eq('blocked', false)
+          .or(`boost_until.gt.${now},recommend_until.gt.${now}`)
+          .or(`min_view_level.is.null,min_view_level.lte.${viewerViewLevel()}`)
+          .or(`scheduled_for.is.null,scheduled_for.lte.${now}`)
+          .order('pinned_at', { ascending: true });
+        if (state.activeTopic) bq = bq.eq('topic', state.activeTopic);
+        boosted = (await bq.limit(30)).data || [];
+      } catch (_e) { boosted = []; }
+      const rows = [...boosted, ...(data || [])];
       els.pinnedFeed.innerHTML = '';
-      const authorMap = await resolveAuthors(data || []);
-      const cards = (data || []).map((p) => makeCard(p, { pinned: true, authorMap }));
+      const authorMap = await resolveAuthors(rows);
+      const cards = rows.map((p) => makeCard(p, { pinned: true, boosted: !!p.boost_until, authorMap }));
       cards.forEach((c) => els.pinnedFeed.appendChild(c));
       els.pinnedSection.classList.toggle('hidden', !cards.length);
       observeReveal(els.pinnedFeed);
@@ -965,6 +1303,10 @@
     }
 
     els.feed.innerHTML = '';
+    if (state.mode === 'mine') {
+      const bq = await loadBoostQuota();
+      if (bq) els.feed.appendChild(renderBoostPanel(bq));
+    }
     if (!rows.length) {
       els.emptyState.classList.remove('hidden');
       if (state.mode === 'search') {
@@ -1180,6 +1522,35 @@
     return limit;
   }
 
+  function updateComposerPrivileges() {
+    const wrap = els.composerPriv;
+    if (!wrap) return;
+    const priv = myPriv();
+    if (!priv.sched && !priv.lvlgate) { wrap.classList.add('hidden'); return; }
+    wrap.classList.remove('hidden');
+    const lv = myLevelNow();
+    const lvSel = els.minViewLevel;
+    if (lvSel) {
+      lvSel.style.display = priv.lvlgate ? '' : 'none';
+      if (lvSel.dataset.lv !== String(lv)) {
+        const prev = lvSel.value;
+        lvSel.innerHTML = '<option value="0">所有等级可见</option>' +
+          (lv > 1 ? Array.from({ length: lv - 1 }, (_, i) => i + 2)
+            .map((n) => `<option value="${n}">仅 Lv.${n} 以上可见</option>`).join('') : '');
+        lvSel.dataset.lv = String(lv);
+        if (lvSel.querySelector('option[value="' + prev + '"]')) lvSel.value = prev;
+      }
+    }
+    if (els.scheduleAt) els.scheduleAt.style.display = priv.sched ? '' : 'none';
+    if (els.privHint) {
+      const parts = [];
+      if (priv.sched) parts.push('可定时发布');
+      if (priv.lvlgate) parts.push('可设等级可见');
+      if (priv.recommend) parts.push('可推荐他人帖子');
+      els.privHint.textContent = '风云学长+ 特权：' + parts.join(' · ');
+    }
+  }
+
   async function publish() {
     const topic = els.topicSelect.value;
     const content = els.content.value.trim();
@@ -1187,10 +1558,24 @@
     const nickname = loggedIn() ? '' : els.nickname.value.trim().slice(0, 24);
     const limit = topicLimit(topic);
     const warn = els.composeWarn;
-    const basePayload = () => ({ token: state.user.token || '', topic, nickname, content });
+    // 风云学长+：定时发布 / 等级可见（未登录时字段隐藏且不传）
+    let schedTs = 0;
+    if (loggedIn() && els.scheduleAt && els.scheduleAt.value) {
+      const _t = new Date(els.scheduleAt.value).getTime();
+      if (Number.isFinite(_t) && _t > 0) schedTs = _t;
+    }
+    const minView = (loggedIn() && els.minViewLevel) ? (Number(els.minViewLevel.value) || 0) : 0;
+    const basePayload = () => ({
+      token: state.user.token || '', topic, nickname, content,
+      ...(schedTs > 0 ? { schedule_at: new Date(schedTs).toISOString() } : {}),
+      ...(loggedIn() && minView > 0 ? { min_view_level: minView } : {})
+    });
     const onSuccess = async (msg) => {
       els.content.value = '';
       if (els.nickname && !loggedIn()) els.nickname.value = '';
+      if (els.scheduleAt) els.scheduleAt.value = '';
+      if (els.minViewLevel) els.minViewLevel.value = '0';
+      schedTs = 0;
       updateCharCount();
       els.composeHint.textContent = msg;
       if (state.activeTopic && state.activeTopic !== topic) { state.activeTopic = ''; renderFilterBar(); }
@@ -1213,6 +1598,13 @@
     }
     els.content.classList.remove('bad');
 
+    els.composeHint.textContent = '';
+    const succMsg = () => {
+      if (schedTs > 0) return '✅ 定时发布成功：将于 ' + (els.scheduleAt ? els.scheduleAt.value.replace('T', ' ') : '') + ' 自动公开展示。';
+      return topic === '吃瓜'
+        ? '✅ 已在「吃瓜」板块发布，内容提交成功后将由管理员审核后公开展示。' : '✅ 发布成功';
+    };
+
     // 匿名发布：走防刷验证码（登录用户跳过）
     if (!loggedIn()) {
       let cap;
@@ -1226,8 +1618,7 @@
         warn.textContent = '';
         try {
           await callEdge('post_create', { ...basePayload(), captcha_id: cap.id, captcha_ans: num });
-          await onSuccess(topic === '吃瓜'
-            ? '✅ 已在「吃瓜」板块发布，内容提交成功后将由管理员审核后公开展示。' : '✅ 发布成功');
+          await onSuccess(succMsg());
         } catch (e) {
           warn.textContent = '发布失败：' + (e.message || '未知错误');
         } finally { els.publish.disabled = false; }
@@ -1240,8 +1631,7 @@
     try {
       const res = await callEdge('post_create', basePayload());
       if (res && res.need_captcha) { warn.textContent = '防刷验证暂不可用，请刷新后重试'; els.publish.disabled = false; return; }
-      await onSuccess(topic === '吃瓜'
-        ? '✅ 已在「吃瓜」板块发布，内容提交成功后将由管理员审核后公开展示。' : '✅ 发布成功');
+      await onSuccess(succMsg());
     } catch (e) {
       warn.textContent = '发布失败：' + (e.message || '未知错误');
     } finally {

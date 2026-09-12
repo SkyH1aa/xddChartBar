@@ -106,6 +106,19 @@
     .tiny-btn:hover{color:var(--accent,#e07a5f);background:rgba(127,127,127,.1)}
     .tiny-btn.danger:hover{color:#e05e5e}
     .post-actions .act-btn.is-own{border-color:rgba(224,122,95,.35);color:var(--accent,#e07a5f)}
+    /* 等级特权：推流/助推面板 */
+    .boost-panel{background:linear-gradient(135deg,rgba(189,147,249,.12),rgba(122,162,247,.12));border:1px solid rgba(189,147,249,.35);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+    .boost-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .boost-tier{font-weight:700;color:var(--text);font-size:14px}
+    .boost-xp{color:var(--muted);font-size:12px}
+    .boost-metro{display:flex;gap:14px;flex-wrap:wrap}
+    .boost-cell{flex:1;min-width:200px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+    .boost-cell-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
+    .boost-bar{height:8px;border-radius:999px;background:var(--card-soft,#eee);overflow:hidden;margin-bottom:6px}
+    .boost-bar i{display:block;height:100%;background:linear-gradient(90deg,#bd93f9,#7aa2f7);border-radius:999px;transition:width .3s}
+    .boost-num{font-size:12px;color:var(--muted)}
+    .boost-hint{font-size:11px;color:var(--faint);margin-top:2px}
+    .boost-go{margin-top:8px;background:rgba(189,147,249,.2);color:#bd93f9;border:1px solid rgba(189,147,249,.4)}
     /* 评论区新增 */
     .cmt-bar2{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--faint);margin-bottom:6px}
     .cmt-floor{color:var(--faint);font-size:11px;margin-left:auto}
@@ -130,6 +143,55 @@
     .announce-item .a-meta{font-size:11px;color:var(--faint);margin-top:2px}
     .announce-item .a-content{font-size:13px;color:var(--muted);margin-top:6px;white-space:pre-wrap;word-break:break-word;line-height:1.7}
     .announce-empty{padding:18px;text-align:center;color:var(--faint);font-size:13px}
+    /* ============ 个人主页模态框 ============ */
+    .profile-mask{position:fixed;inset:0;z-index:200;background:rgba(15,15,25,.55);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+    .profile-card{width:min(560px,96vw);max-height:88vh;display:flex;flex-direction:column;background:var(--card,#fff);border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden;animation:pfIn .25s ease}
+    @keyframes pfIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+    .profile-card-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}
+    .profile-card-head .profile-loading{color:var(--faint)}
+    .profile-close{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1}
+    .profile-close:hover{color:var(--text)}
+    .profile-card-body{overflow:auto;padding:16px}
+    .profile-cview{display:flex;flex-direction:column;gap:12px}
+    .profile-cview-row{display:flex;align-items:center;gap:14px}
+    .profile-avatar{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;flex:0 0 auto}
+    .profile-mid{flex:1;min-width:0}
+    .profile-nick{font-size:18px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .profile-stats{font-size:12px;color:var(--muted);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+    .profile-editbtn{background:rgba(224,122,95,.14);color:var(--accent,#e07a5f);border:1px solid rgba(224,122,95,.35);border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer}
+    .profile-editbtn:hover{background:rgba(224,122,95,.22)}
+    .profile-tags{display:flex;gap:6px;flex-wrap:wrap}
+    .profile-tag{background:var(--card-soft,#f1f0eb);border:1px solid var(--line);color:var(--accent,#e07a5f);border-radius:999px;padding:2px 9px;font-size:12px}
+    .profile-rows{display:flex;flex-direction:column;gap:8px}
+    .profile-row{display:flex;gap:10px;font-size:14px;color:var(--text)}
+    .profile-row-label{flex:0 0 70px;color:var(--faint);font-size:12px;padding-top:2px}
+    .profile-row-val{flex:1;word-break:break-word;white-space:pre-wrap}
+    .profedit{display:flex;flex-direction:column;gap:10px}
+    .pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media(max-width:560px){.pf-grid{grid-template-columns:1fr}}
+    .pf-label{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--muted)}
+    .pf-input{background:var(--input-bg,#fff);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit}
+    .pf-input:focus{outline:none;border-color:var(--accent,#e07a5f)}
+    .pf-vis{display:flex;flex-wrap:wrap;gap:6px 14px;background:var(--card-soft);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:12px}
+    .pf-vis-title{width:100%;color:var(--muted);font-weight:600}
+    .pf-err{min-height:16px;font-size:12px;color:#e05e5e}
+    .prof-elite{display:flex;flex-wrap:wrap;gap:8px;background:linear-gradient(135deg,rgba(255,193,90,.12),rgba(189,147,249,.12));border:1px dashed rgba(245,185,66,.4);border-radius:12px;padding:10px 12px}
+    .prof-elite .pf-vis-title{color:var(--accent,#e07a5f)}
+    /* 风云学长+：帖子/评论动态光效背景 */
+    .lightfx{position:relative;overflow:hidden;border-radius:8px}
+    .lightfx::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 20%,rgba(224,122,95,.16) 45%,rgba(122,162,247,.2) 60%,transparent 85%);background-size:220% 100%;animation:lxShift 3.4s linear infinite;pointer-events:none}
+    @keyframes lxShift{from{background-position:120% 0}to{background-position:-120% 0}}
+    .post-content.lightfx,.cmt-text.lightfx{position:relative;z-index:1}
+    /* 发帖特权行 */
+    .composer-priv{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+    .composer-priv.hidden{display:none}
+    .composer-priv label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+    .composer-priv select,.composer-priv input{background:var(--input-bg,#fff);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:5px 8px;font-size:12px;font-family:inherit}
+    .composer-priv input[type=datetime-local]{color-scheme:light}
+    html[data-theme=dark] .composer-priv input[type=datetime-local]{color-scheme:dark}
+    /* 传说推荐 / 评论置顶 */
+    .badge.recommend{background:rgba(255,193,90,.18);color:#f5b942;border:1px solid rgba(245,185,66,.4)}
+    .pin-cell{color:var(--accent,#e07a5f)}
   </style>
   <script src="public/sensitive-words.js"></script>
 </head>
@@ -173,6 +235,14 @@
                placeholder="昵称（不填则显示匿名，最多24字）" />
         <span id="charCount" class="char-count">0 / 500</span>
         <button id="publishBtn" class="btn">发布</button>
+      </div>
+      <!-- 风云学长+ 发帖特权：定时发布 / 等级可见 -->
+      <div id="composerPriv" class="composer-priv hidden">
+        <label>🕒 定时发布 <input id="scheduleAt" type="datetime-local" /></label>
+        <label>🔒 等级可见
+          <select id="minViewLevel"><option value="0">所有等级可见</option></select>
+        </label>
+        <span id="privHint" class="hint-line" style="font-size:11px;color:var(--faint)"></span>
       </div>
       <div id="composeWarn" class="warn-line"></div>
       <div id="composeHint" class="hint-line"></div>

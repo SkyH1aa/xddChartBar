@@ -11,7 +11,7 @@
   const EDGE_URL = `${SUPABASE_URL}/functions/v1/newtheba`;
   const TOKEN_KEY = 'nzb_admin_token';
   const PROFILE_KEY = 'nzb_admin_profile';
-  const TOPICS = ['闲聊', '社团活动', '食堂', '宿舍', '学习', '吃瓜'];
+  const TOPICS = ['闲聊', '社团活动', '食堂', '宿舍', '学习', '吃瓜', '失物招领'];
 
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   const $ = (id) => document.getElementById(id);
@@ -404,9 +404,9 @@
   $('banUserQ').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('banUserSearch').click(); });
 
   // ---------- 用户统一管理（can_user_mgmt / 列用户·看信息·编辑等级） ----------
-  const LEVEL_TIERS = [[1,'见习'],[10,'初级'],[20,'活跃'],[30,'骨干'],[40,'资深'],[50,'核心'],[60,'传奇元老']];
+  const LEVEL_TIERS = [[10,'初来乍到'],[20,'校园萌新'],[35,'校园百事通'],[45,'风云学长'],[54,'校园传说'],[60,'校史留名']];
   let userMgmtQ = '';
-  function levelNameMgmt(lv) { for (const t of LEVEL_TIERS) if (lv <= t[0]) return lv + ' · ' + t[1]; return lv + ' · 传奇元老'; }
+  function levelNameMgmt(lv) { for (const t of LEVEL_TIERS) if (lv <= t[0]) return lv + ' · ' + t[1]; return '60 · 校史留名'; }
   async function loadUserMgmt() {
     const list = $('userMgmtList');
     list.innerHTML = '<div class="empty">加载中…</div>';
@@ -440,11 +440,14 @@
             <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
               <input type="number" min="0" max="60" value="${u.fixed_level}" data-lv="${u.id}" style="width:76px;padding:4px 6px;border:1px solid var(--line);border-radius:8px;background:var(--input-bg);color:var(--text)" title="0=按经验自动，1-60=固定等级" />
               <button class="btn sm" data-setlv="${u.id}">修改等级</button>
+              <button class="btn sm" data-viewprof="${u.id}" data-name="${escapeHtml(u.nickname || u.username)}">👁 查看主页</button>
             </div>
             <div style="font-size:12px;color:var(--faint);margin-top:4px">当前将显示：${escapeHtml(levelNameMgmt(u.level))}</div>
           </div>
         </div>`;
       list.appendChild(c);
+      const vp = c.querySelector(`[data-viewprof="${u.id}"]`);
+      if (vp) vp.addEventListener('click', () => viewUserProfile(u.id, vp.dataset.name));
       c.querySelector(`[data-setlv="${u.id}"]`).addEventListener('click', async (el) => {
         const lv = Math.max(0, Math.min(60, Math.floor(Number(c.querySelector(`[data-lv="${u.id}"]`).value || 0))));
         const tag = lv === 0 ? '自动（按经验计算）' : `Lv.${lv}`;
@@ -458,6 +461,46 @@
   $('userMgmtSearch').addEventListener('click', () => { userMgmtQ = $('userMgmtQ').value.trim(); loadUserMgmt(); });
   $('userMgmtQ').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('userMgmtSearch').click(); });
   $('userMgmtRefresh').addEventListener('click', () => loadUserMgmt());
+
+  // 管理员查看用户个人主页（含隐私字段，后端按管理员身份返回全部）
+  async function viewUserProfile(userId, name) {
+    const mask = document.createElement('div');
+    mask.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(10,12,25,.6);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)';
+    mask.innerHTML = `<div style="width:min(540px,96vw);max-height:86vh;overflow:auto;background:var(--card,#fff);border:1px solid var(--line);border-radius:16px;padding:20px 22px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <span style="font-weight:800;color:var(--text);font-size:17px">👤 ${escapeHtml(name)} 的个人主页</span>
+        <span style="font-size:11px;color:var(--accent,#e07a5f)">管理员视角（可查看全部字段）</span>
+        <button id="vpm-close" style="margin-left:auto;background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer">×</button>
+      </div>
+      <div id="vpm-body" style="color:var(--muted);font-size:13px">加载中…</div>
+    </div>`;
+    mask.querySelector('#vpm-close').addEventListener('click', () => mask.remove());
+    mask.addEventListener('mousedown', (e) => { if (e.target === mask) mask.remove(); });
+    document.body.appendChild(mask);
+    const body = mask.querySelector('#vpm-body');
+    let data;
+    try { data = await callEdge('profile_get', { token, user_id: userId }); }
+    catch (e) { body.innerHTML = `<div style="color:#e05e5e">加载失败：${escapeHtml(e.message)}</div>`; return; }
+    if (!data) { body.innerHTML = '<div>无主页数据</div>'; return; }
+    const p = data.profile || {};
+    const flagLabel = (k) => (p.flags && p.flags[k] === false ? '<span style="color:#c26;font-size:11px">（对他人私密）</span>' : '<span style="color:var(--faint);font-size:11px">（公开）</span>');
+    const fields = [
+      ['联系方式', p.contact], ['性别', p.gender], ['班级', p.class_name],
+      ['姓名', p.real_name], ['个性签名', p.signature], ['简介', p.bio]
+    ];
+    const rows = fields.map(([label, val]) =>
+      `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)">
+        <span style="flex:0 0 74px;color:var(--faint)">${label} ${flagLabel(label === '姓名' ? 'real_name' : label === '联系方式' ? 'contact' : label === '性别' ? 'gender' : label === '班级' ? 'class_name' : label === '个性签名' ? 'signature' : 'bio')}</span>
+        <span style="flex:1;white-space:pre-wrap;word-break:break-word">${escapeHtml(val || '（未填写）')}</span>
+      </div>`).join('');
+    const tags = (Array.isArray(p.tags) && p.tags.length)
+      ? p.tags.map((t) => `<span style="background:var(--card-soft,#eee);border:1px solid var(--line);color:var(--accent,#e07a5f);border-radius:999px;padding:1px 9px;font-size:12px;margin-right:4px">${escapeHtml(t)}</span>`).join('')
+      : '<span class="empty">（无标签）</span>';
+    body.innerHTML = `
+      ${p.page_open === false ? '<div style="margin-bottom:10px;padding:8px 12px;border-radius:8px;background:rgba(194,102,0,.12);color:#c2600a;font-size:12px">🔒 该用户已将主页设为「不对访客开放」（管理员仍可见）</div>' : ''}
+      ${tags.length ? `<div style="margin-bottom:6px">标签：${tags}</div>` : ''}
+      ${rows || '<div>该用户尚未填写个人主页资料</div>'}`;
+  }
 
   async function loadInterceptions() {
     const list = $('blacklistList');
