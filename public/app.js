@@ -411,6 +411,67 @@
     els.popupHost.appendChild(bd);
   }
 
+  // ---------------- 公告栏 ----------------
+  async function loadAnnouncements() {
+    const panel = $('announcePanel');
+    panel.innerHTML = '';
+    let items = [];
+    try { items = await callEdge('announce_public', {}); } catch (_e) { items = []; }
+    if (!items || !items.length) { panel.classList.add('hidden'); return; }
+    panel.classList.remove('hidden');
+    panel.innerHTML = `
+      <div class="announce-head">
+        <span class="bell">📢</span>
+        <span class="title">公告栏</span>
+        <span class="count">${items.length} 条</span>
+        <span class="caret">▼</span>
+      </div>
+      <div class="announce-body">
+        ${items.map((a) => `
+          <div class="announce-item">
+            <div class="a-title">${escapeHtml(a.title)}</div>
+            <div class="a-meta">${escapeHtml(a.created_at || '').slice(0, 16).replace('T', ' ')}</div>
+            <div class="a-content">${escapeHtml(a.content)}</div>
+          </div>`).join('')}
+      </div>`;
+    const head = panel.querySelector('.announce-head');
+    const body = panel.querySelector('.announce-body');
+    head.addEventListener('click', () => {
+      const closed = head.classList.toggle('closed');
+      body.classList.toggle('hidden', closed);
+    });
+  }
+
+  // ---------------- Bug 反馈 ----------------
+  const bugModal = $('bugModal');
+  function openBugModal(focusOnMiss = false) {
+    $('bugError').textContent = '';
+    if (focusOnMiss) $('bugCategory').value = '关键词误屏蔽';
+    bugModal.classList.remove('hidden');
+    setTimeout(() => $('bugContent').focus(), 30);
+  }
+  $('openBugBtn').addEventListener('click', () => openBugModal(false));
+  $('closeBugModal').addEventListener('click', () => bugModal.classList.add('hidden'));
+  bugModal.addEventListener('click', (e) => { if (e.target === bugModal) bugModal.classList.add('hidden'); });
+  $('bugSubmitBtn').addEventListener('click', async () => {
+    const category = $('bugCategory').value;
+    const content = $('bugContent').value.trim();
+    const err = $('bugError');
+    err.textContent = '';
+    if (!content) { err.textContent = '请填写具体问题描述'; return; }
+    $('bugSubmitBtn').disabled = true;
+    try {
+      await callEdge('bug_feedback_submit', { token: state.user.token || '', category, content });
+      bugModal.classList.add('hidden');
+      $('bugContent').value = '';
+      window.alert('✅ 反馈已提交，管理员会尽快处理。感谢你的反馈！');
+    } catch (e) { err.textContent = e.message; }
+    $('bugSubmitBtn').disabled = false;
+  });
+
+  // 敏感词误屏蔽通用提示
+  const MISBLOCK_HINT = ' 如果你认为我们误屏蔽了关键词，请在「🐞 反馈」中选「关键词误屏蔽」粘贴你的原文！';
+
   // ---------------- 作者信息解析（id → {level}） ----------------
   async function resolveAuthors(rows) {
     const ids = Array.from(new Set((rows || []).map((p) => p.author_id).filter(Boolean)));
@@ -490,7 +551,7 @@
     if (!content) { window.alert('内容不能为空'); return; }
     if (content.length > limit) { window.alert(`内容超出${limit}字上限`); return; }
     const hits = sensitiveHits(content);
-    if (hits.length) { window.alert('⚠️ 存在敏感词：' + hits.map((x) => '“' + x + '”').join('、')); return; }
+    if (hits.length) { window.alert('⚠️ 存在敏感词：' + hits.map((x) => '“' + x + '”').join('、') + MISBLOCK_HINT); return; }
     try {
       await callEdge('user_edit_post', { token: state.user.token, id: post.id, content });
       post.content = content;
@@ -702,7 +763,7 @@
     if (!content) return;
     if (content.length > 250) { window.alert('评论最多 250 字'); return; }
     const hits = sensitiveHits(content);
-    if (hits.length) { window.alert('⚠️ 存在敏感词：' + hits.map((x) => '“' + x + '”').join('、')); return; }
+    if (hits.length) { window.alert('⚠️ 存在敏感词：' + hits.map((x) => '“' + x + '”').join('、') + MISBLOCK_HINT); return; }
     try {
       await callEdge('user_edit_comment', { token: state.user.token, id, content });
       loadComments(box, post);
@@ -719,7 +780,7 @@
     if (content.length > 250) { w.textContent = '评论最多 250 字'; return; }
     const hitWords = sensitiveHits(content).concat(sensitiveHits(nickname));
     if (hitWords.length) {
-      w.textContent = '⚠️ 评论存在敏感词（' + hitWords.map((x) => '“' + x + '”').join('、') + '），不得发布。';
+      w.textContent = '⚠️ 评论存在敏感词（' + hitWords.map((x) => '“' + x + '”').join('、') + '），不得发布。' + MISBLOCK_HINT;
       return;
     }
     const btn = box.querySelector('.cmt-submit');
@@ -1019,7 +1080,7 @@
     if (content.length > limit) { warn.textContent = `内容超出${limit}字上限`; return; }
     const hitWords = sensitiveHits(content).concat(sensitiveHits(nickname));
     if (hitWords.length) {
-      warn.textContent = '⚠️ 发布内容存在敏感词（' + hitWords.map((x) => '“' + x + '”').join('、') + '），不得发布。';
+      warn.textContent = '⚠️ 发布内容存在敏感词（' + hitWords.map((x) => '“' + x + '”').join('、') + '），不得发布。' + MISBLOCK_HINT;
       els.content.classList.add('bad');
       return;
     }
@@ -1161,6 +1222,7 @@
     renderUserBar();
     loadSiteStatus();
     loadPopups();
+    loadAnnouncements();
     loadPinned();
     loadFeed();
     loadLeaderboard();

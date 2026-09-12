@@ -110,6 +110,21 @@
     .search-banner{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:16px 0 6px}
     .search-banner .kill{color:var(--accent,#e07a5f);cursor:pointer;border:none;background:none}
     .empty.ok{min-height:120px}
+    /* 公告栏 */
+    .announce-panel{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:16px;overflow:hidden}
+    .announce-head{display:flex;align-items:center;gap:8px;padding:11px 14px;cursor:pointer;user-select:none}
+    .announce-head .bell{flex:0 0 auto;font-size:16px}
+    .announce-head .title{flex:0 0 auto;font-weight:700;color:var(--accent,#e07a5f);font-size:14px}
+    .announce-head .count{flex:0 0 auto;background:var(--input-bg);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:1px 9px;font-size:12px}
+    .announce-head .caret{margin-left:auto;color:var(--faint);font-size:12px;transition:transform .2s}
+    .announce-head.closed .caret{transform:rotate(-90deg)}
+    .announce-body{max-height:320px;overflow:auto}
+    .announce-body.hidden{display:none}
+    .announce-item{padding:10px 14px;border-top:1px dashed var(--line)}
+    .announce-item .a-title{font-size:14px;font-weight:600;color:var(--text)}
+    .announce-item .a-meta{font-size:11px;color:var(--faint);margin-top:2px}
+    .announce-item .a-content{font-size:13px;color:var(--muted);margin-top:6px;white-space:pre-wrap;word-break:break-word;line-height:1.7}
+    .announce-empty{padding:18px;text-align:center;color:var(--faint);font-size:13px}
   </style>
   <script src="public/sensitive-words.js"></script>
 </head>
@@ -130,6 +145,7 @@
       <div class="spacer"></div>
       <span id="userBar"></span>
       <button id="openAdmin" class="btn ghost sm">管理员</button>
+      <button id="openBugBtn" class="btn ghost sm" title="反馈使用中遇到的问题">🐞 反馈</button>
       <div id="themeSwitcherHost" style="display:inline-flex"></div>
     </div>
   </header>
@@ -175,6 +191,8 @@
     <!-- 版块 -->
     <section class="layout2" style="margin-top:18px">
       <div class="feed-col">
+        <!-- 公告栏 -->
+        <div id="announcePanel" class="announce-panel hidden"></div>
         <!-- 顶置帖 -->
         <div id="pinnedSection" class="hidden" style="margin-bottom:8px">
           <h2 class="section-title">置顶</h2>
@@ -313,6 +331,34 @@
 
   <!-- ================= 弹窗公告 ================= -->
   <div id="popupHost"></div>
+
+  <!-- ================= Bug 反馈弹窗 ================= -->
+  <div id="bugModal" class="modal-backdrop hidden">
+    <div class="modal-card" style="max-width:460px">
+      <h3>🐞 Bug 反馈</h3>
+      <div class="form-body">
+        <div class="form-field">
+          <label>问题类别</label>
+          <select id="bugCategory" class="input">
+            <option value="发帖/收藏/点赞/浏览历史bug">发帖 / 收藏 / 点赞 / 浏览历史 bug</option>
+            <option value="关键词误屏蔽">关键词误屏蔽</option>
+            <option value="使用bug">使用 bug</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>具体描述（必填，最多 2000 字）</label>
+          <textarea id="bugContent" class="input" rows="5" maxlength="2000"
+                    placeholder="请描述你遇到的步骤与现象。若因关键词被拦截无法发布，请选择「关键词误屏蔽」并粘贴你的原文，管理员核实后会调整屏蔽词。"></textarea>
+        </div>
+        <div id="bugError" class="form-error"></div>
+        <button id="bugSubmitBtn" class="btn" style="width:100%">提交反馈</button>
+        <div style="margin-top:14px;text-align:right">
+          <button class="btn ghost sm" id="closeBugModal">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ================= 站点拦截页 ================= -->
   <div id="haltPage" class="halt-page hidden">

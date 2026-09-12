@@ -86,7 +86,9 @@
       { key: 'audit', label: '审计日志', perm: 'can_view_audit' },
       { key: 'blacklist', label: '黑名单', requiresAny: ['can_blacklist', 'can_block'] },
       { key: 'site', label: '站点开关' },
-      { key: 'popups', label: '弹窗公告' }
+      { key: 'popups', label: '弹窗公告' },
+      { key: 'announces', label: '公告栏', perm: 'can_notice' },
+      { key: 'bugs', label: 'Bug反馈', perm: 'can_bug' }
     ];
     if (profile?.isFounder) {
       all.push({ key: 'admins', label: '管理员' });
@@ -137,6 +139,8 @@
     if (key === 'blacklist') loadBlacklist();
     if (key === 'site') loadSite();
     if (key === 'popups') loadPopups();
+    if (key === 'announces') loadAnnounces();
+    if (key === 'bugs') loadBugs();
     if (key === 'admins') loadAdmins();
   }
 
@@ -317,7 +321,8 @@
     const tags = [];
     const m = [
       ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
-      ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理']
+      ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
+      ['can_notice', '公告管理'], ['can_bug', 'Bug回复']
     ];
     (profile?.isFounder ? m : m.filter(([k]) => profile?.perms?.[k])).forEach(([k, label]) => {
       tags.push(`<span class="badge topic">${label}</span>`);
@@ -658,6 +663,137 @@
   });
   $('popCancel').addEventListener('click', popupResetForm);
 
+  // ---------- 公告栏管理（can_notice） ----------
+  let announceEditingId = null;
+  function announceResetForm() {
+    announceEditingId = null;
+    $('annTitle').value = '';
+    $('annContent').value = '';
+    $('annSort').value = '0';
+    $('annFormTitle').textContent = '新建公告';
+    $('annCreate').textContent = '发布公告';
+    $('annCreate').classList.remove('ghost');
+    $('annCancel').classList.add('hidden');
+  }
+  function announceStartEdit(a) {
+    announceEditingId = a.id;
+    $('annTitle').value = a.title;
+    $('annContent').value = a.content;
+    $('annSort').value = a.sort_order || 0;
+    $('annFormTitle').textContent = '编辑公告';
+    $('annCreate').textContent = '保存修改';
+    $('annCreate').classList.add('ghost');
+    $('annCancel').classList.remove('hidden');
+    $('annFormTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  async function loadAnnounces() {
+    const data = await callEdge('announce_list');
+    const list = $('announceList');
+    list.innerHTML = '';
+    if (!data.length) { list.innerHTML = '<div class="empty">暂无公告，请先发布一条。</div>'; return; }
+    data.forEach((a) => {
+      const card = document.createElement('div');
+      card.className = 'panel fade-in-up';
+      card.style.padding = '14px 16px';
+      card.style.boxShadow = 'none';
+      card.style.marginBottom = '10px';
+      card.innerHTML = `
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+          <span class="badge topic">${escapeHtml(a.created_by || '')}</span>
+          <strong>${escapeHtml(a.title)}</strong>
+          ${a.enabled ? '<span class="badge topic">已启用</span>' : '<span class="badge" style="color:#fff;background:var(--faint)">已停用</span>'}
+          <span style="font-size:12px;color:var(--faint)">排序 ${a.sort_order || 0}</span>
+          <button class="btn sm ghost" data-edit="${a.id}">编辑</button>
+          <button class="btn sm ghost" data-toggle="${a.id}" data-en="${a.enabled ? 'false' : 'true'}">${a.enabled ? '停用' : '启用'}</button>
+          <button class="btn sm danger" data-del="${a.id}">删除</button>
+        </div>
+        <div style="color:var(--muted);font-size:13px;white-space:pre-wrap">${escapeHtml(a.content)}</div>`;
+      card.querySelector('[data-del]').addEventListener('click', async (b) => {
+        if (!confirm('删除该公告？')) return;
+        b.currentTarget.disabled = true;
+        try { await callEdge('announce_delete', { id: a.id }); if (announceEditingId === a.id) announceResetForm(); loadAnnounces(); }
+        catch (err) { alert(err.message); }
+      });
+      card.querySelector('[data-toggle]').addEventListener('click', async (b) => {
+        b.currentTarget.disabled = true;
+        try { await callEdge('announce_toggle', { id: a.id, enabled: b.currentTarget.dataset.en === 'true' }); loadAnnounces(); }
+        catch (err) { alert(err.message); }
+      });
+      card.querySelector('[data-edit]').addEventListener('click', () => announceStartEdit(a));
+      list.appendChild(card);
+    });
+  }
+  $('annCreate').addEventListener('click', async () => {
+    const title = $('annTitle').value.trim();
+    const content = $('annContent').value.trim();
+    const sort_order = parseInt($('annSort').value, 10) || 0;
+    if (!title || !content) { alert('请填写标题和内容'); return; }
+    $('annCreate').disabled = true;
+    try {
+      if (announceEditingId) await callEdge('announce_update', { id: announceEditingId, title, content, sort_order });
+      else await callEdge('announce_create', { title, content, sort_order, enabled: true });
+      announceResetForm();
+      loadAnnounces();
+    } catch (err) { alert(err.message); }
+    $('annCreate').disabled = false;
+  });
+  $('annCancel').addEventListener('click', announceResetForm);
+
+  // ---------- Bug 反馈管理（can_bug） ----------
+  const BUG_LABEL = {
+    '发帖/收藏/点赞/浏览历史bug': '发帖/收藏/点赞/浏览历史',
+    '关键词误屏蔽': '关键词误屏蔽', '使用bug': '使用 bug', '其他': '其他'
+  };
+  const BUG_STATUS = { new: '待处理', replied: '已回复', resolved: '已解决' };
+  async function loadBugs() {
+    const data = await callEdge('bug_feedback_list');
+    const list = $('bugList');
+    list.innerHTML = '';
+    if (!data.length) { list.innerHTML = '<div class="empty">暂无用户反馈 ✅</div>'; return; }
+    data.forEach((b) => {
+      const card = document.createElement('div');
+      card.className = 'panel fade-in-up';
+      card.style.padding = '14px 16px';
+      card.style.boxShadow = 'none';
+      card.style.marginBottom = '10px';
+      card.innerHTML = `
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+          <span class="badge topic">${escapeHtml(BUG_LABEL[b.category] || b.category)}</span>
+          <span class="badge" style="background:${b.status === 'resolved' ? '#2e8b57' : (b.status === 'replied' ? 'var(--warn)' : 'var(--danger)')};">${BUG_STATUS[b.status] || b.status}</span>
+          <span style="font-size:12px;color:var(--faint)">${escapeHtml(b.user_name)} · ${escapeHtml(b.created_at || '').slice(0, 16).replace('T', ' ')}</span>
+        </div>
+        <div style="color:var(--text);font-size:13px;white-space:pre-wrap;margin-bottom:8px;border-left:3px solid var(--line);padding-left:10px">${escapeHtml(b.content)}</div>
+        ${b.admin_reply ? `<div style="background:var(--card-soft);border:1px dashed var(--line);border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:13px;color:var(--accent,#e07a5f)">管理员（${escapeHtml(b.replied_by || '')}）：${escapeHtml(b.admin_reply)}</div>` : ''}
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+          <textarea data-replybox class="input" rows="2" maxlength="2000" placeholder="留言给用户…" style="flex:1;min-width:220px;resize:vertical">${escapeHtml(b.admin_reply)}</textarea>
+          <button class="btn sm" data-reply="${b.id}">保存并回复</button>
+          <button class="btn sm ghost" data-status="${b.id}" data-s="${b.status === 'resolved' ? 'new' : 'resolved'}">${b.status === 'resolved' ? '重新打开' : '标记已解决'}</button>
+          <button class="btn sm danger" data-del="${b.id}">删除</button>
+        </div>`;
+      card.querySelector('[data-reply]').addEventListener('click', async (el) => {
+        const box = card.querySelector('[data-replybox]');
+        const reply = box.value.trim();
+        if (!reply) { alert('请先填写回复内容'); return; }
+        el.currentTarget.disabled = true;
+        try { await callEdge('bug_feedback_reply', { id: b.id, reply }); loadBugs(); }
+        catch (err) { alert(err.message); }
+      });
+      card.querySelector('[data-status]').addEventListener('click', async (el) => {
+        el.currentTarget.disabled = true;
+        try { await callEdge('bug_feedback_status', { id: b.id, status: el.currentTarget.dataset.s }); loadBugs(); }
+        catch (err) { alert(err.message); }
+      });
+      card.querySelector('[data-del]').addEventListener('click', async (el) => {
+        if (!confirm('删除该反馈？')) return;
+        el.currentTarget.disabled = true;
+        try { await callEdge('bug_feedback_delete', { id: b.id }); loadBugs(); }
+        catch (err) { alert(err.message); }
+      });
+      list.appendChild(card);
+    });
+  }
+  $('bugRefresh').addEventListener('click', loadBugs);
+
   // ---------- 管理员管理（创始人） ----------
   async function loadAdmins() {
     if (!profile?.isFounder) return;
@@ -700,7 +836,8 @@
       c.style.padding = '12px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px';
       const perms = [
         ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
-        ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理']
+        ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
+      ['can_notice', '公告管理'], ['can_bug', 'Bug回复']
       ];
       const toggles = perms.map(([k, label]) => {
         const on = !!a[k];
