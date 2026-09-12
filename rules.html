@@ -8,74 +8,101 @@
   <link rel="stylesheet" href="public/theme.css" />
   <style>
     body{background:var(--bg)}
-    .wrap-rules{max-width:760px;margin:0 auto;padding:28px 18px 60px}
+    .wrap-rules{max-width:780px;margin:0 auto;padding:28px 18px 60px}
     .rules-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px 30px}
     .rules-card h1{font-size:22px;margin:0 0 6px;color:var(--text)}
     .rules-card .sub{color:var(--muted);font-size:13px;margin-bottom:22px}
-    .rules-card h2{font-size:16px;color:var(--text);margin:24px 0 10px;border-left:3px solid var(--accent,#e07a5f);padding-left:10px}
-    .rules-card p,.rules-card li{color:var(--muted);font-size:14px;line-height:1.9}
-    .rules-card ul{padding-left:20px}
-    .rules-card .taglist{display:flex;flex-wrap:wrap;gap:8px}
-    .rules-card .taglist span{background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:4px 12px;font-size:12px}
-    .back{display:inline-block;margin-top:24px;color:var(--accent,#e07a5f);text-decoration:none;font-size:14px}
-    .note{background:var(--card-soft);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--muted);margin-top:14px}
+    .rules-card h2{font-size:16px;color:var(--text);margin:26px 0 10px;border-left:3px solid var(--accent,#e07a5f);padding-left:10px}
+    .rules-card p,.rules-card li{color:var(--muted);font-size:14px;line-height:1.95}
+    .rules-card ul{padding-left:20px;margin:8px 0}
+    .rules-card li{margin:6px 0}
+    .rules-card .note{background:var(--card-soft);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--muted);margin-top:14px}
+    .rules-card .note b{color:var(--text)}
+    .back{display:inline-block;margin-top:26px;color:var(--accent,#e07a5f);text-decoration:none;font-size:14px}
   </style>
 </head>
 <body>
   <main class="wrap-rules">
     <div class="rules-card">
       <h1>新哲吧 · 站规与使用说明</h1>
-      <div class="sub">公开论坛 · 文明交流 · 归你所有</div>
+      <div class="sub">公开论坛 · 文明交流 · 内容有归属 · 治理有据可查</div>
 
       <h2>一、这里是怎样的地方</h2>
       <p>
-        新哲吧是面向全体同学的公开讨论广场。与普通留言墙不同，它是一个<b style="color:var(--text)">公共级论坛</b>：
-        你可以选择<b style="color:var(--text)">匿名</b>发言，也可以<b style="color:var(--text)">注册账号</b>，让内容有归属、可管理、可追踪。
+        新哲吧是面向全体同学的公开讨论广场，是一个<b style="color:var(--text)">公共级论坛</b>。你可以不登录
+        <b style="color:var(--text)">匿名发言</b>，也可以<b style="color:var(--text)">注册账号</b>，让内容有归属、可管理、可追踪。
       </p>
-      <div class="taglist">
-        <span>闲聊</span><span>社团活动</span><span>食堂</span><span>宿舍</span><span>学习</span><span>吃瓜</span>
+      <div class="note">
+        <b>固定六大话题</b>（永久不变）：闲聊 · 社团活动 · 食堂 · 宿舍 · 学习 · 吃瓜。此外你还可以<b>自建自定义话题</b>（见第三条）。
       </div>
 
       <h2>二、发言基本规则</h2>
       <ul>
-        <li>不发布违法违规、辱骂歧视、色情低俗或明显恶意的内容；会触发<b style="color:var(--text)">敏感词检测</b>。</li>
-        <li>「吃瓜」板块内容最多 5000 字，且需<b style="color:var(--text)">管理员人工审核</b>通过后公开。</li>
-        <li>其余板块单条不超过 500 字，评论不超过 250 字。</li>
+        <li>不发布违法违规、辱骂歧视、色情低俗或明显恶意的内容；命中<b style="color:var(--text)">敏感词检测</b>会直接拦截并提示具体词条。</li>
+        <li>「吃瓜」板块内容最多 5000 字，需<b style="color:var(--text)">管理员人工审核</b>通过后才公开；其余板块单条最多 500 字，评论最多 250 字。</li>
         <li>平台至多保留最近 5000 条帖子与 7000 条评论，超出会自动清理最旧内容。</li>
         <li>请尊重他人隐私，不传播未经同意公开的个人信息。</li>
+        <li>有发帖频次限制（防刷屏），连续恶意发布可能被临时限制。</li>
       </ul>
 
-      <h2>三、账号与身份</h2>
+      <h2>三、自定义话题规则</h2>
       <ul>
-        <li>注册后可登录，发帖/评论会自动署上账号昵称，并可<b style="color:var(--text)">编辑、删除自己的内容</b>。</li>
-        <li>拥有等级（Lv）：经验来自发帖、评论与被点赞，等级越高说明你越活跃。</li>
+        <li>在发布框下拉选择「＋ 新建自定义话题」即可<b style="color:var(--text)">创建新话题</b>，话题名会去空格、去符号、转小写校验，<b>一个话题只能建一次</b>。</li>
+        <li>新话题默认<b style="color:var(--text)">有效期 48 小时</b>；期间每有新帖发布即再<b>续期 48 小时</b>。</li>
+        <li>累计<b style="color:var(--text)">满 15 帖自动转为永久话题</b>，不再过期。</li>
+        <li>过期话题下的帖子、评论会<b>自动转入「闲聊」话题</b>，内容不会丢失。</li>
+        <li>管理员可<b>删除任何自定义话题</b>（包括已转永久的话题），删除后该话题下的全部帖子与评论一并转入「闲聊」。</li>
+      </ul>
+
+      <h2>四、账号与身份</h2>
+      <ul>
+        <li>用<b>用户名</b>注册登录后，发帖/评论会自动署上用户名，并可<b style="color:var(--text)">编辑、删除自己的内容</b>。</li>
+        <li>拥有<b style="color:var(--text)">等级（Lv）</b>与称号：经验来自发帖、评论与被点赞，等级越高说明你越活跃（详见第八条）。</li>
         <li>「匿名默认、登录可选」——不登录也能正常发帖，只是无法管理自己的历史内容。</li>
-        <li>请你妥善保管账号密码，勿转借他人。</li>
+        <li>昵称或账号命中<b style="color:var(--text)">黑名单</b>时将无法注册/发帖；请妥善保管账号密码，勿转借他人。</li>
       </ul>
 
-      <h2>四、治理与举报</h2>
+      <h2>五、互动与查看</h2>
       <ul>
-        <li>每条帖子/评论旁都有「🚩 举报」。遇到违规内容，如实填写理由即可提交给管理员。</li>
-        <li>管理员可<strong style="color:var(--text)">屏蔽</strong>（隐藏但保留）、<strong style="color:var(--text)">删除</strong>、<strong style="color:var(--text)">置顶</strong>帖子与评论。</li>
-        <li>管理员的所有治理操作都会写入<b style="color:var(--text)">审计日志</b>，做到有据可查。</li>
-        <li>系统有发帖频次限制（防刷屏），情节严重者将被<b style="color:var(--text)">封禁账号</b>。</li>
+        <li>「🔔」查看<b style="color:var(--text)">被回复、被点赞</b>的通知，未读会有红点提示，点击通知直达对应帖子。</li>
+        <li>「⭐」<b>收藏</b>感兴趣的帖子；每个账号对同一帖子最多点赞一次，「我的收藏」「我的帖子」可随时回看。</li>
+        <li>顶部搜索框可<b>全文搜索</b>内容与昵称；评论区支持<b style="color:var(--text)">楼层定位、只看楼主</b>。</li>
+        <li>侧栏「🔥 热帖榜」按<b style="color:var(--text)">点赞时间</b>分今日 / 本周 / 本月三档排序，顶置帖也会计入。</li>
+        <li>本站支持日/夜主题自动切换（早 6:00—18:00 浅色，其余深色），登录后也可手动保存偏好。</li>
       </ul>
 
-      <h2>五、站点运营</h2>
+      <h2>六、治理与举报</h2>
       <ul>
-        <li>顶部「🔔」可查看<b style="color:var(--text)">被回复、被点赞</b>的通知。</li>
-        <li>「⭐」收藏感兴趣的帖子，随时回来查看。</li>
-        <li>顶部搜索框可全文搜索内容与昵称。</li>
-        <li>本站支持日/夜主题自动切换（早 6 点—晚 6 点为浅色，其余为深色），也可手动切换。</li>
+        <li>每条帖子/评论旁都有「🚩 举报」，如实填写理由即可提交给管理员处理。</li>
+        <li>管理员可对帖子/评论进行<b style="color:var(--text)">屏蔽</b>（隐藏但保留）、<b style="color:var(--text)">删除</b>、<b style="color:var(--text)">置顶</b>等操作。</li>
+        <li>被删除的帖子会进入<b style="color:var(--text)">回收站</b>（最多 500 条、保存 14 天、可恢复），管理员可查看被删原帖。</li>
+        <li>管理员的所有治理操作都会写入<b style="color:var(--text)">审计日志</b>（含被删原帖内容），做到有据可查。</li>
+        <li>「吃瓜」板块需审核通过后公开；反馈入口「🐞」可提交运行问题与误屏蔽申诉。</li>
       </ul>
 
-      <h2>六、等级与经验（升级规则）</h2>
+      <h2>七、黑名单与封禁</h2>
       <ul>
-        <li><b style="color:var(--text)">经验获取：</b>每发一篇帖子 <b style="color:var(--text)">+2</b> 经验，每发一条评论 / 回复 <b style="color:var(--text)">+1</b>，自己的帖子或评论每被点赞一次 <b style="color:var(--text)">+1</b>。</li>
+        <li>发布内容命中<b style="color:var(--text)">黑名单关键词</b>时会被拦截、不发布；命中敏感词还会提示具体词条，可在「🐞 反馈」选择“关键词误屏蔽”申诉。</li>
+        <li><b style="color:var(--text)">昵称/账号黑名单</b>：命中者在注册、发帖、评论时会被阻止。</li>
+        <li>每次拦截都会记录（当前最新 750 条），供管理员查看，但因内容不同而不会重复计数。</li>
+        <li>情节严重者将被<b style="color:var(--text)">封禁账号</b>，并留下审计痕迹，管理员可随时核对。</li>
+      </ul>
+
+      <h2>八、等级与经验（升级规则）</h2>
+      <ul>
+        <li><b style="color:var(--text)">经验获取：</b>每发一篇帖子 <b style="color:var(--text)">+2</b>，每发一条评论/回复 <b style="color:var(--text)">+1</b>，自己的内容每被<b>点赞</b>一次 <b style="color:var(--text)">+1</b>。</li>
         <li><b style="color:var(--text)">升级规律：</b>等级按 1 + log<sub>2</sub>(经验+1) 计算（上限 60 级）。等级越高，升至下一级所需的经验越多，需要持续活跃。</li>
         <li><b style="color:var(--text)">称号：</b>见习 → 初级 → 活跃 → 骨干 → 资深 → 核心 → 传奇元老（随等级提升逐步解锁）。</li>
         <li><b style="color:var(--text)">扣减：</b>帖子被删除、评论被删除时，对应经验会同步扣除。</li>
-        <li>在帖子/评论区可看到作者等级徽章，头像下拉菜单可查看自己的经验进度条。</li>
+        <li>在帖子/评论区可见作者等级徽章，头像下拉菜单可查看自己的经验进度条。</li>
+      </ul>
+
+      <h2>九、站点运营与技术说明</h2>
+      <ul>
+        <li>管理员可发布<b style="color:var(--text)">公告栏</b>与<b style="color:var(--text)">弹窗公告</b>，重要通知以弹窗展示。</li>
+        <li>「站点开关」可临时关闭网站并显示拦截页，用于维护或特殊情况。</li>
+        <li>普通用户有<b style="color:var(--text)">浏览历史</b>记录；收藏、点赞、评论、黑名单等信息均与账号绑定。</li>
+        <li>所有数据存储在 Supabase 云端，操作通过鉴权的云函数执行，权限按角色细粒度控制。</li>
       </ul>
 
       <div class="note">

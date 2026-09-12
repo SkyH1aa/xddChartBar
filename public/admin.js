@@ -88,7 +88,8 @@
       { key: 'site', label: '站点开关' },
       { key: 'popups', label: '弹窗公告' },
       { key: 'announces', label: '公告栏', perm: 'can_notice' },
-      { key: 'bugs', label: 'Bug反馈', perm: 'can_bug' }
+      { key: 'bugs', label: 'Bug反馈', perm: 'can_bug' },
+      { key: 'topics', label: '自定义话题', perm: 'can_topic' }
     ];
     if (profile?.isFounder) {
       all.push({ key: 'admins', label: '管理员' });
@@ -141,6 +142,7 @@
     if (key === 'popups') loadPopups();
     if (key === 'announces') loadAnnounces();
     if (key === 'bugs') loadBugs();
+    if (key === 'topics') loadTopicsAdmin();
     if (key === 'admins') loadAdmins();
   }
 
@@ -337,7 +339,7 @@
     try { data = await callEdge('interceptions_list'); }
     catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; return; }
     if (!data.length) { list.innerHTML = '<div class="empty">暂无拦截记录 ✅</div>'; return; }
-    const KIND_LABEL = { post: '发帖', comment: '评论', nickname: '昵称', keyword: '关键词' };
+    const KIND_LABEL = { post: '发帖', comment: '评论', nickname: '昵称', keyword: '关键词', topic: '话题' };
     list.innerHTML = '';
     data.forEach((r) => {
       const c = document.createElement('div');
@@ -347,6 +349,7 @@
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
           <span class="badge topic">${escapeHtml(KIND_LABEL[r.kind] || r.kind)}</span>
           <span style="font-size:13px;color:var(--accent,#e07a5f)">@${escapeHtml(r.user_key)}</span>
+          ${r.topic ? `<span class="badge" style="color:#fff;background:#5a7184">话题：${escapeHtml(r.topic)}</span>` : ''}
           ${r.words ? `<span class="badge" style="color:#fff;background:#6a6a8a">命中：${escapeHtml(r.words)}</span>` : ''}
           <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(r.created_at)}</span>
         </div>
@@ -361,7 +364,7 @@
     const m = [
       ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
       ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
-      ['can_notice', '公告管理'], ['can_bug', 'Bug回复']
+      ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理']
     ];
     (profile?.isFounder ? m : m.filter(([k]) => profile?.perms?.[k])).forEach(([k, label]) => {
       tags.push(`<span class="badge topic">${label}</span>`);
@@ -833,6 +836,40 @@
   }
   $('bugRefresh').addEventListener('click', loadBugs);
 
+  // ---------- 自定义话题管理（can_topic） ----------
+  async function loadTopicsAdmin() {
+    const list = $('topicList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    let data;
+    try { data = await callEdge('topic_admin_list'); }
+    catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; return; }
+    if (!data.length) { list.innerHTML = '<div class="empty">暂无自定义话题</div>'; return; }
+    list.innerHTML = '';
+    data.forEach((t) => {
+      const c = document.createElement('div');
+      c.className = 'panel fade-in-up';
+      c.style.padding = '10px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px';
+      c.innerHTML = `
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
+          <span class="badge topic">${escapeHtml(t.display_name)}</span>
+          ${t.is_permanent ? '<span class="badge" style="color:#fff;background:#2e8b57">永久</span>' : ''}
+          <span style="font-size:13px;color:var(--muted)">${t.post_count} 帖</span>
+          <span style="font-size:12px;color:var(--faint)">创建者：${escapeHtml(t.created_by)}</span>
+          ${t.is_permanent ? '' : `<span style="font-size:12px;color:var(--faint)">到期：${formatTime(t.expires_at)}</span>`}
+          <button class="btn sm danger" data-del="${t.id}" style="margin-left:auto">删除</button>
+        </div>
+        <div style="font-size:12px;color:var(--faint)">删除后，该话题下的全部帖子（含顶置）及其附属评论将一并转入「闲聊」话题。</div>`;
+      list.appendChild(c);
+      c.querySelector('[data-del]').addEventListener('click', async (el) => {
+        if (!confirm(`确认删除「${t.display_name}」话题？\n该话题下所有帖子 + 评论将转入「闲聊」。即使已是永久话题也会被删除。`)) return;
+        el.currentTarget.disabled = true;
+        try { await callEdge('topic_delete', { topic_id: t.id }); loadTopicsAdmin(); }
+        catch (err) { alert(err.message); el.currentTarget.disabled = false; }
+      });
+    });
+  }
+  $('topicRefresh').addEventListener('click', loadTopicsAdmin);
+
   // ---------- 管理员管理（创始人） ----------
   async function loadAdmins() {
     if (!profile?.isFounder) return;
@@ -876,7 +913,7 @@
       const perms = [
         ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
         ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
-      ['can_notice', '公告管理'], ['can_bug', 'Bug回复']
+      ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理']
       ];
       const toggles = perms.map(([k, label]) => {
         const on = !!a[k];

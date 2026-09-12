@@ -11,6 +11,10 @@
   const EDGE_URL = `${SUPABASE_URL}/functions/v1/newtheba`;
 
   const TOPICS = ['闲聊', '社团活动', '食堂', '宿舍', '学习', '吃瓜'];
+  // 用户自建话题（加载自后端 topics_list）：{display_name, is_permanent, ...}
+  let customTopics = [];
+  const NEW_TOPIC = '__new_topic__';
+  let lbPeriod = 'week'; // 热榜档位：today | week | month
   const PAGE_SIZE = 25;
   const ADMIN_TOKEN_KEY = 'nzb_admin_token';
   const ADMIN_PROFILE_KEY = 'nzb_admin_profile';
@@ -942,7 +946,7 @@
 
   // ---------------- 筛选 / 排序 ----------------
   function renderFilterBar() {
-    const chips = ['全部', ...TOPICS];
+    const chips = ['全部', ...TOPICS, ...customTopics.map((c) => c.display_name)];
     els.filterBar.innerHTML = '';
     chips.forEach((t) => {
       const b = document.createElement('button');
@@ -1020,23 +1024,35 @@
 
   // ---------------- 榜单 ----------------
   async function loadLeaderboard() {
+    const lbLabels = { today: '今日', week: '本周', month: '本月' };
+    const lbTabs = ['today', 'week', 'month'].map((p) =>
+      `<button class="chip" data-p="${p}" style="flex:1">${lbLabels[p]}</button>`).join('');
+    const wrapHead = `<div class="lb-tabs" style="display:flex;gap:4px;margin-bottom:10px">${lbTabs}</div>`;
     try {
-      const list = await callEdge('leaderboard_week', {});
-      if (!list || !list.length) { els.weekHot.innerHTML = '<div class="notif-empty">本周暂无热帖</div>'; }
+      const list = await callEdge('leaderboard', { period: lbPeriod });
+      if (!list || !list.length) {
+        els.weekHot.innerHTML = wrapHead + `<div class="notif-empty">${lbLabels[lbPeriod]}暂无热帖</div>`;
+      }
       else {
-        els.weekHot.innerHTML = list.map((p, i) => `
+        els.weekHot.innerHTML = wrapHead + list.map((p, i) => `
           <div class="leader-item" data-id="${p.id}">
             <span class="leader-rank">${i + 1}</span>
             <div class="leader-main">
               <div class="leader-title">${escapeHtml(p.content.slice(0, 28))}${p.content.length > 28 ? '…' : ''}</div>
-              <div class="leader-meta">${escapeHtml(p.nickname || '匿名')} · ${formatCount(p.like_count)} 👍 · ${formatCount(p.comment_count)} 💬</div>
+              <div class="leader-meta">${escapeHtml(p.nickname || '匿名')} · ${p.hot || 0} 👍 · ${formatCount(p.comment_count)} 💬</div>
             </div>
           </div>`).join('');
         els.weekHot.querySelectorAll('.leader-item').forEach((el) => {
           el.addEventListener('click', () => scrollToPost(el.dataset.id));
         });
       }
-    } catch (_e) { els.weekHot.innerHTML = '<div class="notif-empty">暂无数据</div>'; }
+    } catch (_e) { els.weekHot.innerHTML = wrapHead + '<div class="notif-empty">暂无数据</div>'; }
+    els.weekHot.querySelectorAll('[data-p]').forEach((b) => {
+      const isActive = b.dataset.p === lbPeriod;
+      b.classList.toggle('active', isActive);
+      if (b.dataset.p === lbPeriod) return;
+      b.addEventListener('click', () => { lbPeriod = b.dataset.p; loadLeaderboard(); });
+    });
     try {
       const dist = await callEdge('leaderboard_topic', {});
       els.topicAct.innerHTML = (dist || []).map((d) => `
@@ -1048,13 +1064,73 @@
   // ---------------- 发布 ----------------
   function renderTopicSelect() {
     els.topicSelect.innerHTML = '';
-    TOPICS.forEach((t) => {
+    [...TOPICS].forEach((t) => {
       const o = document.createElement('option');
       o.value = t; o.textContent = t + (t === '吃瓜' ? '（最多5000字·需审核）' : '');
       els.topicSelect.appendChild(o);
     });
+    if (customTopics.length) {
+      const g = document.createElement('optgroup');
+      g.label = '用户自建话题';
+      customTopics.forEach((ct) => {
+        const o = document.createElement('option');
+        o.value = ct.display_name;
+        o.textContent = ct.display_name + (ct.is_permanent ? '（永久）' : '');
+        g.appendChild(o);
+      });
+      els.topicSelect.appendChild(g);
+    }
+    const n = document.createElement('option');
+    n.value = NEW_TOPIC; n.textContent = '＋ 新建自定义话题…';
+    els.topicSelect.appendChild(n);
     updateCharCount();
   }
+
+  // 从后端加载自定义话题并刷新下拉/筛选
+  async function loadTopics() {
+    try {
+      const data = await callEdge('topics_list', {});
+      customTopics = (data && data.custom) ? data.custom : [];
+    } catch (_e) { customTopics = []; }
+    renderTopicSelect();
+    renderFilterBar();
+  }
+
+  // 新建自定义话题：去空格去符号非空、敏感词/黑名单检查，验重后创建并选中
+  async function handleNewTopic() {
+    const raw = (window.prompt('输入新话题名称（2~30 字，将自动去除空格和符号）：') || '').trim();
+    if (!raw) { els.topicSelect.value = TOPICS[0]; updateCharCount(); return; }
+    const normjs = raw.replace(/\s+/g, '').replace(/[^\p{N}\p{L}_\-\u4e00-\u9fa5]/gu, '');
+    if (!normjs) { window.alert('话题名称无效：需包含文字或数字'); els.topicSelect.value = TOPICS[0]; updateCharCount(); return; }
+    if (normjs.length > 30) { window.alert('话题名称最多 30 字'); els.topicSelect.value = TOPICS[0]; updateCharCount(); return; }
+    // 敏感词检查（词库在前端）
+    const hitsjs = sensitiveHits(normjs);
+    if (hitsjs.length) {
+      window.alert('⚠️ 话题名存在敏感词（' + hitsjs.map((x) => '“' + x + '”').join('、') + '），不得创建。' + MISBLOCK_HINT);
+      reportInterception('topic', normjs, hitsjs, null);
+      els.topicSelect.value = TOPICS[0]; updateCharCount();
+      return;
+    }
+    // 与固定话题撞名检查
+    if (TOPICS.some((t) => t.replace(/\s+/g, '').replace(/[^\p{N}\p{L}_\-\u4e00-\u9fa5]/gu, '') === normjs)) {
+      window.alert('该话题与系统固定话题重复，请换个名称');
+      els.topicSelect.value = TOPICS[0]; updateCharCount();
+      return;
+    }
+    try {
+      const created = await callEdge('topic_create', { display: normjs, token: state.user.token || '' });
+      await loadTopics();
+      els.topicSelect.value = created && created.display_name ? created.display_name : normjs;
+      updateCharCount();
+    } catch (e) {
+      window.alert(e.message || '话题创建失败');
+      els.topicSelect.value = TOPICS[0]; updateCharCount();
+    }
+  }
+  els.topicSelect.addEventListener('change', () => {
+    if (els.topicSelect.value === NEW_TOPIC) handleNewTopic();
+    else updateCharCount();
+  });
   function updateCharCount() {
     const limit = topicLimit(els.topicSelect.value);
     const len = els.content.value.length;
@@ -1083,6 +1159,7 @@
       await Promise.all([loadPinned(), loadFeed()]);
       if (state.mode === 'mine') loadFeed();
       refreshProfile();
+      loadTopics();
     };
 
     els.composeHint.textContent = '';
@@ -1227,8 +1304,7 @@
     readAdminSession();
     readUserSession();
     state.likedSet = getLikedSet();
-    renderTopicSelect();
-    renderFilterBar();
+    loadTopics();
     bindSort();
     renderUserBar();
     loadSiteStatus();
