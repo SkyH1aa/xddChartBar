@@ -1708,9 +1708,12 @@
     els.adminModalTitle.textContent = mode === 'login' ? '管理员登录' : '注册管理员';
   }
   function onOpenAdmin() {
-    try { if (localStorage.getItem(ADMIN_TOKEN_KEY)) { location.href = 'admin.html'; return; } } catch (_e) {}
-    openAdminModal('login');
-  }
+  try { if (localStorage.getItem(ADMIN_TOKEN_KEY)) { location.href = 'admin.html'; return; } } catch (_e) {}
+  openAdminModal('login');
+}
+// 维护页“管理员登录后台”：直接进入独立的 admin 后台页（后台不受停机拦截，可登录后重新开放站点）
+const haltAdminBtn = document.querySelector('#haltAdmin');
+if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href = 'admin.html'; });
   $('openAdmin').addEventListener('click', onOpenAdmin);
   $('closeModal').addEventListener('click', () => els.adminModal.classList.add('hidden'));
   $('closeModal2').addEventListener('click', () => els.adminModal.classList.add('hidden'));

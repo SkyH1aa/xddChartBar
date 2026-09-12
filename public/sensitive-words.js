@@ -60064,7 +60064,6 @@ window.NEWTHEBA_SENSITIVE_WORDS = [
 "mp43副词：qq",
 "网站",
 "购买",
-"tel",
 "電话",
 "直销",
 "无效全退款",
