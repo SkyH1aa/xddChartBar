@@ -1,5 +1,5 @@
 /* ============================================================
-   新哲吧 · 前端逻辑（公共级论坛）
+   XDD吧 · 前端逻辑（公共级论坛）
    功能：发布/话题筛选/排序/搜索/榜单 / 普通用户注册登录 / 作者内容管理 /
         收藏 / 通知中心 / 举报 / 评论楼层·只看楼主 / 实时更新 / 管理入口 / 主题
    ============================================================ */
@@ -629,7 +629,7 @@
     } catch (_e) {}
   }
   function showHalt(site) {
-    els.haltTitle.textContent = site.halt_title || '新哲吧维护中';
+    els.haltTitle.textContent = site.halt_title || 'XDD吧维护中';
     els.haltSubtitle.textContent = site.halt_subtitle || '网站当前暂停服务，请稍后再来。';
     els.haltPage.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
