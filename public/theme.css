@@ -489,3 +489,25 @@ select.input { appearance: auto; }
   .brand { font-size: 18px; }
   .composer-row .btn { width: 100%; }
 }
+
+/* ===== 校史留名(55-60级) 特权：淡金发光环绕边框 ===== */
+.post-card.legend-gold-card {
+  position: relative;
+  z-index: 0;
+  border: 1px solid rgba(218, 178, 86, .55);
+  box-shadow:
+    0 0 0 1px rgba(218, 178, 86, .06),
+    0 0 20px rgba(218, 178, 86, .16),
+    0 0 44px rgba(218, 178, 86, .10),
+    inset 0 0 14px rgba(218, 178, 86, .05);
+}
+/* 推荐中/推流中的校史留名帖：升级为更柔和的流动高光（呼吸动画，克制不刺眼） */
+.post-card.legend-gold-card.legend-prestige {
+  border: 1px solid rgba(226, 186, 86, .78);
+  animation: legendPrestigeFlow 5.5s ease-in-out infinite;
+}
+@keyframes legendPrestigeFlow {
+  0%   { box-shadow: 0 0 0 1px rgba(226,186,86,.08), 0 0 18px rgba(228,186,80,.20), 0 0 40px rgba(228,186,80,.10); }
+  50%  { box-shadow: 0 0 0 1px rgba(226,186,86,.14), 0 0 30px rgba(234,196,96,.34), 0 0 66px rgba(234,196,96,.18); }
+  100% { box-shadow: 0 0 0 1px rgba(226,186,86,.08), 0 0 18px rgba(228,186,80,.20), 0 0 40px rgba(228,186,80,.10); }
+}

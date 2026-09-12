@@ -107,7 +107,7 @@
       { key: 'topics', label: '自定义话题', perm: 'can_topic' }
     ];
     if (profile?.isFounder) {
-      all.push({ key: 'admins', label: '管理员' });
+      all.push({ key: 'admins', label: '管理员' }, { key: 'resetPwd', label: '重置密码' });
     } else {
       const filtered = all.filter((t) => {
         if (t.perm) return hasPerm(t.perm);
@@ -166,6 +166,7 @@
     if (key === 'bugs') loadBugs();
     if (key === 'topics') loadTopicsAdmin();
     if (key === 'admins') loadAdmins();
+    if (key === 'resetPwd') loadResetPwd();
   }
 
   // ---------- 数据看板 ----------
@@ -476,6 +477,87 @@
   $('userMgmtSearch').addEventListener('click', () => { userMgmtQ = $('userMgmtQ').value.trim(); loadUserMgmt(); });
   $('userMgmtQ').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('userMgmtSearch').click(); });
   $('userMgmtRefresh').addEventListener('click', () => loadUserMgmt());
+
+  // ---------- 重置他人账号密码（仅创始人；忘记密码时使用） ----------
+  let resetQ = '';
+  async function loadResetPwd() {
+    const list = $('resetList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    let data;
+    try { data = await callEdge('admin_user_mgmt_list', { q: resetQ }); }
+    catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; return; }
+    if (!data.length) { list.innerHTML = '<div class="empty">暂无注册账号</div>'; return; }
+    list.innerHTML = '';
+    data.forEach((u) => {
+      const c = document.createElement('div');
+      c.className = 'panel fade-in-up';
+      c.style.padding = '12px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '10px';
+      const statusBadge = u.banned
+        ? (u.permanent ? '<span class="badge" style="color:#fff;background:var(--danger)">已注销</span>' : '<span class="badge" style="color:#fff;background:#c26">封禁中</span>')
+        : '<span class="badge" style="color:#fff;background:#2e8b57">正常</span>';
+      const initials = escapeHtml((u.nickname || u.username).charAt(0).toUpperCase());
+      c.innerHTML = `
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <span class="avatar" style="width:36px;height:36px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;background:${escapeHtml(u.avatar_color || '#e07a5f')}">${initials}</span>
+          <div style="min-width:160px;flex:1">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <strong>@${escapeHtml(u.username)}</strong>
+              <span style="color:var(--faint);font-size:12px">${escapeHtml(u.nickname || '未设置昵称')}</span>
+              ${statusBadge}
+            </div>
+            <div style="font-size:12px;color:var(--muted);margin-top:3px">注册于 ${formatTime(u.created_at)} ｜ Lv.${u.level} ｜ 帖子 ${u.post_count} ｜ 评论 ${u.comment_count}</div>
+          </div>
+          <button class="btn sm" data-reset="${u.id}" style="flex-shrink:0">🔑 重置密码</button>
+        </div>`;
+      list.appendChild(c);
+      c.querySelector(`[data-reset="${u.id}"]`).addEventListener('click', () => openResetPwd(u));
+    });
+  }
+  function openResetPwd(user) {
+    const mask = document.createElement('div');
+    mask.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(10,12,25,.6);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)';
+    mask.innerHTML = `<div style="width:min(420px,94vw);background:var(--card,#fff);border:1px solid var(--line);border-radius:16px;padding:20px 22px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <span style="font-weight:800;color:var(--text);font-size:17px">🔑 重置密码</span>
+        <button id="rp-close" style="margin-left:auto;background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer">×</button>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.7">
+        账号：<b style="color:var(--text)">@${escapeHtml(user.username)}</b>
+        ${user.nickname ? `<span style="color:var(--faint)">（${escapeHtml(user.nickname)}）</span>` : ''}<br>
+        请为 「${escapeHtml(user.username)}」 设置新密码（至少 6 位）。
+      </div>
+      <input id="rp-new" type="password" class="input" placeholder="输入新密码" autocomplete="new-password" style="width:100%;margin-bottom:8px" />
+      <input id="rp-confirm" type="password" class="input" placeholder="再次输入新密码" autocomplete="new-password" style="width:100%" />
+      <div id="rp-err" style="color:#e05e5e;font-size:12px;margin:8px 0;min-height:16px"></div>
+      <button id="rp-do" class="btn" style="width:100%">确认重置密码</button>
+    </div>`;
+    mask.querySelector('#rp-close').addEventListener('click', () => mask.remove());
+    mask.addEventListener('mousedown', (e) => { if (e.target === mask) mask.remove(); });
+    document.body.appendChild(mask);
+    const newIn = mask.querySelector('#rp-new');
+    const cfIn = mask.querySelector('#rp-confirm');
+    const err = mask.querySelector('#rp-err');
+    newIn.focus();
+    mask.querySelector('#rp-do').addEventListener('click', async () => {
+      const np = newIn.value, cf = cfIn.value;
+      if (!np) { err.textContent = '请输入新密码'; return; }
+      if (np.length < 6) { err.textContent = '新密码至少 6 位'; return; }
+      if (np.length > 72) { err.textContent = '新密码过长（最多 72 位）'; return; }
+      if (np !== cf) { err.textContent = '两次输入的密码不一致'; return; }
+      if (!confirm(`确认将账号 @${user.username} 的登录密码重置为刚才输入的新密码？重置后对方将无法用旧密码登录。`)) return;
+      const btn = mask.querySelector('#rp-do');
+      btn.disabled = true; btn.textContent = '重置中…';
+      try {
+        await callEdge('founder_reset_user_password', { username: user.username, new_password: np });
+        alert(`✅ 账号 @${user.username} 的密码已成功重置，请及时通知对方用新密码登录。`);
+        mask.remove();
+        loadResetPwd();
+      } catch (e) { err.textContent = e.message; btn.disabled = false; btn.textContent = '确认重置密码'; }
+    });
+  }
+  $('resetSearch').addEventListener('click', () => { resetQ = $('resetQ').value.trim(); loadResetPwd(); });
+  $('resetQ').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('resetSearch').click(); });
+  $('resetRefresh').addEventListener('click', () => loadResetPwd());
 
   // 管理员查看用户个人主页（含隐私字段，后端按管理员身份返回全部）
   async function viewUserProfile(userId, name) {

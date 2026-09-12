@@ -851,7 +851,7 @@
     // 风云学长(36级)+ 动态光效作用于整个帖子卡片块（背景扫光）
     const lightfxCard = cardLv >= 36;
     const card = document.createElement('article');
-    card.className = 'post-card' + (ctx.pinned ? ' pinned-post' : '') + (lightfxCard ? ' lightfx-card' : '');
+    card.className = 'post-card' + (ctx.pinned ? ' pinned-post' : '');
     card.dataset.id = post.id;
     const isAnon = !post.nickname;
     const nickHtml = isAnon ? '<span class="anonymous">匿名</span>' : escapeHtml(post.nickname);
@@ -870,6 +870,10 @@
     if (isRecommended) {
       badges += '<span class="badge recommend">🏆 传说推荐</span>';
     }
+    // 校史留名(55-60级)特权：淡金发光环绕边框；推荐/推流中的帖子升级为更柔和的流动高光
+    const legendGold = cardLv >= 55 ? ' legend-gold-card' : '';
+    const legendPrestige = cardLv >= 55 && (ctx.boosted || isBoosted || isRecommended) ? ' legend-prestige' : '';
+    card.className = 'post-card' + (ctx.pinned ? ' pinned-post' : '') + (lightfxCard ? ' lightfx-card' : '') + legendGold + legendPrestige;
     const ownActs = isOwn
       ? `<span class="own-acts">
            ${isBoosted ? `<span class="tiny-btn" style="color:#bd93f9">推流中至${formatTime(post.boost_until).slice(5, 16)}</span>` : ''}
