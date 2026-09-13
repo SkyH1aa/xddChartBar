@@ -104,7 +104,7 @@
       { key: 'announces', label: '公告栏', perm: 'can_notice' },
       { key: 'bugs', label: 'Bug反馈', perm: 'can_bug' },
       { key: 'topics', label: '自定义话题', perm: 'can_topic' },
-      { key: 'mentor', label: '🎓 学长认证' }
+      { key: 'mentor', label: '🎓 学长认证', perm: 'can_mentor' }
     ];
     if (profile?.isFounder) {
       all.push({ key: 'admins', label: '管理员' }, { key: 'resetPwd', label: '重置密码' }, { key: 'site', label: '站点开关' }, { key: 'legends', label: '🏯 校史编号' });
@@ -634,7 +634,7 @@
       ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
       ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合']
+      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证']
     ];
     tags.push(...m.filter(([k]) => hasPerm(k)).map(([, l]) => `<span class="badge">${l}</span>`));
     (profile?.isFounder ? m : m.filter(([k]) => profile?.perms?.[k])).forEach(([k, label]) => {
@@ -1467,7 +1467,7 @@
         ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
         ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合']
+        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证']
       ];
       const toggles = perms.map(([k, label]) => {
         const on = !!a[k];
@@ -1572,6 +1572,7 @@
   const MENTOR_STATUS = { pending: '待审核', approved: '已通过', rejected: '已驳回', closed: '已取消' };
   const MENTOR_STATUS_C = { pending: 'var(--warn)', approved: '#2e8b57', rejected: '#c26', closed: '#888' };
   async function loadMentorAdmin() {
+    if (!hasPerm('can_mentor')) { $('mentorList').innerHTML = '<div class="empty">无学长认证管理权限</div>'; return; }
     const list = $('mentorList');
     list.innerHTML = '<div class="empty">加载中…</div>';
     try {
