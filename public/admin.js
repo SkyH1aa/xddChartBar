@@ -103,10 +103,11 @@
       { key: 'popups', label: '弹窗公告', perm: 'can_popup' },
       { key: 'announces', label: '公告栏', perm: 'can_notice' },
       { key: 'bugs', label: 'Bug反馈', perm: 'can_bug' },
-      { key: 'topics', label: '自定义话题', perm: 'can_topic' }
+      { key: 'topics', label: '自定义话题', perm: 'can_topic' },
+      { key: 'mentor', label: '🎓 学长认证' }
     ];
     if (profile?.isFounder) {
-      all.push({ key: 'admins', label: '管理员' }, { key: 'resetPwd', label: '重置密码' }, { key: 'site', label: '站点开关' });
+      all.push({ key: 'admins', label: '管理员' }, { key: 'resetPwd', label: '重置密码' }, { key: 'site', label: '站点开关' }, { key: 'legends', label: '🏯 校史编号' });
     } else {
       const filtered = all.filter((t) => {
         if (t.perm) return hasPerm(t.perm);
@@ -166,6 +167,8 @@
     if (key === 'topics') loadTopicsAdmin();
     if (key === 'admins') loadAdmins();
     if (key === 'resetPwd') loadResetPwd();
+    if (key === 'legends') loadLegends();
+    if (key === 'mentor') loadMentorAdmin();
   }
 
   // ---------- 数据看板 ----------
@@ -1496,6 +1499,131 @@
       al.appendChild(c);
     });
   }
+
+  // ---------- 校史留名编号管理（仅创始人） ----------
+  async function loadLegends() {
+    if (!profile?.isFounder) return;
+    const assigned = $('legendAssigned');
+    const pending = $('legendPending');
+    const nextBox = $('legendNext');
+    assigned.innerHTML = '<div class="empty">加载中…</div>';
+    pending.innerHTML = '';
+    try {
+      const data = await callEdge('legend_list', {});
+      nextBox.innerHTML = `下一个自动编号 <b style="color:var(--accent,#e07a5f)">No.${escapeHtml(data.next)}</b> `;
+      // 已编号列表
+      assigned.innerHTML = '';
+      if (!data.assigned.length) assigned.innerHTML = '<div class="empty">暂无已编号用户</div>';
+      data.assigned.forEach((u) => {
+        const c = document.createElement('div');
+        c.className = 'panel fade-in-up';
+        c.style.padding = '10px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px';
+        c.innerHTML = `
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+          <span><strong>${escapeHtml(u.nickname || u.username)}</strong> <span style="color:var(--faint)">@${escapeHtml(u.username)}</span></span>
+          <span style="font-size:12px;color:var(--muted)">Lv.${escapeHtml(u.level)} · 经验 ${escapeHtml(u.xp)}</span>
+          <input type="number" min="1" value="${escapeHtml(u.legend_no)}" data-lno="${u.id}" style="width:80px;margin-left:auto;padding:4px 6px;border:1px solid var(--line);border-radius:8px;background:var(--input-bg);color:var(--text)" />
+          <button class="btn sm" data-lsave="${u.id}">保存</button>
+        </div>`;
+        c.querySelector(`[data-lsave="${u.id}"]`).addEventListener('click', async (b) => {
+          const val = c.querySelector(`[data-lno="${u.id}"]`).value.trim();
+          if (!val || isNaN(Number(val)) || Number(val) < 1) { alert('编号需为正整数'); return; }
+          b.disabled = true;
+          try {
+            await callEdge('legend_set', { user_id: u.id, legend_no: Number(val) });
+            alert('✅ 编号已更新');
+            loadLegends();
+          } catch (err) { alert(err.message); b.disabled = false; }
+        });
+        assigned.appendChild(c);
+      });
+      // 待编号列表
+      pending.innerHTML = '';
+      if (!data.pending.length) pending.innerHTML = '<div class="empty">暂无待编号用户 ✅</div>';
+      data.pending.forEach((u) => {
+        const c = document.createElement('div');
+        c.className = 'panel fade-in-up';
+        c.style.padding = '10px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px';
+        c.innerHTML = `
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+          <span><strong>${escapeHtml(u.nickname || u.username)}</strong></span>
+          <span style="font-size:12px;color:var(--muted)">Lv.${escapeHtml(u.level)} · 经验 ${escapeHtml(u.xp)}</span>
+          <button class="btn sm" data-lset="${u.id}" style="margin-left:auto">设为编号</button>
+        </div>`;
+        c.querySelector(`[data-lset="${u.id}"]`).addEventListener('click', async (b) => {
+          const raw = prompt(`为「${u.nickname || u.username}」设置校史编号（正整数）：`, String(Number(data.next) || 1));
+          if (raw === null) return;
+          const val = parseInt(raw, 10);
+          if (isNaN(val) || val < 1) { alert('编号需为正整数'); return; }
+          b.disabled = true;
+          try {
+            await callEdge('legend_set', { user_id: u.id, legend_no: val });
+            alert('✅ 已设置编号');
+            loadLegends();
+          } catch (err) { alert(err.message); b.disabled = false; }
+        });
+        pending.appendChild(c);
+      });
+    } catch (e) { assigned.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
+  }
+  $('legendRefresh').addEventListener('click', loadLegends);
+
+  // ---------- 认证答主审核 ----------
+  const MENTOR_STATUS = { pending: '待审核', approved: '已通过', rejected: '已驳回', closed: '已取消' };
+  const MENTOR_STATUS_C = { pending: 'var(--warn)', approved: '#2e8b57', rejected: '#c26', closed: '#888' };
+  async function loadMentorAdmin() {
+    const list = $('mentorList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    try {
+      const rows = await callEdge('mentor_admin_list', {});
+      if (!rows.length) { list.innerHTML = '<div class="empty">暂无认证答主申请</div>'; return; }
+      list.innerHTML = '';
+      rows.forEach((m) => {
+        const c = document.createElement('div');
+        c.className = 'panel fade-in-up';
+        c.style.padding = '12px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '10px';
+        const stBadge = `<span class="badge" style="color:#fff;background:${MENTOR_STATUS_C[m.status] || '#888'}">${MENTOR_STATUS[m.status] || escapeHtml(m.status)}</span>`;
+        const btns = [];
+        if (m.status === 'pending') {
+          btns.push(`<button class="btn sm" data-ma="approve" data-id="${m.id}">通过</button>`);
+          btns.push(`<button class="btn sm danger" data-ma="reject" data-id="${m.id}">驳回</button>`);
+        } else if (m.status === 'approved') {
+          btns.push(`<button class="btn sm ghost" data-ma="revoke" data-id="${m.id}">取消认证</button>`);
+        }
+        c.innerHTML = `
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px">
+          <strong style="font-size:14px">${escapeHtml(m.nickname)}</strong>
+          <span class="badge topic">${escapeHtml(m.topic || '—')}</span>
+          <span class="badge">称号：${escapeHtml(m.ask_title || '—')}</span>
+          <span style="font-size:13px;color:var(--muted)">申请等级 <b style="color:var(--accent,#e07a5f)">${escapeHtml(m.mentor_level ?? '—')}</b></span>
+          ${stBadge}
+          <span style="margin-left:auto;color:var(--faint);font-size:12px">申请于 ${formatTime(m.apply_at)}</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          ${m.reviewed_by ? `<span style="font-size:12px;color:var(--faint)">审核人：${escapeHtml(m.reviewed_by)}${m.reviewed_at ? ' · ' + formatTime(m.reviewed_at) : ''}</span>` : ''}
+          <span style="flex:1"></span>
+          ${btns.join('')}
+        </div>`;
+        c.querySelectorAll('[data-ma]').forEach((b) => {
+          b.addEventListener('click', async () => {
+            const ma = b.dataset.ma;
+            if (ma === 'reject' && !confirm(`确认驳回「${m.nickname}」的认证申请？`)) return;
+            if (ma === 'revoke' && !confirm(`确认取消「${m.nickname}」的学长认证？`)) return;
+            b.disabled = true;
+            try {
+              if (ma === 'approve') await callEdge('mentor_review', { id: m.id, status: 'approved' });
+              else if (ma === 'reject') await callEdge('mentor_review', { id: m.id, status: 'rejected' });
+              else await callEdge('mentor_revoke', { id: m.id });
+              alert('✅ 操作成功');
+              loadMentorAdmin();
+            } catch (err) { alert(err.message); b.disabled = false; }
+          });
+        });
+        list.appendChild(c);
+      });
+    } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
+  }
+  $('mentorRefresh').addEventListener('click', loadMentorAdmin);
 
   // ---------- 启动 ----------
   function boot() {

@@ -67,9 +67,13 @@
     { max: 60, priv: { sched: true, lightfx: true, lvlgate: true, pinComment: 2, recommend: 3, elite: true } }
   ];
   function privOf(lv) { for (const t of PRIV_TIER_RULE) if (lv <= t.max) return t.priv; return PRIV_TIER_RULE[5].priv; }
-  function levelBadgeHtml(lv) {
+  function levelBadgeHtml(lv, legendNo) {
     if (!lv) return '';
-    return `<span class="author-level" title="Lv.${lv} · ${escapeHtml(levelName(lv))}">${escapeHtml(levelName(lv))}</span>`;
+    const tier = lv <= 10 ? 1 : lv <= 20 ? 2 : lv <= 35 ? 3 : lv <= 45 ? 4 : lv <= 54 ? 5 : 6;
+    const name = levelName(lv);
+    const no = (tier === 6 && legendNo) ? Number(legendNo) : 0;
+    const noHtml = no ? `<i class="badge-no">No.${no}</i>` : '';
+    return `<span class="author-level badge-x ${['', 't-flat', 't-color', 't-glow', 't-metal', 't-crystal', 't-3d'][tier]}" data-tier="${tier}" title="Lv.${lv} · ${escapeHtml(name)}${no ? ` · No.${no}` : ''}">${escapeHtml(name)}${noHtml}</span>`;
   }
   function userDisplay(u) { return u && u.nickname ? u.nickname : (u && u.username ? u.username : '匿名'); }
 
@@ -136,11 +140,13 @@
     const f = Number(me.profile.level) || 0;
     if (f > 0) return Math.min(60, f);
     const u = me.profile;
-    const xp = (Number(u && u.post_count) || 0) * 2 + (Number(u && u.comment_count) || 0) + (Number(u && u.like_received) || 0)
-      + (Number(u && u.col_post_count) || 0) * 2 + (Number(u && u.col_comment_count) || 0) + (Number(u && u.col_like_received) || 0)
+    const xp = (Number(u && u.xp_post_comment) || 0)
+      + (Number(u && u.like_received) || 0) + (Number(u && u.col_like_received) || 0)
+      + (Number(u && u.fav_received) || 0) * 2
+      + (Number(u && u.xp_event) || 0)
       + (Number(u && u.bonus_xp) || 0) + (Number(u && u.checkin_xp) || 0);
     if (xp <= 0) return 1;
-    return Math.min(60, Math.floor((1 + Math.sqrt(1 + xp / 3)) / 2));
+    return Math.min(60, Math.floor((1 + Math.sqrt(1 + (2 * xp) / 3)) / 2));
   }
 
   function logout() {

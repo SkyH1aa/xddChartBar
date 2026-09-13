@@ -127,21 +127,24 @@
     n = Number(n) || 0;
     return n > 9999 ? '9999+' : String(n);
   }
-  // 等级：经验 = 发帖*2 + 评论 + 获赞 + 助推 + 签到；线性升级：升到下一级需 24×当前等级 经验，上限 60
+  // 等级：经验 = 发帖*2 + 评论 + 获赞 + 助推 + 签到；线性升级：升到下一级需 12×当前等级 经验，上限 60
   const LEVEL_TIERS = [
     { max: 10, name: '初来乍到' }, { max: 20, name: '校园萌新' }, { max: 35, name: '校园百事通' },
     { max: 45, name: '风云学长' }, { max: 54, name: '校园传说' }, { max: 60, name: '校史留名' }
   ];
   function xpOf(u) {
-    return (Number(u && u.post_count) || 0) * 2 + (Number(u && u.comment_count) || 0) + (Number(u && u.like_received) || 0)
-      + (Number(u && u.col_post_count) || 0) * 2 + (Number(u && u.col_comment_count) || 0) + (Number(u && u.col_like_received) || 0)
+    // 与后端 xpOfUser 完全一致：发帖/评论走每日封顶通道 xp_post_comment；点赞/收藏/事件/签到不设上限
+    return (Number(u && u.xp_post_comment) || 0)
+      + (Number(u && u.like_received) || 0) + (Number(u && u.col_like_received) || 0)
+      + (Number(u && u.fav_received) || 0) * 2
+      + (Number(u && u.xp_event) || 0)
       + (Number(u && u.bonus_xp) || 0) + (Number(u && u.checkin_xp) || 0);
   }
-  function cumMin(L) { return 12 * L * (L - 1); } // 达到 L 级所需累计经验（累加 24*i）
+  function cumMin(L) { return 6 * L * (L - 1); } // 达到 L 级所需累计经验（累加 12*i）
   function levelOf(u) {
     const xp = xpOf(u);
     if (xp <= 0) return 1;
-    return Math.min(60, Math.floor((1 + Math.sqrt(1 + xp / 3)) / 2));
+    return Math.min(60, Math.floor((1 + Math.sqrt(1 + (2 * xp) / 3)) / 2));
   }
   // 管理员设定了固定等级(level>0)时优先采用，否则按经验自动计算
   function finalLevel(u) {
@@ -172,7 +175,7 @@
     let progress, nextNeed;
     if (fixed || maxed) { progress = 1; nextNeed = 0; }
     else {
-      const span = 24 * level; // 升到下一级需 24×当前等级 经验
+      const span = 12 * level; // 升到下一级需 12×当前等级 经验
       const inLevel = xp - cumMin(level);
       progress = Math.min(1, Math.max(0, inLevel / span));
       nextNeed = Math.max(0, span - inLevel);
@@ -180,12 +183,24 @@
     return { level, name: levelName(level), xp, progress, nextNeed, hi: xp, fixed, maxed };
   }
   function userDisplay(u) { return u && (u.nickname || u.username) ? (u.nickname || u.username) : '匿名'; }
-  // 发帖/评论旁展示用户称号徽标
+  // 发帖/评论旁展示称号徽标（按等级分段呈现 6 种形态）
+  function badgeTierOf(lv) {
+    if (lv <= 10) return 1;       // 普通扁平
+    if (lv <= 20) return 2;       // 彩色+轻微描边
+    if (lv <= 35) return 3;       // 彩色+动态微光
+    if (lv <= 45) return 4;       // 金属质感+呼吸
+    if (lv <= 54) return 5;       // 水晶/琉璃+粒子
+    return 6;                     // 3D立体+专属配色+唯一编号
+  }
+  const BADGE_TIER_CLS = ['', 't-flat', 't-color', 't-glow', 't-metal', 't-crystal', 't-3d'];
   function levelBadgeHtml(author) {
     const lv = author && author.level ? Number(author.level) || 0 : 0;
     if (!lv) return '';
+    const tier = badgeTierOf(lv);
     const name = levelName(lv);
-    return `<span class="author-level" title="Lv.${lv} · ${escapeHtml(name)}">${escapeHtml(name)}</span>`;
+    const no = (tier === 6 && author && author.legend_no) ? Number(author.legend_no) : 0;
+    const noHtml = no ? `<i class="badge-no">No.${no}</i>` : '';
+    return `<span class="author-level badge-x ${BADGE_TIER_CLS[tier]}" data-tier="${tier}" data-lv="${lv}" title="Lv.${lv} · ${escapeHtml(name)}${no ? ` · No.${no}` : ''}">${escapeHtml(name)}${noHtml}</span>`;
   }
 
   // ---------------- Edge 调用 ----------------
@@ -297,7 +312,7 @@
           method: 'POST', headers: { 'content-type': 'application/json', apikey: SUPABASE_KEY },
           body: JSON.stringify({ action: 'user_whoami', token: tok })
         });
-        if (r.status !== 200) sessionMonitorReset(); // 会话失效/被顶掉 → 清理
+        if (r.status === 401) sessionMonitorReset(); // 会话真被踢掉/失效才清理；5xx 为临时故障，保持登录态下轮再试
       } catch (_e) { /* 网络异常保持现状，下轮再试 */ }
     }
     // 定时探活（缩短到 20s，被踢后更快回到未登录态）
@@ -447,7 +462,7 @@
     if (!data) { body.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted)">主页加载失败</div>'; return; }
     body.innerHTML = renderProfile(data);
     body.querySelectorAll('[data-pact]').forEach((b) => b.addEventListener('click', () => { const ps = state.user.profile; renderProfileInto(body, data); }));
-    if (data.canEdit) bindProfileEdit(body, data, overlay);
+    if (data.canEdit) { bindProfileEdit(body, data, overlay); renderPrivilegeCenter(body); }
   }
   let profileModalOpenId = null;
   function renderProfile(data) {
@@ -688,9 +703,10 @@
     } catch (_e) {}
   }
   async function scrollToPost(pid) {
-    // 统一回到「全部话题·最新」视图，页码由后端定位；顶置帖也会被 makeCard 渲染为可查找到的卡片
+    // 统一定位到「全部话题 · 最新」视图；页码由后端按与 feed 完全一致的规则估算，并配合扫描兜底
     const sel = `article[data-id="${pid}"], .post-card[data-id="${pid}"]`;
     const findInDom = () => document.querySelector(sel);
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     const onPost = (el) => {
       const tgl = el.querySelector('.cmt-toggle');
       const box = el.querySelector('[data-cmtbox]');
@@ -701,37 +717,46 @@
 
     state.mode = 'feed'; state.activeTopic = ''; state.sort = 'latest';
 
-    // 1) 当前 DOM 已渲染该帖（比如翻页前就在本页）→ 直接定位
+    // 1) 当前 DOM 已渲染该帖（本页已展示）→ 直接定位
     let el = findInDom();
     if (el) { onPost(el); return; }
 
-    // 2) 否则用后端算出该帖在默认最新流里的页码再前往
+    // 已翻到后面页则先回第 1 页，保证后续页码与 feed 一致
     if (state.page > 1) { state.page = 1; await loadFeed(); el = findInDom(); }
+
+    // 2) 用后端按「最新·全部话题」流估算页码（等级与前端 feed 完全一致，杜绝错位）
+    let hint = 1;
     if (!el && state.user && state.user.token) {
       try {
-        const r = await callEdge('find_post_page', { token: state.user.token, post_id: pid });
-        if (r && r.visible && r.page >= 1 && r.page !== state.page) {
-          state.page = r.page;
-          await loadFeed();
-          el = findInDom();
-        }
-      } catch (_e) {}
+        const r = await callEdge('find_post_page', {
+          token: state.user.token, post_id: pid,
+          view_level: viewerViewLevel()
+        });
+        if (r && r.visible) hint = Math.max(1, Number(r.page) || 1);
+      } catch (_e) { hint = 1; }
     }
 
-    // 3) 仍未命中：向前逐页扫描（覆盖同毫秒并列、推流/金顶置在独立顶置区异步挂载等边界）
-    let guard = 0;
-    while (!el && guard < 80) {
-      if (state.totalPages > state.page) {
+    // 3) 依次尝试：预判页及之后 2 页（覆盖同毫秒并列/临界）→ 从第 1 页全书目扫描 → 顶置区异步等待
+    const tried = new Set();
+    for (let i = 0; i < 3 && !el; i++) {
+      const p = hint + i;
+      if (p > state.totalPages) break;
+      if (tried.has(p)) continue; tried.add(p);
+      if (p !== state.page) { state.page = p; await loadFeed(); }
+      el = findInDom();
+    }
+    if (!el) { // 全书目顺序扫描兜底（覆盖预判页失灵/微偏移，最终一定能定位）
+      state.page = 1;
+      let guard = 0;
+      while (!el && state.page < state.totalPages && guard < 400) {
         state.page += 1;
         await loadFeed();
         el = findInDom();
-      } else {
-        // 顶置区仍在后台加载，稍候重试，避免漏掉已置顶的帖子
-        await new Promise((r) => setTimeout(r, 150));
-        el = findInDom();
+        guard++;
       }
-      guard++;
     }
+    let wait = 0; // 置顶/推流帖由 loadPinned 异步挂载，稍候重试
+    while (!el && wait < 12) { await sleep(150); el = findInDom(); wait++; }
 
     if (el) onPost(el);
   }
@@ -984,8 +1009,8 @@
     const map = {};
     if (ids.length) {
       const { data } = await supabase.from('forum_users')
-        .select('id, nickname, post_count, comment_count, like_received, level, bonus_xp, checkin_xp, col_post_count, col_comment_count, col_like_received').in('id', ids);
-      (data || []).forEach((u) => { map[u.id] = { nickname: u.nickname || u.username || '', level: finalLevel(u) }; });
+        .select('id, nickname, post_count, comment_count, like_received, level, bonus_xp, checkin_xp, col_post_count, col_comment_count, col_like_received, xp_post_comment, fav_received, xp_event, legend_no').in('id', ids);
+      (data || []).forEach((u) => { map[u.id] = { nickname: u.nickname || u.username || '', level: finalLevel(u), legend_no: u.legend_no || null }; });
     }
     return map;
   }
@@ -1019,6 +1044,12 @@
     }
     if (isGold) {
       badges += '<span class="badge" style="background:linear-gradient(135deg,#ffd76a,#cb9a2b);color:#3a2500;font-weight:700;border:1px solid rgba(255,215,120,.65);box-shadow:0 0 8px rgba(255,210,110,.45)">🪙 金牌认证</span>';
+    }
+    if (post.resolve_post) {
+      badges += '<span class="badge" style="background:rgba(63,136,197,.14);color:var(--accent,#4a90c4);border:1px solid rgba(63,136,197,.4)">🧑‍🏫 学长答疑帖</span>';
+    }
+    if (post.ask_mentor_id) {
+      badges += '<span class="badge" style="background:rgba(168,130,255,.14);color:#9b6bff;border:1px solid rgba(168,130,255,.4)">🙋 向学长提问</span>';
     }
     // 校史留名(55-60级)特权：淡金发光环绕边框；推荐/推流中的帖子升级为更柔和的流动高光
     const legendGold = cardLv >= 55 ? ' legend-gold-card' : '';
@@ -1363,7 +1394,8 @@
     }
     appendCommentChunk(box, post);
     // 事件委托：回复/举报/编辑/删除/只看楼主/加载更多
-    box.addEventListener('click', (e) => {
+    // 用 onclick 整体覆盖避免每次重渲染叠加监听（否则编辑/置顶/删除会触发多次）
+    box.onclick = (e) => {
       if (e.target.closest('.cmt-more')) { appendCommentChunk(box, post); return; }
       const reply = e.target.closest('[data-reply]');
       if (reply) {
@@ -1396,7 +1428,7 @@
           loadComments(box, post);
         }
       }
-    });
+    };
     box.querySelector('.cmt-submit').addEventListener('click', () => postComment(box, post));
   }
   // 单条评论 HTML（楼层号按全量索引）
@@ -1419,7 +1451,7 @@
     const rname = c.nickname ? c.nickname : '匿名';
     return `<div class="cmt-item${cLv >= 36 ? ' lightfx' : ''}" data-cid="${c.id}">
       <div class="cmt-head">${name}${lv}${pinnedTag}${replyTag}<span class="cmt-time">#${i + 1} · ${formatTime(c.created_at)}</span></div>
-      <div class="cmt-text">${escapeHtml(c.content)}${ownActs}</div>
+      <div class="cmt-text"><span class="cmt-content">${escapeHtml(c.content)}</span>${ownActs}</div>
       <button class="cmt-reply" data-reply="${c.id}" data-rname="${escapeHtml(rname)}">回复</button>
       <button class="cmt-reply" style="margin-left:10px" data-rep="${c.id}">举报</button>
     </div>`;
@@ -1462,7 +1494,7 @@
   async function editOwnComment(box, id, post) {
     const item = box.querySelector(`.cmt-item[data-cid="${id}"]`);
     if (!item) return;
-    const txt = item.querySelector('.cmt-text').textContent;
+    const txt = (item.querySelector('.cmt-content') || item.querySelector('.cmt-text')).textContent;
     const next = window.prompt('编辑评论内容：', txt);
     if (next == null || next.trim() === txt) return;
     const content = next.trim();
@@ -1919,6 +1951,219 @@
     }
   }
 
+  // ---------------- 向认证答主提问 + 学长答疑帖（新增，仅登录用户可见） ----------------
+  let myMentorApps = []; // 当前用户的历史认证申请
+  async function loadMyMentorApps() {
+    if (!loggedIn()) { myMentorApps = []; return; }
+    try { myMentorApps = (await callEdge('mentor_my', {})) || []; }
+    catch (_e) { myMentorApps = []; }
+  }
+  function isApprovedMentorFor(topic) {
+    return myMentorApps.some((r) => r.status === 'approved' && r.topic === topic);
+  }
+  function setupMentorComposer() {
+    if (els.composerMentorWrap) return;
+    const wrap = document.createElement('div');
+    wrap.id = 'composerMentorWrap';
+    wrap.className = 'composer-priv hidden';
+    wrap.innerHTML = `
+      <label>🙋 向认证答主提问
+        <select id="postAskMentor"><option value="">不提问</option></select>
+      </label>
+      <label id="postResolveLabel" style="display:none;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="postResolve" /> 🧑‍🏫 学长答疑帖</label>
+      <span id="composerMentorHint" class="hint-line" style="font-size:11px;color:var(--faint)"></span>`;
+    if (els.composeWarn && els.composeWarn.parentNode) {
+      els.composeWarn.parentNode.insertBefore(wrap, els.composeWarn);
+    }
+    els.composerMentorWrap = wrap;
+    els.postAskMentor = $('postAskMentor');
+    els.postResolve = $('postResolve');
+    if (els.topicSelect) els.topicSelect.addEventListener('change', () => { refreshMentorComposer(); });
+    loadMyMentorApps().then(refreshMentorComposer, refreshMentorComposer);
+  }
+  async function refreshMentorComposer() {
+    if (!loggedIn() || !els.postAskMentor) {
+      if (els.composerMentorWrap) els.composerMentorWrap.classList.add('hidden');
+      return;
+    }
+    els.composerMentorWrap.classList.remove('hidden');
+    const topic = els.topicSelect.value;
+    const cur = els.postAskMentor.value;
+    let options = '<option value="">不提问</option>';
+    try {
+      const list = (await callEdge('mentor_list', { topic })) || [];
+      options += list.map((m) => `<option value="${m.id}">${escapeHtml(m.ask_title)}（${escapeHtml(m.nickname)}）</option>`).join('');
+    } catch (_e) { /* 离线也可正常发帖 */ }
+    els.postAskMentor.innerHTML = options;
+    if (els.postAskMentor.querySelector('option[value="' + cur + '"]')) els.postAskMentor.value = cur; else els.postAskMentor.value = '';
+    const showResolve = isApprovedMentorFor(topic);
+    if (els.postResolve && els.postResolve.parentNode) els.postResolve.parentNode.style.display = showResolve ? 'inline-flex' : 'none';
+  }
+  // ---------------- 全站广播弹窗（新增） ----------------
+  async function loadBroadcasts() {
+    try {
+      const list = (await callEdge('broadcast_list', {})) || [];
+      for (const b of list) {
+        const id = b.id;
+        if (!id) continue;
+        const key = 'seen_broadcast_' + id;
+        let seen = false;
+        try { seen = !!localStorage.getItem(key); } catch (_e) { seen = false; }
+        if (seen) continue;
+        try { localStorage.setItem(key, '1'); } catch (_e) {}
+        const head = (b.nickname ? b.nickname + ' · ' : '') + (b.title || '全站广播');
+        const stamp = b.created_at ? ('\n\n' + String(b.created_at).slice(0, 16).replace('T', ' ')) : '';
+        renderPopup({ title: head, content: (b.content || '') + stamp });
+        return;
+      }
+    } catch (_e) { /* 不打断登录/初始化流程 */ }
+  }
+  // ---------------- 个人中心「特权中心」面板（新增，仅当前登录用户） ----------------
+  function mentorStatusBadge(status) {
+    const s = String(status || '').toLowerCase();
+    if (s === 'pending' || s === 'reviewing' || s === '0' || s === 'waiting') return '<span style="color:var(--warn);font-weight:700">待审核</span>';
+    if (s === 'approved' || s === '1' || s === 'passed') return '<span style="color:var(--ok);font-weight:700">已通过</span>';
+    if (s === 'rejected' || s === '2') return '<span style="color:var(--bad,var(--danger));font-weight:700">未通过</span>';
+    if (s === 'closed' || s === '3') return '<span style="color:var(--faint);font-weight:700">已关闭</span>';
+    return '<span style="color:var(--muted)">' + escapeHtml(status) + '</span>';
+  }
+  async function renderPrivilegeCenter(body) {
+    if (!body) return;
+    // renderPrivilegeCenter 仅在 openProfile 中调用，且只对当前登录用户（data.canEdit 为真）插入面板
+    const anchor = body.querySelector('.profile-cview');
+    if (!anchor) return;
+    const host = document.createElement('div');
+    host.className = 'prof-privcenter';
+    host.style.cssText = 'border:1px solid var(--line-soft);border-radius:12px;padding:14px;margin-top:14px';
+    const lv = myLevelNow();
+    host.innerHTML = `
+      <div class="pf-vis-title">⭐ 特权中心（仅自己可见）</div>
+      <div style="margin-bottom:14px;border-top:1px solid var(--line-soft);padding-top:12px">
+        <div class="pf-vis-title">🎓 认证答主申请</div>
+        <label class="pf-label">领域 <select id="pcTopic"></select></label>
+        <label class="pf-label">擅长标题/简介 <input class="pf-input" id="pcAskTitle" placeholder="一句话说明你擅长的领域（将展示给提问者）" /></label>
+        <button class="profile-editbtn" data-pcapplybtn>✅ 申请答主</button>
+        <div data-pcmyapps style="margin-top:8px;font-size:12px"><span style="color:var(--faint)">加载中…</span></div>
+      </div>
+      ${lv >= 21 ? `<div style="margin-bottom:14px;border-top:1px solid var(--line-soft);padding-top:12px">
+        <div class="pf-vis-title">👀 谁看过我的帖子（校园百事通+）</div>
+        <button class="profile-editbtn" data-statsbtn>查看统计</button>
+        <div data-statsbox style="margin-top:8px"></div>
+      </div>` : ''}
+      ${lv >= 36 ? `<div style="margin-bottom:14px;border-top:1px solid var(--line-soft);padding-top:12px">
+        <div class="pf-vis-title">⭐ 特别关注管理（风云学长+）</div>
+        <div data-followlist style="font-size:12px;margin-bottom:8px"><span style="color:var(--faint)">加载中…</span></div>
+        <label class="pf-label">添加特别关注 <input class="pf-input" id="pcFollowId" placeholder="输入目标用户 ID" /></label>
+        <button class="profile-editbtn" data-followbtn>添加关注</button>
+      </div>` : ''}
+      ${lv >= 46 ? `<div style="border-top:1px solid var(--line-soft);padding-top:12px">
+        <div class="pf-vis-title">📢 全站广播（校园传说+，每周 1 条）</div>
+        <label class="pf-label">标题 <input class="pf-input" id="pcBcTitle" placeholder="广播标题" /></label>
+        <label class="pf-label">内容 <textarea class="pf-input" id="pcBcContent" placeholder="广播内容（全站用户可见）"></textarea></label>
+        <button class="profile-editbtn" data-bcbtn>发送全站广播</button>
+        <div data-bcmsg style="margin-top:6px;font-size:12px"></div>
+      </div>` : ''}`;
+    if (anchor.nextSibling) anchor.parentNode.insertBefore(host, anchor.nextSibling); else anchor.parentNode.appendChild(host);
+
+    // 认证答主申请
+    const topicSel = host.querySelector('#pcTopic');
+    if (topicSel) {
+      const opts = [];
+      TOPICS.forEach((t) => opts.push('<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>'));
+      (customTopics || []).forEach((ct) => { if (ct && ct.display_name) opts.push('<option value="' + escapeHtml(ct.display_name) + '">' + escapeHtml(ct.display_name) + '（自建）</option>'); });
+      topicSel.innerHTML = opts.join('');
+    }
+    const myappsHost = host.querySelector('[data-pcmyapps]');
+    async function updateMyApps() {
+      try {
+        const apps = (await callEdge('mentor_my', {})) || [];
+        myMentorApps = apps;
+        if (myappsHost) myappsHost.innerHTML = apps.length
+          ? apps.map((a) => `<div style="padding:6px 0;border-bottom:1px solid var(--line-soft)"><span style="font-weight:700">${escapeHtml(a.topic)}</span> · ${mentorStatusBadge(a.status)}<div style="color:var(--faint)">${escapeHtml(a.ask_title || '')}</div></div>`).join('')
+          : '<span style="color:var(--faint)">暂无申请记录</span>';
+      } catch (_e) { if (myappsHost) myappsHost.innerHTML = '<span style="color:var(--faint)">加载失败</span>'; }
+    }
+    updateMyApps();
+    const applyBtn = host.querySelector('[data-pcapplybtn]');
+    if (applyBtn) applyBtn.addEventListener('click', async () => {
+      const topic = topicSel ? topicSel.value : '';
+      const ask_title = (host.querySelector('#pcAskTitle') || {}).value || '';
+      if (!topic) { window.alert('请选择认证领域'); return; }
+      if (!ask_title.trim()) { window.alert('请填写擅长描述'); return; }
+      applyBtn.disabled = true;
+      try {
+        await callEdge('mentor_apply', { topic, ask_title });
+        window.alert('✅ 认证答主申请已提交，等待审核。');
+        updateMyApps();
+      } catch (e) { window.alert(e.message || '申请失败'); }
+      applyBtn.disabled = false;
+    });
+
+    // 谁看过我的帖子
+    const statsBtn = host.querySelector('[data-statsbtn]');
+    const statsBox = host.querySelector('[data-statsbox]');
+    if (statsBtn && statsBox) statsBtn.addEventListener('click', async () => {
+      statsBtn.disabled = true;
+      try {
+        const st = (await callEdge('view_stats', {})) || {};
+        const hours = st.hours || [];
+        const max = Math.max(1, ...hours.map(Number).filter((n) => Number.isFinite(n)));
+        const bar = hours.map((h, i) => {
+          const c = Math.max(0, Math.round((Number(h) || 0) / max * 30));
+          return `${String(i).padStart(2, '0')}时 █`.padEnd(6, ' ') + '█'.repeat(c) + (Number(h) ? ' ' + h : '');
+        }).join('<br>');
+        statsBox.innerHTML = `<div>📊 总浏览量：<b>${st.total_views || 0}</b> ／ 访客数：<b>${st.total_viewers || 0}</b></div><div style="margin-top:8px;font-size:12px;line-height:1.7">${bar}</div>`;
+      } catch (e) { statsBox.innerHTML = '<span style="color:var(--bad,var(--danger))">' + escapeHtml(e.message || '统计失败') + '</span>'; }
+      statsBtn.disabled = false;
+    });
+
+    // 特别关注管理
+    const followList = host.querySelector('[data-followlist]');
+    async function updateFollows() {
+      try {
+        const follows = (await callEdge('follow_list', {})) || [];
+        if (followList) followList.innerHTML = follows.length
+          ? follows.map((f) => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line-soft)">${escapeHtml(f.nickname)}（Lv.${f.level || '?'}）<button class="profile-editbtn" data-followrm="${f.user_id}" style="font-size:11px">移除</button></div>`).join('')
+          : '<span style="color:var(--faint)">暂无特别关注</span>';
+        if (followList) followList.querySelectorAll('[data-followrm]').forEach((b) => b.addEventListener('click', async () => {
+          const tid = b.getAttribute('data-followrm');
+          if (!tid || !confirm('确认取消特别关注该用户？')) return;
+          try { await callEdge('follow_remove', { target_id: tid }); updateFollows(); } catch (e) { window.alert(e.message); }
+        }));
+      } catch (_e) { if (followList) followList.innerHTML = '<span style="color:var(--faint)">加载失败</span>'; }
+    }
+    if (followList) updateFollows();
+    const followBtn = host.querySelector('[data-followbtn]');
+    if (followBtn) followBtn.addEventListener('click', async () => {
+      const id = (host.querySelector('#pcFollowId') || {}).value || '';
+      if (!id) { window.alert('请输入要特别关注的用户 ID'); return; }
+      followBtn.disabled = true;
+      try {
+        await callEdge('follow_add', { target_id: id });
+        window.alert('✅ 已添加特别关注。');
+        updateFollows();
+        if (host.querySelector('#pcFollowId')) host.querySelector('#pcFollowId').value = '';
+      } catch (e) { window.alert(e.message || '添加失败'); }
+      followBtn.disabled = false;
+    });
+
+    // 全站广播
+    const bcBtn = host.querySelector('[data-bcbtn]');
+    const bcMsg = host.querySelector('[data-bcmsg]');
+    if (bcBtn && bcMsg) bcBtn.addEventListener('click', async () => {
+      const title = (host.querySelector('#pcBcTitle') || {}).value || '';
+      const content = (host.querySelector('#pcBcContent') || {}).value || '';
+      if (!title.trim() || !content.trim()) { window.alert('请填写广播标题和内容'); return; }
+      bcBtn.disabled = true;
+      bcMsg.innerHTML = '';
+      try {
+        await callEdge('broadcast_send', { title, content });
+        bcMsg.innerHTML = '<span style="color:var(--ok)">✅ 全站广播已发送（每周限 1 条）。</span>';
+      } catch (e) { bcMsg.innerHTML = '<span style="color:var(--bad,var(--danger))">' + escapeHtml(e.message || '发送失败') + '</span>'; }
+      bcBtn.disabled = false;
+    });
+  }
+
   async function publish() {
     const topic = els.topicSelect.value;
     const content = els.content.value.trim();
@@ -1936,13 +2181,17 @@
     const basePayload = () => ({
       token: state.user.token || '', topic, nickname, content,
       ...(schedTs > 0 ? { schedule_at: new Date(schedTs).toISOString() } : {}),
-      ...(loggedIn() && minView > 0 ? { min_view_level: minView } : {})
+      ...(loggedIn() && minView > 0 ? { min_view_level: minView } : {}),
+      ...(loggedIn() && els.postAskMentor && els.postAskMentor.value ? { ask_mentor_id: els.postAskMentor.value } : {}),
+      ...(loggedIn() && els.postResolve && els.postResolve.checked ? { resolve_post: true } : {})
     });
     const onSuccess = async (msg) => {
       els.content.value = '';
       if (els.nickname && !loggedIn()) els.nickname.value = '';
       if (els.scheduleAt) els.scheduleAt.value = '';
       if (els.minViewLevel) els.minViewLevel.value = '0';
+      if (els.postAskMentor) els.postAskMentor.value = '';
+      if (els.postResolve) els.postResolve.checked = false;
       schedTs = 0;
       updateCharCount();
       els.composeHint.textContent = msg;
@@ -2124,6 +2373,8 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
     loadSiteStatus();
     loadPopups();
     loadAnnouncements();
+    loadBroadcasts();
+    setupMentorComposer();
     loadPinned();
     loadFeed();
     loadLeaderboard();

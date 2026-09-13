@@ -280,6 +280,31 @@
       <h4 style="margin:18px 0 8px">在职管理员</h4>
       <div id="adminList"></div>
     </section>
+
+    <!-- 校史留名编号管理（仅创始人） -->
+    <section id="tab-legends" class="panel hidden" style="margin-top:18px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 14px">
+        <h3 style="margin:0">🏯 校史编号管理</h3>
+        <button id="legendRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div id="legendNext" style="font-size:13px;color:var(--muted);margin-bottom:12px"></div>
+      <h4 style="margin:16px 0 8px">已编号列表</h4>
+      <div id="legendAssigned"></div>
+      <h4 style="margin:18px 0 8px">待编号列表</h4>
+      <div id="legendPending"></div>
+    </section>
+
+    <!-- 认证答主审核 -->
+    <section id="tab-mentor" class="panel hidden" style="margin-top:18px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 14px">
+        <h3 style="margin:0">🎓 学长认证审核</h3>
+        <button id="mentorRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:12px">
+        认证答主申请：待审核的可通过或驳回；已通过的可取消认证。
+      </div>
+      <div id="mentorList"></div>
+    </section>
   </div>
 
   <!-- 审计原文查看弹窗 -->

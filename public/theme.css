@@ -571,3 +571,42 @@ select.input { appearance: auto; }
 @keyframes goldCertSpin {
   to { --gold-rot: 360deg; }
 }
+
+/* ==================== 称号 6 级形态（覆盖 .author-level 基础样式） ==================== */
+.author-level.badge-x{display:inline-flex;align-items:center;gap:4px;vertical-align:middle;letter-spacing:.4px}
+.author-level.badge-x .badge-no{font-style:normal;font-weight:800}
+
+/* Lv.1-10 普通·扁平图标 */
+.author-level.badge-x.t-flat{color:#6b7280!important;background:rgba(107,114,128,.13)!important;border:1px solid rgba(107,114,128,.18)}
+
+/* Lv.11-20 彩色+轻微描边 */
+.author-level.badge-x.t-color{color:#fff!important;background:linear-gradient(135deg,#f59e0b,#ef4444);box-shadow:0 0 0 1.5px rgba(245,158,11,.55),0 0 0 1.5px rgba(239,68,68,.35)}
+.author-level.badge-x.t-color:hover{box-shadow:0 0 0 1.5px rgba(245,158,11,.75),0 0 0 1.5px rgba(239,68,68,.55)}
+
+/* Lv.21-35 彩色+动态微光 */
+.author-level.badge-x.t-glow{color:#fff!important;background:linear-gradient(120deg,#8b5cf6,#3b82f6,#06b6d4);background-size:220% 220%;animation:badgeGlowShift 3.6s ease infinite;box-shadow:0 0 10px rgba(59,130,246,.5)}
+@keyframes badgeGlowShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* Lv.36-45 金属质感+呼吸光效 */
+.author-level.badge-x.t-metal{color:#3a2900!important;font-weight:800;background:linear-gradient(180deg,#fff3c4,#f6c453 35%,#c8901f 62%,#f6d16a);box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 0 8px rgba(246,197,83,.5);animation:badgeBreath 3s ease-in-out infinite;border:1px solid rgba(200,144,31,.5)}
+@keyframes badgeBreath{0%,100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 0 4px rgba(246,197,83,.3)}50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 0 16px rgba(246,197,83,.9)}}
+
+/* Lv.46-54 水晶/琉璃质感+粒子拖尾 */
+.author-level.badge-x.t-crystal{color:#e0f2fe!important;font-weight:700;background:linear-gradient(160deg,rgba(56,189,248,.28),rgba(167,139,250,.28));border:1px solid rgba(186,230,253,.55);box-shadow:0 0 10px rgba(103,232,249,.35),inset 0 1px 3px rgba(255,255,255,.45);position:relative;overflow:visible}
+.author-level.badge-x.t-crystal::after{content:"";position:absolute;inset:-5px -10px;border-radius:999px;pointer-events:none;background:
+  radial-gradient(circle,rgba(255,255,255,.95) 0,rgba(255,255,255,0) 2px) 18% 22%/100% 100% no-repeat,
+  radial-gradient(circle,rgba(186,230,253,.9) 0,rgba(186,230,253,0) 2px) 78% 70%/100% 100% no-repeat,
+  radial-gradient(circle,rgba(255,255,255,.8) 0,rgba(255,255,255,0) 2px) 60% 15%/100% 100% no-repeat;animation:badgeParticles 3.2s linear infinite}
+@keyframes badgeParticles{0%{opacity:0;transform:translate(0,0)}20%{opacity:1}75%{opacity:.5}100%{opacity:0;transform:translate(2px,-7px)}}
+
+/* Lv.55-60 3D立体+专属配色+全站唯一编号 */
+.author-level.badge-x.t-3d{color:#fffdf0!important;font-weight:900;background:linear-gradient(180deg,#ffd54f,#ff9d3c 45%,#ff6b1a);text-shadow:0 1px 0 #7a3c00,0 2px 0 #5f2d00,0 3px 0 #471f00,0 4px 7px rgba(0,0,0,.45);box-shadow:0 0 12px rgba(255,157,60,.65),inset 0 1px 2px rgba(255,255,255,.6);animation:badgePop 2.4s ease-in-out infinite}
+.author-level.badge-x.t-3d .badge-no{background:#471f00;color:#ffd54f;padding:0 7px;border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.35);font-size:10px}
+@keyframes badgePop{0%,100%{transform:translateY(0)}50%{transform:translateY(-1px)}}
+
+/* 减少动态偏好：关闭逐帧动画，保留静态光效以保流畅 */
+@media (prefers-reduced-motion: reduce){
+  .author-level.badge-x.t-glow,.author-level.badge-x.t-metal,.author-level.badge-x.t-crystal,.author-level.badge-x.t-3d{animation:none!important}
+  .author-level.badge-x.t-crystal::after{animation:none!important;opacity:.4}
+  .author-level.badge-x.t-glow{background-color:#3b82f6}
+}
