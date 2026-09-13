@@ -198,6 +198,15 @@
     .composer-priv select,.composer-priv input{background:var(--input-bg,#fff);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:5px 8px;font-size:12px;font-family:inherit}
     .composer-priv input[type=datetime-local]{color-scheme:light}
     html[data-theme=dark] .composer-priv input[type=datetime-local]{color-scheme:dark}
+    .quiz-note{font-size:11px;color:var(--faint);line-height:1.5}
+    .quiz-card{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--card-soft)}
+    .quiz-card-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+    .quiz-card-num{font-weight:700;font-size:12.5px;color:var(--muted)}
+    .quiz-card-head select,.quiz-card-head input{background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:5px 8px;font-size:12px;font-family:inherit}
+    .quiz-q{width:100%;box-sizing:border-box;background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 9px;font-size:12.5px;font-family:inherit;margin-bottom:8px}
+    .quiz-q:focus{outline:none;border-color:var(--accent,#e07a5f)}
+    .quiz-opts{display:flex;flex-direction:column;gap:6px}
+    .quiz-fill-hint{font-size:11px;color:var(--faint);padding:2px 0 4px}
     /* 传说推荐 / 评论置顶 */
     .badge.recommend{background:rgba(255,193,90,.18);color:#f5b942;border:1px solid rgba(245,185,66,.4)}
     .pin-cell{color:var(--accent,#e07a5f)}
@@ -268,24 +277,23 @@
         </label>
         <!-- Lv11+ 投票 / 问卷 -->
         <div id="pollBuilder" class="poll-builder hidden">
-          <div class="poll-builder-row">
+          <div class="poll-builder-row" style="align-items:flex-start">
             <select id="pollQtype">
-              <option value="">🗳 插入投票/问卷</option>
-              <option value="single">单选</option>
-              <option value="multi">多选</option>
-              <option value="fill">填空</option>
+              <option value="">🗳 选择类型…</option>
+              <option value="poll">🗳 投票（单选，至多10个选项）</option>
+              <option value="quiz">📋 问卷（至多20题：单选/多选/填空）</option>
             </select>
-            <input id="pollQuestion" placeholder="投票/问卷问题" maxlength="60" />
+            <span id="quizTypeNote" class="quiz-note"></span>
           </div>
-          <div id="pollOptions"></div>
-          <button type="button" id="pollAddOpt" class="btn-ds pb-add">＋ 添加选项</button>
+          <div id="quizQuestions"></div>
+          <button type="button" id="addQuestionBtn" class="btn-ds pb-add">＋ 添加题目</button>
         </div>
         <!-- Lv21+ 连载模式 -->
         <div id="seriesBox" class="series-box hidden">
           <label><input type="checkbox" id="seriesOn" /> 📚 连载模式（多个帖子聚合为一帖，自动生成目录）</label>
           <div id="seriesFields" class="series-fields hidden">
-            <input id="seriesTitle" placeholder="连载大标题（新建时必填）" maxlength="60" />
-            <select id="seriesSelect"><option value="">—— 追加到已有连载 ——</option></select>
+            <input id="seriesTitle" placeholder="连载大标题（新建时选中「创建新的连载」后必填）" maxlength="60" />
+            <select id="seriesSelect"><option value="__new__">＋ 创建新的连载</option><option value="">—— 追加到已有连载 ——</option></select>
             <input id="seriesPartTitle" placeholder="本章小标题（可选）" maxlength="60" />
           </div>
         </div>

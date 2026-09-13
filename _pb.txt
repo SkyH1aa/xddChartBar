@@ -1,0 +1,6 @@
+﻿1120 : <div class="poll-box" data-pollbox style="display:none"></div>
+1182 : function renderPollBox(box, poll) {
+1238 : if (np) renderPollBox(box, np); else box.style.display = 'none';
+1241 : async function attachPolls(root) {
+1242 : const boxes = Array.from((root || document).querySelectorAll('[data-pollbox]'));
+1253 : if (np) renderPollBox(box, np);

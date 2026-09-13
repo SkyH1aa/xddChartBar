@@ -1,0 +1,21 @@
+index.ts 2387: const pqType = String(body.poll_qtype || '');
+index.ts 2390: const opts: string[] = Array.isArray(body.poll_options) ? body.poll_options.map((o: any) => String(o || '').trim()).filter(Boolean) : [];
+index.ts 2393: await getDb().from('forum_polls').insert({ post_id: data.id, qtype: pqType, question: String(body.poll_question || '').slice(0, 60), options: JSON.stringify(opts.slice(0, 12)) });
+index.ts 3701: case 'poll_vote': {
+index.ts 3704: const poll = (await getDb().from('forum_polls').select('id, post_id, qtype, options').eq('id', String(body.poll_id || '')).maybeSingle()).data;
+index.ts 3724: await getDb().from('forum_poll_votes').upsert({ poll_id: poll.id, user_id: user.id, picks: JSON.stringify(picks), fill }, { onConflict: 'poll_id, user_id' });
+index.ts 3727: case 'poll_stats': {
+index.ts 3731: const { data: votes } = await getDb().from('forum_poll_votes').select('user_id, picks, fill').eq('poll_id', poll.id);
+index.ts 3901: case 'poll_stats_batch': {
+index.ts 3907: ? await getDb().from('forum_poll_votes').select('poll_id, user_id, picks, fill').in('poll_id', pollIds)
+index.ts 3911: const votes = (allVotes || []).filter((v: any) => v.poll_id === p.id);
+index.ts 2386: // 投票/问卷：Lv11+ 单选/多选/填空
+index.ts 2389: if (myLv < 11) return fail('插入投票/问卷为「校园萌新」(11级)及以上等级特权', 403);
+index.ts 3700: // ============ 投票 / 问卷（Lv11+，单选/多选/填空） ============
+index.ts 2386: // 投票/问卷：Lv11+ 单选/多选/填空
+index.ts 2389: if (myLv < 11) return fail('插入投票/问卷为「校园萌新」(11级)及以上等级特权', 403);
+index.ts 2391: if ((pqType === 'single' || pqType === 'multi') && opts.length < 2) return fail('单选/多选投票至少需要 2 个选项', 400);
+index.ts 2392: if (opts.length > 12) return fail('投票选项最多 12 个', 400);
+index.ts 3700: // ============ 投票 / 问卷（Lv11+，单选/多选/填空） ============
+index.ts 3705: if (!poll) return fail('投票不存在', 404);
+index.ts 3707: if (owner && owner.author_id === user.id) return fail('不能给自己的投票作答', 400);

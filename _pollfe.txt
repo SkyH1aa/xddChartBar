@@ -1,0 +1,112 @@
+public\app.js 77: pollBuilder: $('pollBuilder'), pollQtype: $('pollQtype'), pollQuestion: $('pollQuestion'), pollOptions: $('pollOptions'), pollAddOpt: $('pollAddOpt'),
+public\app.js 237: function startClientEpochPoll() {
+public\app.js 1120: <div class="poll-box" data-pollbox style="display:none"></div>
+public\app.js 1182: function renderPollBox(box, poll) {
+public\app.js 1183: if (!poll) return;
+public\app.js 1185: const voted = poll.myPicks.length > 0 || !!poll.myFill;
+public\app.js 1187: if (poll.qtype !== 'fill') {
+public\app.js 1188: const t = poll.qtype === 'multi' ? 'checkbox' : 'radio';
+public\app.js 1189: (poll.options || []).forEach((o, i) => {
+public\app.js 1190: const pct = poll.total ? Math.round((poll.counts[i] || 0) / poll.total * 100) : 0;
+public\app.js 1191: optsHtml += `<label class="poll-opt${voted ? ' voted' : ''}">
+public\app.js 1192: <input type="${t}" name="pollpick${poll.id}" data-i="${i}" ${voted && poll.myPicks.indexOf(i) >= 0 ? 'checked' : ''} ${voted ? 'disabled' : ''}/>
+public\app.js 1193: <span class="poll-otext">${escapeHtml(o)}</span>
+public\app.js 1194: ${voted ? `<span class="poll-bar"><i style="width:${pct}%"></i></span><span class="poll-pct">${poll.counts[i] || 0} (${pct}%)</span>` : ''}
+public\app.js 1198: const fillHtml = poll.qtype === 'fill'
+public\app.js 1199: ? `<textarea class="poll-fill" ${voted ? 'disabled' : ''} placeholder="填写你的回答">${escapeHtml(poll.myFill || '')}</textarea>` : '';
+public\app.js 1201: ? `<div class="poll-total">已有 ${poll.total} 人参与</div>`
+public\app.js 1203: ? `<button class="btn poll-vote" data-poll="${poll.id}">投票</button>
+public\app.js 1204: ${poll.qtype === 'multi' ? '<span class="poll-hint" style="font-size:11px;color:var(--faint)">（可多选）</span>' : ''}`
+public\app.js 1205: : `<span class="poll-hint" style="font-size:11px;color:var(--faint)">登录后可投票</span>`;
+public\app.js 1206: box.innerHTML = `<div class="poll-wrap">
+public\app.js 1207: <div class="poll-q">🗳 ${escapeHtml(poll.question || '投票')}</div>
+public\app.js 1208: ${poll.qtype === 'fill' ? fillHtml : optsHtml}
+public\app.js 1209: ${poll.qtype === 'fill' && voted && poll.fills && poll.fills.length
+public\app.js 1210: ? '<div class="poll-fills">' + poll.fills.slice(0, 20).map((f) => '<div class="poll-fillitem">' + escapeHtml(f) + '</div>').join('') + '</div>' : ''}
+public\app.js 1211: <div class="poll-foot">${foot}</div>
+public\app.js 1213: const btn = box.querySelector('.poll-vote');
+public\app.js 1215: const qtype = poll.qtype;
+public\app.js 1217: const fv = box.querySelector('.poll-fill');
+public\app.js 1219: try { await callEdge('poll_vote', { token: state.user.token, poll_id: btn.dataset.poll, fill: fv.value.trim() }); }
+public\app.js 1225: try { await callEdge('poll_vote', { token: state.user.token, poll_id: btn.dataset.poll, picks }); }
+public\app.js 1228: await autoRefreshPoll(box);
+public\app.js 1231: async function autoRefreshPoll(box) {
+public\app.js 1236: const list = await callEdge('poll_stats_batch', { token: state.user.token, ids: [pid] });
+public\app.js 1238: if (np) renderPollBox(box, np); else box.style.display = 'none';
+public\app.js 1241: async function attachPolls(root) {
+public\app.js 1242: const boxes = Array.from((root || document).querySelectorAll('[data-pollbox]'));
+public\app.js 1247: const list = await callEdge('poll_stats_batch', { token: loggedIn() ? state.user.token : '', ids });
+public\app.js 1253: if (np) renderPollBox(box, np);
+public\app.js 2154: const canPoll = lv >= 11, canSeries = lv >= 21, canSp = lv >= 55;
+public\app.js 2156: const any = canPoll || canSeries || canSp || canSched || canLvlgate;
+public\app.js 2172: if (els.pollBuilder) els.pollBuilder.classList.toggle('hidden', !canPoll);
+public\app.js 2178: if (canPoll) parts.push('可插入投票/问卷');
+public\app.js 2189: let pollOptCount = 0;
+public\app.js 2190: function addPollOption(val) {
+public\app.js 2193: row.innerHTML = '<input type="text" maxlength="40" placeholder="选项' + (++pollOptCount) + '" /><button type="button" class="pb-del" title="删除此选项">✕</button>';
+public\app.js 2196: if (els.pollOptions) els.pollOptions.appendChild(row);
+public\app.js 2198: function pollPayload() {
+public\app.js 2199: if (!els.pollQtype || !els.pollQtype.value) return null;
+public\app.js 2200: const opts = Array.from(els.pollOptions.querySelectorAll('.pb-opt input')).map((i) => i.value.trim()).filter(Boolean);
+public\app.js 2201: const qtype = els.pollQtype.value;
+public\app.js 2204: if (!els.pollQuestion.value.trim() && qtype !== 'fill') { window.alert('投票需填写问题'); return '::invalid'; }
+public\app.js 2205: return { poll_qtype: qtype, poll_question: els.pollQuestion.value.trim(), poll_options: opts };
+public\app.js 2294: if (els.pollQtype) els.pollQtype.value = '';
+public\app.js 2295: if (els.pollQuestion) els.pollQuestion.value = '';
+public\app.js 2296: if (els.pollOptions) els.pollOptions.innerHTML = '';
+public\app.js 2631: const pollData = (loggedIn() && myLevelNow() >= 11) ? pollPayload() : null;
+public\app.js 2632: if (pollData === '::invalid') return;
+public\app.js 2642: ...(pollData || {}),
+public\app.js 2818: if (els.pollAddOpt) els.pollAddOpt.addEventListener('click', () => addPollOption());
+public\app.js 2852: startClientEpochPoll();
+public\app.js 1181: // ---------------- 投票 / 问卷渲染（Lv11+ 发帖特权） ----------------
+public\app.js 2178: if (canPoll) parts.push('可插入投票/问卷');
+public\app.js 2188: // ---------------- 投票 / 问卷构建器（Lv11+） ----------------
+public\app.js 1181: // ---------------- 投票 / 问卷渲染（Lv11+ 发帖特权） ----------------
+public\app.js 1203: ? `<button class="btn poll-vote" data-poll="${poll.id}">投票</button>
+public\app.js 1205: : `<span class="poll-hint" style="font-size:11px;color:var(--faint)">登录后可投票</span>`;
+public\app.js 1207: <div class="poll-q">🗳 ${escapeHtml(poll.question || '投票')}</div>
+public\app.js 1224: if (qtype === 'single' && picks.length > 1) { window.alert('单选投票只能选一个'); return; }
+public\app.js 2178: if (canPoll) parts.push('可插入投票/问卷');
+public\app.js 2188: // ---------------- 投票 / 问卷构建器（Lv11+） ----------------
+public\app.js 2203: if (opts.length > 12) { window.alert('投票选项最多 12 个'); return '::invalid'; }
+public\app.js 2204: if (!els.pollQuestion.value.trim() && qtype !== 'fill') { window.alert('投票需填写问题'); return '::invalid'; }
+public\app.js 2630: // 等级特权发布项：投票(Lv11+) / 连载(Lv21+) / 信纸(Lv55+)
+public\app.js 2817: // 等级特权发布项绑定：投票/连载/信纸/草稿
+public\app.js 1182: function renderPollBox(box, poll) {
+public\app.js 1238: if (np) renderPollBox(box, np); else box.style.display = 'none';
+public\app.js 1253: if (np) renderPollBox(box, np);
+public\app.js 77: pollBuilder: $('pollBuilder'), pollQtype: $('pollQtype'), pollQuestion: $('pollQuestion'), pollOptions: $('pollOptions'), pollAddOpt: $('pollAddOpt'),
+public\app.js 1187: if (poll.qtype !== 'fill') {
+public\app.js 1188: const t = poll.qtype === 'multi' ? 'checkbox' : 'radio';
+public\app.js 1198: const fillHtml = poll.qtype === 'fill'
+public\app.js 1204: ${poll.qtype === 'multi' ? '<span class="poll-hint" style="font-size:11px;color:var(--faint)">（可多选）</span>' : ''}`
+public\app.js 1208: ${poll.qtype === 'fill' ? fillHtml : optsHtml}
+public\app.js 1209: ${poll.qtype === 'fill' && voted && poll.fills && poll.fills.length
+public\app.js 1215: const qtype = poll.qtype;
+public\app.js 1216: if (qtype === 'fill') {
+public\app.js 1223: if (!picks.length) { window.alert(qtype === 'single' ? '请选择一个选项' : '请至少选择一个选项'); return; }
+public\app.js 1224: if (qtype === 'single' && picks.length > 1) { window.alert('单选投票只能选一个'); return; }
+public\app.js 2199: if (!els.pollQtype || !els.pollQtype.value) return null;
+public\app.js 2201: const qtype = els.pollQtype.value;
+public\app.js 2202: if ((qtype === 'single' || qtype === 'multi') && opts.length < 2) { window.alert('单选/多选至少需要 2 个选项'); return '::invalid'; }
+public\app.js 2204: if (!els.pollQuestion.value.trim() && qtype !== 'fill') { window.alert('投票需填写问题'); return '::invalid'; }
+public\app.js 2205: return { poll_qtype: qtype, poll_question: els.pollQuestion.value.trim(), poll_options: opts };
+public\app.js 2294: if (els.pollQtype) els.pollQtype.value = '';
+public\app.js 2205: return { poll_qtype: qtype, poll_question: els.pollQuestion.value.trim(), poll_options: opts };
+public\app.js 2205: return { poll_qtype: qtype, poll_question: els.pollQuestion.value.trim(), poll_options: opts };
+public\app.js 1241: async function attachPolls(root) {
+index.html 270: <div id="pollBuilder" class="poll-builder hidden">
+index.html 271: <div class="poll-builder-row">
+index.html 272: <select id="pollQtype">
+index.html 278: <input id="pollQuestion" placeholder="投票/问卷问题" maxlength="60" />
+index.html 280: <div id="pollOptions"></div>
+index.html 281: <button type="button" id="pollAddOpt" class="btn-ds pb-add">＋ 添加选项</button>
+index.html 269: <!-- Lv11+ 投票 / 问卷 -->
+index.html 273: <option value="">🗳 插入投票/问卷</option>
+index.html 278: <input id="pollQuestion" placeholder="投票/问卷问题" maxlength="60" />
+index.html 263: <!-- 等级特权发布项：定时/等级可见/投票/连载/信纸/草稿 -->
+index.html 269: <!-- Lv11+ 投票 / 问卷 -->
+index.html 273: <option value="">🗳 插入投票/问卷</option>
+index.html 278: <input id="pollQuestion" placeholder="投票/问卷问题" maxlength="60" />
+index.html 272: <select id="pollQtype">

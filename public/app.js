@@ -74,7 +74,7 @@
     content: $('contentInput'), nickname: $('nicknameInput'), charCount: $('charCount'),
     publish: $('publishBtn'), composeWarn: $('composeWarn'), composeHint: $('composeHint'),
     composerPriv: $('composerPriv'), scheduleAt: $('scheduleAt'), minViewLevel: $('minViewLevel'), privHint: $('privHint'),
-    pollBuilder: $('pollBuilder'), pollQtype: $('pollQtype'), pollQuestion: $('pollQuestion'), pollOptions: $('pollOptions'), pollAddOpt: $('pollAddOpt'),
+    pollBuilder: $('pollBuilder'), pollQtype: $('pollQtype'), quizQuestions: $('quizQuestions'), quizTypeNote: $('quizTypeNote'), addQuestionBtn: $('addQuestionBtn'),
     seriesBox: $('seriesBox'), seriesOn: $('seriesOn'), seriesFields: $('seriesFields'), seriesTitle: $('seriesTitle'), seriesSelect: $('seriesSelect'), seriesPartTitle: $('seriesPartTitle'),
     spPanel: $('spPanel'), spPreview: $('spPreview'),
     draftBar: $('draftBar'), draftUse: $('draftUse'), draftClear: $('draftClear'),
@@ -456,13 +456,14 @@
     if (!targetId) { if (loggedIn()) targetId = myId(); else { openUserModal(); return; } }
     profileModalOpenId = targetId;
     const overlay = document.createElement('div');
+    profileOverlay = overlay;
     overlay.className = 'profile-mask';
     overlay.innerHTML = `<div class="profile-card" data-pid="pcard">
       <div class="profile-card-head"><span class="profile-loading">正在加载主页…</span><button class="profile-close">×</button></div>
       <div class="profile-card-body">加载中…</div>
     </div>`;
-    overlay.querySelector('.profile-close').addEventListener('click', () => overlay.remove());
-    overlay.addEventListener('mousedown', (e) => { if (e.target === overlay) overlay.remove(); });
+    overlay.querySelector('.profile-close').addEventListener('click', () => closeProfileModal());
+    overlay.addEventListener('mousedown', (e) => { if (e.target === overlay) closeProfileModal(); });
     document.body.appendChild(overlay);
     let data = null;
     try { data = await callEdge('profile_get', { token: state.user.token || '', user_id: targetId }); }
@@ -472,8 +473,22 @@
     body.innerHTML = renderProfile(data);
     body.querySelectorAll('[data-pact]').forEach((b) => b.addEventListener('click', () => { const ps = state.user.profile; renderProfileInto(body, data); }));
     if (data.canEdit) { bindProfileEdit(body, data, overlay); renderPrivilegeCenter(body); }
+    const pcbox = body.querySelector('[data-pcoll-box]');
+    if (pcbox && !data.canEdit && targetId) {
+      (async () => {
+        try {
+          const plist = (await callEdge('collection_public', { token: state.user.token || '', owner_id: targetId })) || [];
+          pcbox.innerHTML = plist.length
+            ? plist.map((c) => `<div class="pc-row"><span style="flex:1;min-width:0"><b>📁 ${escapeHtml(c.title)}</b><br><span style="color:var(--faint);font-size:11px">${escapeHtml(c.intro || '')}</span></span><button class="profile-editbtn sm" data-copen="${c.id}">查看</button></div>`).join('')
+            : '<span style="color:var(--faint)">暂无公开合集</span>';
+          pcbox.querySelectorAll('[data-copen]').forEach((b) => b.addEventListener('click', () => { closeProfileModal(); openCollectionModal(b.getAttribute('data-copen')); }));
+        } catch (_e) { pcbox.innerHTML = '<span style="color:var(--faint)">加载失败</span>'; }
+      })();
+    }
   }
   let profileModalOpenId = null;
+  let profileOverlay = null;
+  function closeProfileModal() { if (profileOverlay) { profileOverlay.remove(); profileOverlay = null; } }
   function renderProfile(data) {
     if (data.locked) {
       return `<div style="padding:34px 24px;text-align:center">
@@ -517,6 +532,10 @@
         <button class="profile-editbtn" data-logout-others style="font-size:11px">🚪 退出其他所有设备</button>
       </div>` : ''}
       ${data.canEdit ? `<div style="margin-top:8px;font-size:11px;color:var(--faint)">只能在个人中心（右上角头像 → 我的主页）编辑自己的信息。提示：敏感词会在提交前本地拦截。</div>` : ''}
+      ${!data.canEdit && u.id ? `<div class="pcol-section" data-public-coll style="margin-top:14px;border-top:1px solid var(--line-soft);padding-top:12px">
+        <div class="pf-vis-title">📁 公开帖子合集</div>
+        <div data-pcoll-box style="font-size:12px;margin-top:6px"><span style="color:var(--faint)">加载中…</span></div>
+      </div>` : ''}
     </div>`;
   }
   function visibilityFor(p, label, val, data) { void p; void label; void val; void data; return ''; }
@@ -1118,6 +1137,7 @@
       </div>
       <div class="post-content${contentFx}">${seriesPartTitle}${escapeHtml(post.content)}${ownActs}</div>
       <div class="poll-box" data-pollbox style="display:none"></div>
+      <div class="quiz-box" data-quizbox style="display:none"></div>
       <div class="post-actions">
         <button class="act-btn like-btn${liked ? ' active' : ''}" title="点赞">
           <span class="like-ico">👍</span><span class="like-num">${formatCount(post.like_count)}</span>
@@ -1254,7 +1274,144 @@
       });
     } catch (_e) {}
   }
-  // ---------------- 连载目录（Lv21+） ----------------
+  // ---------------- 问卷/投票（统一多题模型）渲染 ----------------
+  function renderQuizBox(box, quiz) {
+    if (!quiz) return;
+    box.style.display = '';
+    const my = (Array.isArray(quiz.my) ? quiz.my : []);
+    const voted = !!(Array.isArray(my) && my.some((a) => (Array.isArray(a) ? a.length > 0 : (a !== null && a !== undefined && String(a).length > 0))));
+    const typeLabel = quiz.quiz_type === 'poll' ? '投票' : '问卷';
+    const qsHtml = (quiz.questions || []).map((qq, qi) => {
+      const tag = qq.type === 'fill' ? '·填空' : (qq.type === 'multi' ? '·多选' : '·单选');
+      const title = `<div class="poll-q">${escapeHtml((qq.q || '题') + ' ' + tag)}</div>`;
+      if (qq.type === 'fill') {
+        const myv = Array.isArray(my) ? (my[qq.index] || '') : '';
+        return title + `<textarea class="poll-fill" data-q="${qq.index}" ${voted ? 'disabled' : ''} placeholder="填写你的回答">${escapeHtml(String(myv || ''))}</textarea>`;
+      }
+      const t = qq.type === 'multi' ? 'checkbox' : 'radio';
+      const mySel = my && Array.isArray(my[qq.index]) ? my[qq.index] : (typeof my[qq.index] === 'number' ? [my[qq.index]] : []);
+      const showRes = voted || quiz.closed;
+      const opts = (qq.options || []).map((o, oi) => {
+        if (showRes) {
+          const c = qq.counts[oi] || 0;
+          const pct = quiz.total ? Math.round(c / quiz.total * 100) : 0;
+          const checked = voted && mySel.indexOf(oi) >= 0;
+          return `<label class="poll-opt voted"><input type="${t}" name="quizq${quiz.id}_${qq.index}" data-q="${qq.index}" data-i="${oi}" ${checked ? 'checked' : ''} disabled/><span class="poll-otext">${escapeHtml(o)}</span><span class="poll-bar"><i style="width:${pct}%"></i></span><span class="poll-pct">${c} (${pct}%)</span></label>`;
+        }
+        return `<label class="poll-opt"><input type="${t}" name="quizq${quiz.id}_${qq.index}" data-q="${qq.index}" data-i="${oi}"/><span class="poll-otext">${escapeHtml(o)}</span></label>`;
+      }).join('');
+      return title + opts;
+    }).join('');
+
+    let foot = '';
+    if (voted) foot = `<div class="poll-total">已有 ${quiz.total} 人参与${quiz.closed ? ' · 已结束' : ''}</div>`;
+    else if (quiz.closed) foot = `<div class="poll-total">已结束 · 共 ${quiz.total} 人参与</div>`;
+    else if (loggedIn()) foot = `<button class="btn poll-vote" data-quiz="${quiz.post_id}">提交</button>`;
+    else foot = `<span class="poll-hint" style="font-size:11px;color:var(--faint)">登录后可作答</span>`;
+
+    const ownerActs = quiz.is_owner
+      ? `<div class="quiz-owner-acts">
+          <button class="tiny-btn" data-act="quiz-detail" data-pid="${quiz.post_id}">👁 查看明细</button>
+          <button class="tiny-btn" data-act="quiz-export" data-pid="${quiz.post_id}" ${quiz.feedback_available ? '' : 'disabled'}>⬇ 下载反馈${quiz.feedback_available ? '' : '（已过期）'}</button>
+        </div>` : '';
+    const dateNote = (quiz.expires_at && !quiz.closed)
+      ? `<div class="poll-hint" style="font-size:11px;color:var(--faint)">${typeLabel === '投票' ? '🗳' : '📝'} ${typeLabel}有效期至 ${formatTime(quiz.expires_at)}</div>` : '';
+    box.innerHTML = `<div class="poll-wrap">
+      <div class="poll-q">${typeLabel === '投票' ? '🗳' : '📝'} ${typeLabel}${quiz.closed ? '（已结束）' : ''}</div>
+      ${qsHtml}
+      <div class="poll-foot">${foot}</div>
+      ${ownerActs}
+      ${dateNote}
+      <div class="quiz-detail" data-qd="${quiz.post_id}"></div>
+    </div>`;
+    const sb = box.querySelector('.poll-vote');
+    if (sb) sb.addEventListener('click', async () => {
+      const answers = (quiz.questions || []).map((qq) => {
+        if (qq.type === 'fill') {
+          const ta = box.querySelector(`.poll-fill[data-q="${qq.index}"]`);
+          return ta ? ta.value.trim() : '';
+        }
+        const sel = Array.from(box.querySelectorAll(`input[data-q="${qq.index}"]:checked`)).map((c) => Number(c.dataset.i));
+        return qq.type === 'multi' ? sel : (sel.length ? sel[0] : null);
+      });
+      for (let i = 0; i < (quiz.questions || []).length; i++) {
+        const qq = quiz.questions[i];
+        if (qq.type === 'single' && (answers[i] === null || answers[i] === undefined)) { window.alert(`第 ${i + 1} 题请选择一个选项`); return; }
+        if (qq.type === 'multi' && (!Array.isArray(answers[i]) || !answers[i].length)) { window.alert(`第 ${i + 1} 题请至少选择一个选项`); return; }
+      }
+      try { await callEdge('quiz_answer', { token: state.user.token, post_id: sb.dataset.quiz, answers }); }
+      catch (e) { window.alert(e.message); return; }
+      window.alert('已提交，感谢参与');
+      await autoRefreshQuiz(box);
+    });
+    const dBtn = box.querySelector('[data-act="quiz-detail"]');
+    if (dBtn) dBtn.addEventListener('click', async () => {
+      const dv = box.querySelector('.quiz-detail[data-qd]');
+      try {
+        const st = await callEdge('quiz_stats', { token: state.user.token, post_id: dBtn.dataset.pid });
+        dv.innerHTML = renderQuizDetail(st);
+      } catch (e) { dv.innerHTML = `<div class="poll-hint" style="color:var(--danger)">${escapeHtml(e.message)}</div>`; }
+    });
+    const eBtn = box.querySelector('[data-act="quiz-export"]');
+    if (eBtn) eBtn.addEventListener('click', async (ev) => {
+      try {
+        const r = await callEdge('quiz_export', { token: state.user.token, post_id: ev.currentTarget.dataset.pid });
+        if (!r || !r.csv) { window.alert('暂无反馈数据'); return; }
+        const blob = new Blob([r.csv], { type: 'text/csv;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = r.filename || '反馈数据.csv';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      } catch (e) { window.alert(e.message); }
+    });
+  }
+  function renderQuizDetail(st) {
+    if (!st || !st.detail || !st.detail.length) return `<div class="poll-hint">暂无反馈明细</div>`;
+    const qs = st.questions || [];
+    let html = `<div class="quiz-detail-title">📊 详细反馈（共 ${st.detail.length} 人，仅你可见）</div><table class="quiz-detail-table"><thead><tr><th>#</th><th>用户</th>${qs.map((qq) => `<th>${escapeHtml(qq.q || ('题' + (qq.index + 1)))}</th>`).join('')}<th>提交时间</th></tr></thead><tbody>`;
+    st.detail.forEach((row, ri) => {
+      const a = Array.isArray(row.answers) ? row.answers : [];
+      html += `<tr><td>${ri + 1}</td><td>${escapeHtml(String(row.user_id || '').slice(0, 8))}</td>`;
+      qs.forEach((qq, i) => {
+        const av = a[i];
+        let c = '';
+        if (qq.type === 'fill') c = String(av == null ? '' : av);
+        else if (qq.type === 'multi') c = (Array.isArray(av) ? av : []).map((k) => qq.options[k] ?? '').join(' / ');
+        else { const k = Number(av); c = (Number.isInteger(k) && qq.options[k] != null) ? qq.options[k] : ''; }
+        html += `<td>${escapeHtml(c)}</td>`;
+      });
+      html += `<td>${formatTime(row.created_at).slice(5, 16)}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    return html;
+  }
+  async function autoRefreshQuiz(box) {
+    const card = box.closest('.post-card');
+    const pid = card ? card.dataset.id : '';
+    if (!pid) return;
+    try {
+      const list = await callEdge('quiz_stats_batch', { token: state.user.token, ids: [pid] });
+      const nq = (list || []).find((q) => q.post_id === pid);
+      if (nq) renderQuizBox(box, nq); else box.style.display = 'none';
+    } catch (_e) {}
+  }
+  async function attachQuizzes(root) {
+    const boxes = Array.from((root || document).querySelectorAll('[data-quizbox]'));
+    if (!boxes.length) return;
+    const ids = [...new Set(boxes.map((b) => { const c = b.closest('.post-card'); return c ? c.dataset.id : ''; }).filter(Boolean))].slice(0, 60);
+    if (!ids.length) return;
+    try {
+      const list = await callEdge('quiz_stats_batch', { token: loggedIn() ? state.user.token : '', ids });
+      if (!Array.isArray(list)) return;
+      boxes.forEach((box) => {
+        const c = box.closest('.post-card');
+        const pid = c ? c.dataset.id : '';
+        const nq = list.find((q) => q.post_id === pid);
+        if (nq) renderQuizBox(box, nq);
+      });
+    } catch (_e) {}
+  }
   async function openSeriesModal(sid) {
     if (!sid) return;
     let data;
@@ -1268,7 +1425,7 @@
     const ov = document.createElement('div');
     ov.className = 'modal-overlay';
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
-    ov.innerHTML = `<div style="background:var(--panel-bg,#fff);color:var(--text);border-radius:14px;max-width:520px;width:100%;max-height:80vh;overflow:auto;padding:18px">
+    ov.innerHTML = `<div style="background:var(--card,#fff);color:var(--text);border-radius:14px;max-width:520px;width:100%;max-height:80vh;overflow:auto;padding:18px;border:1px solid var(--line)">
       <div style="font-size:16px;font-weight:700;margin-bottom:4px">📚 ${escapeHtml(data.series.title || '连载')}</div>
       <div style="font-size:12px;color:var(--faint);margin-bottom:10px">作者：${escapeHtml(data.series.owner_nick)} · 共 ${parts.length} 章</div>
       ${partsHtml}
@@ -1302,7 +1459,7 @@
     const ov = document.createElement('div');
     ov.className = 'modal-overlay';
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
-    ov.innerHTML = `<div style="background:var(--panel-bg,#fff);color:var(--text);border-radius:14px;max-width:520px;width:100%;max-height:80vh;overflow:auto;padding:18px">
+    ov.innerHTML = `<div style="background:var(--card,#fff);color:var(--text);border-radius:14px;max-width:520px;width:100%;max-height:80vh;overflow:auto;padding:18px;border:1px solid var(--line)">
       <div style="font-size:16px;font-weight:700;margin-bottom:4px">📁 ${escapeHtml(d.title || '合集')}</div>
       <div style="font-size:12px;color:var(--faint);margin-bottom:10px">${escapeHtml(d.intro || '')} · 共 ${items.length} 项</div>
       ${rows}
@@ -1836,6 +1993,7 @@
       const authorMap = await resolveAuthors(rows);
       const cards = rows.map((p) => makeCard(p, { pinned: true, boosted: !!p.boost_until, authorMap }));
       cards.forEach((c) => els.pinnedFeed.appendChild(c));
+      attachPolls(els.pinnedFeed); attachQuizzes(els.pinnedFeed);
       els.pinnedSection.classList.toggle('hidden', !cards.length);
       observeReveal(els.pinnedFeed);
     } catch (_e) { /* ignore */ }
@@ -1941,6 +2099,7 @@
     const authorMap = await resolveAuthors(rows);
     floorCounter = 0;
     rows.forEach((p) => { floorCounter++; els.feed.appendChild(makeCard(p, { authorMap, floor: floorCounter })); });
+    attachPolls(els.feed); attachQuizzes(els.feed);
     observeReveal(els.feed);
   }
 
@@ -2185,24 +2344,95 @@
     }
   }
 
-  // ---------------- 投票 / 问卷构建器（Lv11+） ----------------
-  let pollOptCount = 0;
-  function addPollOption(val) {
-    const row = document.createElement('div');
-    row.className = 'pb-opt';
-    row.innerHTML = '<input type="text" maxlength="40" placeholder="选项' + (++pollOptCount) + '" /><button type="button" class="pb-del" title="删除此选项">✕</button>';
-    row.querySelector('input').value = val || '';
-    row.querySelector('.pb-del').addEventListener('click', () => row.remove());
-    if (els.pollOptions) els.pollOptions.appendChild(row);
+  // ---------------- 投票 / 问卷构建器（Lv11+）：投票=单题单选至多10选项；问卷=至多20题 单选/多选/填空 单选多选至多6选项 ----------------
+  let quizItems = [];     // { type:'single'|'multi'|'fill', q:'', opts:[] }
+  let quizBuilderType = '';   // '' | 'poll' | 'quiz'
+  const QUIZ_MAX_QUESTIONS = 20;
+  const QUIZ_MAX_OPTS = 10;
+  const QUIZ_MAX_QOPTS = 6;
+  function quizCardTypeLabel(t) { return t === 'single' ? '单选' : (t === 'multi' ? '多选' : '填空'); }
+  function renderQuizEditor() {
+    const area = els.quizQuestions; const note = els.quizTypeNote;
+    if (!area) return;
+    const t = quizBuilderType;
+    if (note) note.textContent = t === 'poll'
+      ? '投票：单个问题、单选，至多 10 个选项。发布后投票功能保留 30 天，之后仅发帖者可下载反馈数据（保留 7 天）。'
+      : t === 'quiz'
+        ? '问卷：至多 20 题，每题可设单选/多选/填空；单选/多选每题至多 6 个选项。发布后保留 30 天，之后仅发帖者可下载反馈（保留 7 天）。'
+        : '';
+    if (t === 'poll') {
+      if (quizItems.length !== 1) quizItems = [{ type: 'single', q: '', opts: [] }];
+      area.innerHTML = renderQuizCard(0, true);
+      bindQuizEditor(area);
+      if (els.addQuestionBtn) els.addQuestionBtn.style.display = 'none';
+      return;
+    }
+    if (t === 'quiz') {
+      if (!quizItems.length) quizItems = [{ type: 'single', q: '', opts: [] }];
+      area.innerHTML = quizItems.map((it, i) => renderQuizCard(i, false)).join('');
+      bindQuizEditor(area);
+      if (els.addQuestionBtn) { els.addQuestionBtn.style.display = ''; els.addQuestionBtn.textContent = '＋ 添加题目（' + quizItems.length + '/' + QUIZ_MAX_QUESTIONS + '）'; }
+      return;
+    }
+    area.innerHTML = '';
+    if (els.addQuestionBtn) els.addQuestionBtn.style.display = 'none';
   }
-  function pollPayload() {
-    if (!els.pollQtype || !els.pollQtype.value) return null;
-    const opts = Array.from(els.pollOptions.querySelectorAll('.pb-opt input')).map((i) => i.value.trim()).filter(Boolean);
-    const qtype = els.pollQtype.value;
-    if ((qtype === 'single' || qtype === 'multi') && opts.length < 2) { window.alert('单选/多选至少需要 2 个选项'); return '::invalid'; }
-    if (opts.length > 12) { window.alert('投票选项最多 12 个'); return '::invalid'; }
-    if (!els.pollQuestion.value.trim() && qtype !== 'fill') { window.alert('投票需填写问题'); return '::invalid'; }
-    return { poll_qtype: qtype, poll_question: els.pollQuestion.value.trim(), poll_options: opts };
+  function escapeAttr(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function renderQuizCard(i, isPoll) {
+    const it = quizItems[i]; const opts = it.opts || [];
+    const maxOpts = isPoll ? QUIZ_MAX_OPTS : QUIZ_MAX_QOPTS;
+    const isFill = it.type === 'fill';
+    const typeCell = isPoll
+      ? '<span class="quiz-card-num" style="font-weight:700;color:var(--accent,#e07a5f)">🗳 单选</span>'
+      : '<select class="quiz-qtype" data-i="' + i + '">' +
+          ['single', 'multi', 'fill'].map((t) => '<option value="' + t + '"' + (it.type === t ? ' selected' : '') + '>' + quizCardTypeLabel(t) + '</option>').join('') +
+        '</select>';
+    return '<div class="quiz-card" data-i="' + i + '">' +
+      '<div class="quiz-card-head"><span class="quiz-card-num">' + (isPoll ? '投票' : '第 ' + (i + 1) + ' 题') + '</span>' + typeCell +
+      (isPoll ? '' : '<button type="button" class="pb-del quiz-del" data-i="' + i + '" title="删除此题">✕</button>') + '</div>' +
+      '<input class="quiz-q" type="text" maxlength="60" data-i="' + i + '" placeholder="' + (isPoll ? '投票问题（例如：你最喜欢的季节？）' : '请输入题目内容') + '" value="' + escapeAttr(it.q || '') + '" />' +
+      (isFill ? '<div class="quiz-fill-hint">· 填空题：回答者自由填写文字，无需选项</div>' :
+        '<div class="quiz-opts">' +
+          opts.map((o, k) => '<div class="pb-opt"><input type="text" maxlength="40" data-q="' + i + '" data-o="' + k + '" class="quiz-opt" placeholder="选项' + (k + 1) + '" value="' + escapeAttr(o || '') + '" /><button type="button" class="pb-del quiz-opt-del" data-i="' + i + '" data-k="' + k + '">✕</button></div>').join('') +
+          '<button type="button" class="btn-ds pb-add quiz-add-opt" data-i="' + i + '">＋ 添加选项（' + opts.length + '/' + maxOpts + '）</button>' +
+        '</div>') +
+      '</div>';
+  }
+  function bindQuizEditor(area) {
+    area.querySelectorAll('.quiz-qtype').forEach((s) => s.addEventListener('change', () => { const i = +s.dataset.i; quizItems[i].type = s.value; quizItems[i].opts = []; renderQuizEditor(); }));
+    area.querySelectorAll('.quiz-q').forEach((inp) => inp.addEventListener('input', () => { const i = +inp.dataset.i; quizItems[i].q = inp.value.trim(); }));
+    area.querySelectorAll('.quiz-opt').forEach((inp) => inp.addEventListener('input', () => { quizItems[+inp.dataset.q].opts[+inp.dataset.o] = inp.value.trim(); }));
+    area.querySelectorAll('.quiz-opt-del').forEach((b) => b.addEventListener('click', () => { const i = +b.dataset.i, k = +b.dataset.k; quizItems[i].opts.splice(k, 1); renderQuizEditor(); }));
+    area.querySelectorAll('.quiz-add-opt').forEach((b) => b.addEventListener('click', () => {
+      const i = +b.dataset.i; const maxOpts = (quizBuilderType === 'poll' ? QUIZ_MAX_OPTS : QUIZ_MAX_QOPTS);
+      if (quizItems[i].opts.length >= maxOpts) { window.alert('该题选项最多 ' + maxOpts + ' 个'); return; }
+      quizItems[i].opts.push(''); renderQuizEditor();
+    }));
+    area.querySelectorAll('.quiz-del').forEach((b) => b.addEventListener('click', () => { quizItems.splice(+b.dataset.i, 1); renderQuizEditor(); }));
+  }
+  function quizPayload() {
+    const t = quizBuilderType; if (!t) return null;
+    if (!els.pollQtype || els.pollQtype.value !== t) return null;
+    if (t === 'poll') {
+      const it = quizItems[0] || {};
+      const q = (it.q || '').trim(); const opts = (it.opts || []).map((o) => String(o || '').trim()).filter(Boolean);
+      if (!q) { window.alert('请填写投票问题'); return '::invalid'; }
+      if (opts.length < 2) { window.alert('投票至少需要 2 个选项'); return '::invalid'; }
+      if (opts.length > QUIZ_MAX_OPTS) { window.alert('投票选项最多 ' + QUIZ_MAX_OPTS + ' 个'); return '::invalid'; }
+      return { quiz_type: 'poll', quiz_questions: [{ type: 'single', q, options: opts }] };
+    }
+    if (!quizItems.length) { window.alert('请至少添加一个题目'); return '::invalid'; }
+    const clean = [];
+    for (let i = 0; i < quizItems.length; i++) {
+      const it = quizItems[i]; const q = (it.q || '').trim();
+      if (!q) { window.alert('第 ' + (i + 1) + ' 题缺少题目内容'); return '::invalid'; }
+      if (it.type === 'fill') { clean.push({ type: 'fill', q, options: [] }); continue; }
+      const opts = (it.opts || []).map((o) => String(o || '').trim()).filter(Boolean);
+      if (opts.length < 2) { window.alert('第 ' + (i + 1) + ' 题（' + quizCardTypeLabel(it.type) + '）至少需要 2 个选项'); return '::invalid'; }
+      if (opts.length > QUIZ_MAX_QOPTS) { window.alert('第 ' + (i + 1) + ' 题选项最多 ' + QUIZ_MAX_QOPTS + ' 个'); return '::invalid'; }
+      clean.push({ type: it.type, q, options: opts });
+    }
+    return { quiz_type: 'quiz', quiz_questions: clean };
   }
 
   // ---------------- 连载模式（Lv21+） ----------------
@@ -2212,16 +2442,19 @@
     const cur = sel.value;
     let list = [];
     try { list = (await callEdge('series_my', { token: state.user.token })) || []; } catch (_e) {}
-    sel.innerHTML = '<option value="">—— 追加到已有连载 ——</option>' +
+    sel.innerHTML = '<option value="__new__">＋ 创建新的连载</option>' +
+      '<option value="" disabled>—— 追加到已有连载 ——</option>' +
       list.map((s) => '<option value="' + escapeHtml(s.id) + '">📚 ' + escapeHtml(s.title || '未命名') + '</option>').join('');
     if (cur && sel.querySelector('option[value="' + cur + '"]')) sel.value = cur;
+    else sel.value = '__new__';
   }
   function seriesPayload() {
     if (!els.seriesOn || !els.seriesOn.checked) return {};
-    const existing = els.seriesSelect ? els.seriesSelect.value : '';
+    const raw = els.seriesSelect ? els.seriesSelect.value : '';
+    const existing = raw === '__new__' ? '' : raw;
     const newTitle = els.seriesTitle ? els.seriesTitle.value.trim() : '';
     const partTitle = els.seriesPartTitle ? els.seriesPartTitle.value.trim() : '';
-    if (!existing && !newTitle) { window.alert('请填写连载大标题，或选择要追加的连载'); return '::invalid'; }
+    if (!existing && !newTitle) { window.alert('请填写连载大标题（新建时），或选择要追加的已有连载'); return '::invalid'; }
     const p = { part_title: partTitle };
     if (existing) p.series_id = existing;
     else p.series_new_title = newTitle;
@@ -2292,8 +2525,10 @@
   }
   function clearComposerExtras() {
     if (els.pollQtype) els.pollQtype.value = '';
-    if (els.pollQuestion) els.pollQuestion.value = '';
-    if (els.pollOptions) els.pollOptions.innerHTML = '';
+    quizBuilderType = ''; quizItems = [];
+    if (els.quizQuestions) els.quizQuestions.innerHTML = '';
+    if (els.quizTypeNote) els.quizTypeNote.textContent = '';
+    if (els.addQuestionBtn) els.addQuestionBtn.style.display = 'none';
     if (els.seriesOn) els.seriesOn.checked = false;
     if (els.seriesFields) els.seriesFields.classList.add('hidden');
     if (els.seriesTitle) els.seriesTitle.value = '';
@@ -2574,11 +2809,22 @@
         try {
           const list = (await callEdge('collection_list', { token: state.user.token })) || [];
           colBox.innerHTML = list.length
-            ? list.map((c, i) => `<div class="pc-row"><span style="flex:1;min-width:0"><b>📁 ${escapeHtml(c.title)}</b><br><span style="color:var(--faint);font-size:11px">${escapeHtml(c.intro || '')}</span></span>
-                <button class="profile-editbtn sm" data-colopen="${c.id}">查看</button>
-                <button class="profile-editbtn sm" data-colrm="${c.id}">删除</button></div>`).join('')
+            ? list.map((c) => {
+              const pubLabel = c.is_public
+                ? '<span style="color:var(--ok);font-size:11px;margin-left:6px">🌍 公开</span>'
+                : '<span style="color:var(--faint);font-size:11px;margin-left:6px">🔒 私密</span>';
+              return `<div class="pc-row"><span style="flex:1;min-width:0"><b>📁 ${escapeHtml(c.title)}</b>${pubLabel}<br><span style="color:var(--faint);font-size:11px">${escapeHtml(c.intro || '')}</span></span>
+                <button class="profile-editbtn sm" data-colopen="${c.id}" title="查看合集内容（关闭个人中心）">查看</button>
+                <button class="profile-editbtn sm" data-colpub="${c.id}" data-on="${c.is_public ? 1 : 0}">${c.is_public ? '设为私密' : '设为公开'}</button>
+                <button class="profile-editbtn sm" data-colrm="${c.id}">删除</button></div>`;
+            }).join('')
             : '<span style="color:var(--faint)">暂无合集，创建第一个吧</span>';
-          colBox.querySelectorAll('[data-colopen]').forEach((b) => b.addEventListener('click', () => openCollectionModal(b.getAttribute('data-colopen'))));
+          colBox.querySelectorAll('[data-colopen]').forEach((b) => b.addEventListener('click', () => { closeProfileModal(); openCollectionModal(b.getAttribute('data-colopen')); }));
+          colBox.querySelectorAll('[data-colpub]').forEach((b) => b.addEventListener('click', async () => {
+            const cid = b.getAttribute('data-colpub'); const on = b.getAttribute('data-on') === '1';
+            try { await callEdge('collection_update', { token: state.user.token, collection_id: cid, is_public: !on }); showCollections(); }
+            catch (e) { window.alert(e.message); }
+          }));
           colBox.querySelectorAll('[data-colrm]').forEach((b) => b.addEventListener('click', async () => {
             if (!confirm('确认删除该合集？（不影响合集内帖子本身）')) return;
             try { await callEdge('collection_delete', { token: state.user.token, collection_id: b.getAttribute('data-colrm') }); showCollections(); }
@@ -2627,9 +2873,10 @@
       if (Number.isFinite(_t) && _t > 0) schedTs = _t;
     }
     const minView = (loggedIn() && els.minViewLevel) ? (Number(els.minViewLevel.value) || 0) : 0;
-    // 等级特权发布项：投票(Lv11+) / 连载(Lv21+) / 信纸(Lv55+)
-    const pollData = (loggedIn() && myLevelNow() >= 11) ? pollPayload() : null;
-    if (pollData === '::invalid') return;
+    // 等级特权发布项：认证答主提问 / 答疑 / 投票问卷(Lv11+) / 连载(Lv21+) / 信纸(Lv55+)
+    if (!loggedIn() || myLevelNow() < 11) { quizItems = []; quizBuilderType = ''; if (els.pollQtype) els.pollQtype.value = ''; }
+    const quizData = (loggedIn() && myLevelNow() >= 11) ? quizPayload() : null;
+    if (quizData === '::invalid') return;
     const seriesData = (loggedIn() && myLevelNow() >= 21 && els.seriesOn && els.seriesOn.checked) ? seriesPayload() : {};
     if (seriesData === '::invalid') return;
     const styleData = (myLevelNow() >= 55) ? cardStylePayload() : null;
@@ -2639,7 +2886,7 @@
       ...(loggedIn() && minView > 0 ? { min_view_level: minView } : {}),
       ...(loggedIn() && els.postAskMentor && els.postAskMentor.value ? { ask_mentor_id: els.postAskMentor.value } : {}),
       ...(loggedIn() && els.postResolve && els.postResolve.checked ? { resolve_post: true } : {}),
-      ...(pollData || {}),
+      ...(quizData || {}),
       ...seriesData,
       ...(styleData || {})
     });
@@ -2814,8 +3061,17 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
   // ---------------- 事件绑定 ----------------
   els.topicSelect.addEventListener('change', updateCharCount);
   els.content.addEventListener('input', () => { updateCharCount(); els.composeWarn.textContent = ''; els.content.classList.remove('bad'); saveDraft(); });
-  // 等级特权发布项绑定：投票/连载/信纸/草稿
-  if (els.pollAddOpt) els.pollAddOpt.addEventListener('click', () => addPollOption());
+  // 等级特权发布项绑定：投票问卷/连载/信纸/草稿
+  if (els.pollQtype) els.pollQtype.addEventListener('change', () => {
+    const v = els.pollQtype.value;
+    if (v === 'poll' || v === 'quiz') { quizBuilderType = v; if (quizBuilderType === 'poll') quizItems = []; renderQuizEditor(); }
+    else { quizBuilderType = ''; quizItems = []; renderQuizEditor(); }
+  });
+  if (els.addQuestionBtn) els.addQuestionBtn.addEventListener('click', () => {
+    const maxQ = (quizBuilderType === 'poll' ? 1 : QUIZ_MAX_QUESTIONS);
+    if (quizItems.length >= maxQ) { window.alert('最多 ' + maxQ + ' 个题目'); return; }
+    quizItems.push({ type: 'single', q: '', opts: [] }); renderQuizEditor();
+  });
   if (els.seriesOn) els.seriesOn.addEventListener('change', () => {
     if (els.seriesFields) els.seriesFields.classList.toggle('hidden', !els.seriesOn.checked);
     if (els.seriesOn.checked) refreshSeriesSelect();

@@ -1,0 +1,27 @@
+﻿691 : await loadFeed();
+734 : if (state.page > 1) { state.page = 1; await loadFeed(); el = findInDom(); }
+754 : if (p !== state.page) { state.page = p; await loadFeed(); }
+762 : await loadFeed();
+1242 : async function attachPolls(root) {
+1337 : loadFeed();
+1345 : loadFeed(); loadPinned();
+1352 : loadFeed(); loadPinned();
+1378 : loadFeed(); loadPinned();
+1394 : loadFeed(); loadPinned();
+1403 : loadFeed(); loadPinned(); renderUserBar();
+1414 : loadPinned(); loadFeed();
+1845 : async function loadFeed() {
+1966 : loadFeed();
+1978 : loadFeed();
+1994 : loadFeed();
+2001 : loadPinned(); loadFeed();
+2015 : state.mode = 'favorites'; state.page = 1; loadFeed();
+2019 : state.mode = 'mine'; state.page = 1; loadFeed();
+2023 : state.mode = 'history'; state.page = 1; loadFeed();
+2662 : await Promise.all([loadPinned(), loadFeed()]);
+2663 : if (state.mode === 'mine') loadFeed();
+2727 : setTimeout(() => { reloading = false; loadPinned(); loadFeed(); armScheduledTimer(); }, 2000);
+2738 : schedTimer = setTimeout(() => { schedTimer = null; loadPinned(); loadFeed(); armScheduledTimer(); }, delay);
+2828 : if (state.page > 1) { state.page--; loadFeed(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+2831 : if (state.page < state.totalPages) { state.page++; loadFeed(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+2849 : loadFeed();
