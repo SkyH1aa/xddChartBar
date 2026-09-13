@@ -93,21 +93,20 @@
       { key: 'dashboard', label: '看板' },
       { key: 'posts', label: '帖子管理' },
       { key: 'review', label: '吃瓜审核', perm: 'can_review' },
-      { key: 'reports', label: '举报', requiresAny: ['can_report', 'can_block'] },
+      { key: 'reports', label: '举报', perm: 'can_report' },
       { key: 'trash', label: '回收站', perm: 'can_delete' },
       { key: 'pinned', label: '顶置管理', perm: 'can_pin' },
       { key: 'audit', label: '审计日志', perm: 'can_view_audit' },
-      { key: 'blacklist', label: '黑名单', requiresAny: ['can_blacklist', 'can_block', 'can_ban'] },
+      { key: 'blacklist', label: '黑名单', perm: 'can_blacklist' },
       { key: 'userMgmt', label: '用户统一管理', perm: 'can_user_mgmt' },
-      { key: 'site', label: '站点开关' },
       { key: 'digests', label: '精华聚合', perm: 'can_digest' },
-      { key: 'popups', label: '弹窗公告' },
+      { key: 'popups', label: '弹窗公告', perm: 'can_popup' },
       { key: 'announces', label: '公告栏', perm: 'can_notice' },
       { key: 'bugs', label: 'Bug反馈', perm: 'can_bug' },
       { key: 'topics', label: '自定义话题', perm: 'can_topic' }
     ];
     if (profile?.isFounder) {
-      all.push({ key: 'admins', label: '管理员' }, { key: 'resetPwd', label: '重置密码' });
+      all.push({ key: 'admins', label: '管理员' }, { key: 'resetPwd', label: '重置密码' }, { key: 'site', label: '站点开关' });
     } else {
       const filtered = all.filter((t) => {
         if (t.perm) return hasPerm(t.perm);
