@@ -104,7 +104,8 @@
       { key: 'announces', label: '公告栏', perm: 'can_notice' },
       { key: 'bugs', label: 'Bug反馈', perm: 'can_bug' },
       { key: 'topics', label: '自定义话题', perm: 'can_topic' },
-      { key: 'mentor', label: '🎓 学长认证', perm: 'can_mentor' }
+      { key: 'mentor', label: '🎓 学长认证', perm: 'can_mentor' },
+      { key: 'invite', label: '🔑 邀请码', perm: 'can_invite' }
     ];
     if (profile?.isFounder) {
       all.push({ key: 'admins', label: '管理员' }, { key: 'resetPwd', label: '重置密码' }, { key: 'site', label: '站点开关' }, { key: 'legends', label: '🏯 校史编号' });
@@ -169,6 +170,105 @@
     if (key === 'resetPwd') loadResetPwd();
     if (key === 'legends') loadLegends();
     if (key === 'mentor') loadMentorAdmin();
+    if (key === 'invite') loadInvites();
+  }
+
+  // ---------- 邀请码管理（can_invite） ----------
+  let inviteBound = false;
+  async function loadInvites() {
+    const statusHint = $('inviteStatusHint');
+    const toggleRow = $('inviteToggleRow');
+    const panelOpen = $('invitePanelOpen');
+    const panelOff = $('invitePanelOff');
+    const toggleCb = $('founderInviteOn');
+    if (!statusHint) return;
+
+    let inviteOn = false;
+    try { const d = await callEdge('invite_status', {}); inviteOn = !!(d && d.invite_on); } catch (_e) {}
+
+    // 创始人专享的开关注
+    if (toggleRow && profile?.isFounder) {
+      toggleRow.style.display = 'block';
+      if (toggleCb) toggleCb.checked = inviteOn;
+    } else if (toggleRow) {
+      toggleRow.style.display = 'none';
+    }
+    if (statusHint) statusHint.textContent = inviteOn
+      ? '✅ 当前已开启邀请码注册：新账号注册须凭未使用的邀请码。'
+      : '⏸️ 当前未开启邀请码注册：所有人可免邀请码注册。';
+
+    if (!inviteBound) {
+      inviteBound = true;
+      if (toggleCb) toggleCb.addEventListener('change', async () => {
+        toggleCb.disabled = true;
+        try {
+          await callEdge('founder_set_invite', { invite_on: toggleCb.checked });
+          loadInvites();
+        } catch (err) { alert(err.message); toggleCb.checked = !toggleCb.checked; }
+        toggleCb.disabled = false;
+      });
+      const createBtn = $('inviteCreateBtn');
+      if (createBtn) createBtn.addEventListener('click', async () => {
+        const n = Math.max(1, Math.min(100, parseInt(String($('inviteCount').value || '1'), 10) || 1));
+        createBtn.disabled = true;
+        try {
+          const d = await callEdge('admin_invite_create', { count: n });
+          pushClipboard(((d && d.codes) || []).join('\n'), `已生成 ${n} 个邀请码`);
+          loadInvites();
+        } catch (err) { alert(err.message); }
+        createBtn.disabled = false;
+      });
+      const copyAll = $('inviteCopyAllBtn');
+      if (copyAll) copyAll.addEventListener('click', async () => {
+        try { const d = await callEdge('admin_invite_list', {}); }
+        catch (_e) {}
+        const listEl = $('inviteList');
+        const codes = Array.from(listEl ? listEl.querySelectorAll('[data-copycode]') : [])
+          .map((el) => el.textContent).filter(Boolean);
+        if (codes.length) pushClipboard(codes.join('\n'), `已复制全部 ${codes.length} 个未使用邀请码`);
+        else alert('当前没有可复制的未使用邀请码');
+      });
+    }
+
+    if (inviteOn) {
+      if (panelOpen) panelOpen.classList.remove('hidden');
+      if (panelOff) panelOff.classList.add('hidden');
+      await renderInviteList();
+    } else {
+      if (panelOpen) panelOpen.classList.add('hidden');
+      if (panelOff) panelOff.classList.remove('hidden');
+    }
+  }
+
+  async function renderInviteList() {
+    const box = $('inviteList');
+    const summary = $('inviteSummary');
+    if (!box) return;
+    box.innerHTML = '<div class="empty" style="padding:12px">加载中…</div>';
+    let rows = [];
+    try { const d = await callEdge('admin_invite_list', {}); rows = d || []; } catch (err) { box.innerHTML = '<div class="empty" style="padding:12px">加载失败：' + escapeHtml(err.message) + '</div>'; return; }
+    const used = rows.filter((r) => r.used_at || r.used_by).length;
+    if (summary) summary.textContent = `共 ${rows.length} 条 · 未使用 ${rows.length - used} · 已使用 ${used}`;
+    if (!rows.length) { box.innerHTML = '<div class="empty" style="padding:12px">暂无邀请码，请先点击「生成邀请码」。</div>'; return; }
+    box.innerHTML = rows.map((r) => {
+      const usedFlag = r.used_at || r.used_by;
+      return `<div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:10px">
+        <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;letter-spacing:1px;color:${usedFlag ? 'var(--faint,#777)' : 'var(--accent,#e07a5f)'}">${escapeHtml(r.code)}</code>
+        <span style="font-size:12px;color:var(--muted)">👤 ${escapeHtml(r.created_by_name || '未知管理员')}</span>
+        ${usedFlag
+          ? `<span class="badge" style="color:#fff;background:#2e8b57">已使用 · 用户 ${escapeHtml(r.used_username || '?')} · ${formatTime(r.used_at)}</span>`
+          : `<span class="badge" style="color:var(--text);background:rgba(232,142,74,.15)">未使用</span>
+             <button class="btn sm ghost" data-copycode="${escapeHtml(r.code)}" style="margin-left:auto">📋 复制</button>
+             <span class="badge" style="color:var(--faint)">${r.created_at ? '创建于 ' + formatTime(r.created_at) : ''}</span>`}
+      </div>`;
+    }).join('');
+    box.querySelectorAll('[data-copycode]').forEach((b) => b.addEventListener('click', () => pushClipboard(b.dataset.copycode, '已复制邀请码 ' + b.dataset.copycode)));
+  }
+
+  function pushClipboard(text, msg) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => alert(msg)).catch(() => alert(msg + '\n' + text));
+    } else { alert(msg + '\n' + text); }
   }
 
   // ---------- 数据看板 ----------
@@ -634,7 +734,7 @@
       ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
       ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证']
+      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码']
     ];
     tags.push(...m.filter(([k]) => hasPerm(k)).map(([, l]) => `<span class="badge">${l}</span>`));
     (profile?.isFounder ? m : m.filter(([k]) => profile?.perms?.[k])).forEach(([k, label]) => {
@@ -1490,7 +1590,7 @@
         ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
         ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证']
+        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码']
       ];
       const toggles = perms.map(([k, label]) => {
         const on = !!a[k];

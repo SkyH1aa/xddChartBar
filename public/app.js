@@ -301,6 +301,7 @@
     } catch (_e) {}
     if (tok) callEdge('logout', { token: tok }).catch(() => {});
     renderUserBar();
+    applyLoginGate();
   }
   // 会话监控：定时校验本端令牌是否仍有效。
   // 若已被其他设备挤掉（普通用户超 5 台挤最旧 / 管理员新登录顶掉旧登录）或已过期，
@@ -310,6 +311,7 @@
     try { localStorage.removeItem(USER_TOKEN_KEY); localStorage.removeItem(USER_PROFILE_KEY); } catch (_e) {}
     renderUserBar();
     loadAdminPerms();
+    applyLoginGate();
   };
   function startSessionMonitor() {
     // 返回当前会话是否仍有效；失效则清理本地会话（被挤掉/过期）
@@ -329,6 +331,31 @@
     // 切回本标签页时立即探活一次，让“刚被其他设备踢掉”能立刻表现为未登录
     document.addEventListener('visibilitychange', () => { if (!document.hidden) probe(); });
     window.addEventListener('focus', probe);
+  }
+
+  // ----------------- 未登录强制登录门禁 -----------------
+  // 未登录用户无法查看/使用论坛内容：显示覆盖层并引导登录
+  let gateBound = false;
+  function applyLoginGate() {
+    const gate = $('loginGate');
+    if (!gate) return;
+    if (loggedIn()) {
+      gate.classList.add('hidden');
+    } else {
+      gate.classList.remove('hidden');
+      const btn = $('loginGateBtn');
+      if (btn && !gateBound) { btn.addEventListener('click', openUserModal); gateBound = true; }
+    }
+  }
+
+  // 邀请码注册状态：创始人开启后，注册页显示必填邀请码输入框
+  async function refreshInviteState() {
+    try {
+      const d = await callEdge('invite_status', {});
+      state.inviteOn = !!(d && d.invite_on);
+    } catch (_e) { state.inviteOn = false; }
+    const inv = $('inviteField');
+    if (inv) inv.classList.toggle('hidden', !state.inviteOn);
   }
 
   // 登录用户不允许自定义昵称：直接显示/使用用户名，隐藏匿名昵称框
@@ -802,6 +829,7 @@
   $('switchToUserReg').addEventListener('click', () => {
     $('userFormLogin').classList.add('hidden');
     $('userFormRegister').classList.remove('hidden');
+    refreshInviteState(); // 进入注册页时同步邀请码开放状态
   });
   $('switchToUserLogin').addEventListener('click', () => {
     $('userFormRegister').classList.add('hidden');
@@ -816,7 +844,9 @@
         device_key: getDeviceKey(), device_name: getDeviceName()
       });
       state.user = { token: data.token, profile: data.user };
-      saveUserSession(); renderUserBar(); closeUserModal(); loadFavIds(); syncLikedFromServer();
+      saveUserSession();
+      // 强制登录：登录成功后整页刷新，改为按登录态加载论坛内容
+      window.location.reload();
     } catch (e) { err.textContent = e.message; }
   });
   $('userRegBtn').addEventListener('click', async () => {
@@ -830,9 +860,11 @@
     const regHits = sensitiveHits(username);
     if (regHits.length) { err.textContent = '⚠️ 注册用户名存在敏感词（' + regHits.map((x) => '“' + x + '”').join('、') + '），不能使用。'; return; }
     try {
-      const data = await callEdge('user_register', { username, password, device_key: getDeviceKey(), device_name: getDeviceName() });
+      const data = await callEdge('user_register', { username, password, device_key: getDeviceKey(), device_name: getDeviceName(), invite_code: $('userRegInvite')?.value.trim().toUpperCase() || '' });
       state.user = { token: data.token, profile: data.user };
-      saveUserSession(); renderUserBar(); closeUserModal(); loadFavIds(); syncLikedFromServer();
+      saveUserSession(); renderUserBar(); closeUserModal();
+      // 强制登录：注册后整页刷新，改为按登录态加载论坛内容
+      window.location.reload();
     } catch (e) { err.textContent = e.message; }
   });
 
@@ -3092,18 +3124,21 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
     await loadAdminPerms();
     readUserSession();
     state.likedSet = getLikedSet();
-    loadTopics();
-    bindSort();
     renderUserBar();
+    applyLoginGate(); // 未登录用户被门禁拦截，无法查看/使用论坛内容
+    refreshInviteState();
     loadSiteStatus();
     loadPopups();
     loadAnnouncements();
     loadBroadcasts();
+    if (!loggedIn()) return; // 未登录：不加载任何论坛内容，仅显示门禁覆盖层
+    loadTopics();
+    bindSort();
     setupMentorComposer();
     loadPinned();
     loadFeed();
     loadLeaderboard();
-    if (loggedIn()) { loadFavIds(); syncLikedFromServer(); refreshProfile(); checkBanStatus(); }
+    loadFavIds(); syncLikedFromServer(); refreshProfile(); checkBanStatus();
     subscribeRealtime();
     startClientEpochPoll();
     startSessionMonitor();

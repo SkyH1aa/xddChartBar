@@ -7,6 +7,13 @@
   <title>XDD吧 · 匿名讨论广场</title>
   <link rel="stylesheet" href="public/theme.css" />
   <style>
+    /* 未登录门禁覆盖层 */
+    .login-gate{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;background:var(--bg,#0f1115);backdrop-filter:blur(2px)}
+    .login-gate.hidden{display:none}
+    .login-gate-card{text-align:center;padding:40px 44px;max-width:420px;border:1px solid var(--line);border-radius:16px;background:var(--card,#15181f);box-shadow:0 20px 60px rgba(0,0,0,.45)}
+    .login-gate-lock{font-size:44px;margin-bottom:10px}
+    .login-gate-card h2{margin:0 0 8px;font-size:22px;color:var(--text,#eceef2)}
+    .login-gate-card p{margin:0 0 18px;color:var(--muted,#a0a6b0);font-size:14px;line-height:1.6}
     .post-actions{display:flex;flex-wrap:wrap;gap:6px 8px;padding:8px 14px 10px;border-top:1px solid var(--line)}
     .post-actions .act-btn{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid transparent;color:var(--muted);font-size:13px;cursor:pointer;padding:5px 11px;border-radius:999px;transition:all .15s}
     .post-actions .act-btn:hover{background:rgba(127,127,127,.12);color:var(--text)}
@@ -398,6 +405,10 @@
           <label>密码（至少 6 位）</label>
           <input id="userRegPass" class="input" type="password" autocomplete="new-password" />
         </div>
+        <div class="form-field hidden" id="inviteField">
+          <label id="inviteFieldLabel">邀请码（当前开启了邀请码注册，必填）</label>
+          <input id="userRegInvite" class="input" type="text" maxlength="8" autocomplete="off" placeholder="请输入邀请码" />
+        </div>
         <div class="form-field">
           <label style="font-size:12px;color:var(--faint,#999)">登录后发布将直接使用你的用户名；用户名不可再修改。</label>
         </div>
@@ -521,6 +532,19 @@
 
   <script src="public/theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- ================= 未登录强制登入门禁（未登录用户无法查看/使用论坛内容） ================= -->
+  <div id="loginGate" class="login-gate hidden">
+    <div class="login-gate-card">
+      <div class="login-gate-lock">🔒</div>
+      <h2>请先登录</h2>
+      <p>论坛内容仅对登录用户开放，请登录后查看与使用吧。</p>
+      <button id="loginGateBtn" class="btn" style="margin-top:6px">前往登录 / 注册</button>
+      <div style="margin-top:14px">
+        <a class="qn-item" href="rules.html" style="font-size:13px;color:var(--muted,#999)">📖 查看站规</a>
+      </div>
+    </div>
+  </div>
+
   <script src="public/app.js"></script>
 </body>
 </html>
