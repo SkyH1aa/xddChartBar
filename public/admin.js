@@ -688,6 +688,9 @@
         const digested = digSet.has(p.id);
         buttons.push(`<button class="btn sm ghost" data-a="digest" data-id="${p.id}" data-digest="${digested ? '1' : '0'}">${digested ? '💎 移出精华' : '💎 加入精华'}</button>`);
       }
+      if (hasPerm('can_topic')) {
+        buttons.push(`<button class="btn sm ghost" data-a="settopic" data-id="${p.id}">📂 更换话题</button>`);
+      }
       if (hasPerm('can_gold')) {
         const goldNow = !!p.gold_until && new Date(p.gold_until).getTime() > Date.now();
         buttons.push(`<button class="btn sm ghost" data-a="gold" data-id="${p.id}">🪙 ${goldNow ? `续期认证` : '金牌认证'}</button>`);
@@ -772,6 +775,7 @@
       } catch (err) { alert(err.message); btn.disabled = false; }
       return;
     }
+    if (a === 'settopic') { onSetPostTopic(id, btn); return; }
     btn.disabled = true;
     try {
       if (a === 'block') await callEdge('block_post', { id, blocked: v === 'true' });
@@ -781,6 +785,24 @@
       else if (a === 'digest') await callEdge(v === '1' ? 'digest_remove' : 'digest_add', { post_id: id });
       loadPosts();
     } catch (err) { alert(err.message); btn.disabled = false; }
+  }
+  async function adminTopicNames() {
+    const fixed = TOPICS.slice();
+    let custom = [];
+    try { custom = (await callEdge('topic_admin_list', {})) || []; } catch (_e) {}
+    return fixed.concat(custom.map((c) => c.display_name).filter(Boolean));
+  }
+  async function onSetPostTopic(id, btn) {
+    const names = await adminTopicNames();
+    const choice = prompt('更换该帖所属话题：\n输入序号选择新的话题\n\n' + names.map((n, i) => (i + 1) + '. ' + n).join('\n'));
+    if (choice == null) return;
+    const idx = parseInt(String(choice).trim(), 10) - 1;
+    const target = names[idx];
+    if (!target) { alert('无效的序号，请重新选择'); return; }
+    if (!confirm(`把该帖移动到话题「${target}」？`)) return;
+    btn.disabled = true;
+    try { await callEdge('post_set_topic', { post_id: id, topic: target }); alert('✅ 已把该帖移动到「' + target + '」'); loadPosts(); }
+    catch (err) { alert(err.message); btn.disabled = false; }
   }
   // 精华聚合管理：展示已收录的精华帖，支持移出
   function loadDigests() {
