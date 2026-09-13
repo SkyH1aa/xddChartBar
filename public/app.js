@@ -213,9 +213,10 @@
     let data = {};
     try { data = await res.json(); } catch (_e) {}
     // 被其他设备挤掉/会话失效：后端返回 401 → 立即清理本地会话，回到未登录态，避免残留昵称
-    // 排除登录/注册接口自身可能返回的 401（如密码错误），避免误清当前会话
+    // 排除登录/注册接口自身可能返回的 401（如密码错误），以及管理员校验 whoami
+    // （admin 令牌失效只代表管理会话过期，绝不等于用户会话失效，不能清空用户登录态）
     if (res.status === 401 && state.user && state.user.token
-      && action !== 'user_login' && action !== 'user_register' && action !== 'admin_login') {
+      && action !== 'user_login' && action !== 'user_register' && action !== 'admin_login' && action !== 'whoami') {
       sessionMonitorReset();
     }
     if (!res.ok || data.ok === false) throw new Error(data.error || ('请求失败 ' + res.status));
