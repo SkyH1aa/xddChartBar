@@ -201,6 +201,13 @@
     .pin-cell{color:var(--accent,#e07a5f)}
     .nickname-link{cursor:pointer}
     .nickname-link:hover{color:var(--accent,#e07a5f);text-decoration:underline}
+    /* 快捷导航：首页 / 专栏 / 站规（所有屏幕始终可见，移动端不再被挤没） */
+    .quicknav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:8px 14px 10px;background:var(--bg-soft);border-bottom:1px solid var(--line-soft);position:relative;z-index:20}
+    .qn-item{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--text);background:var(--card);border:1px solid var(--line);padding:7px 18px;border-radius:999px;text-decoration:none;transition:color .2s,border-color .2s,transform .15s;box-shadow:var(--shadow-soft)}
+    .qn-item:hover{color:var(--accent);border-color:var(--accent)}
+    .qn-item:active{transform:scale(.97)}
+    .qn-item[data-active]{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 10px var(--accent-soft)}
+    @media(max-width:560px){.quicknav{gap:6px;padding:8px 10px 10px}.qn-item{padding:7px 14px;font-size:12.5px}}
   </style>
   <script src="public/sensitive-words.js"></script>
 </head>
@@ -212,8 +219,6 @@
         <span class="dot"></span>
         XDD吧
         <span class="tag">公共论坛</span>
-        <a href="columns.html" class="tag" style="text-decoration:none" title="校友专栏 · 独立小社区">专栏</a>
-        <a href="rules.html" class="tag" style="text-decoration:none" title="站规与使用说明">站规</a>
       </div>
       <div class="search-box">
         <input id="searchInput" type="text" placeholder="搜索 内容 / 昵称…" autocomplete="off" />
@@ -226,6 +231,13 @@
       <div id="themeSwitcherHost" style="display:inline-flex"></div>
     </div>
   </header>
+
+  <!-- ================= 快捷导航（首页 / 专栏 / 站规） ================= -->
+  <nav class="quicknav" aria-label="快捷导航">
+    <a class="qn-item" href="index.html" data-active>🏠 首页</a>
+    <a class="qn-item" href="columns.html">📚 专栏</a>
+    <a class="qn-item" href="rules.html">📖 站规</a>
+  </nav>
 
   <!-- ================= 通知面板 ================= -->
   <div id="notifPanel" class="notif-panel">

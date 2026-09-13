@@ -884,7 +884,8 @@
     // 已登录且有对应权限的管理员：主页快捷 屏蔽/删除/封禁
     const adminActs = state.adminPerms
       ? `<span class="admin-actions">
-           ${state.adminPerms.can_block ? '<button class="act-btn adm" data-act="block" title="屏蔽帖子（首页不再显示）">🚫 屏蔽</button><button class="act-btn adm" data-act="del" title="删除帖子（移入回收站）">🗑 删除</button>' : ''}
+           ${state.adminPerms.can_block ? '<button class="act-btn adm" data-act="block" title="屏蔽帖子（首页不再显示）">🚫 屏蔽</button>' : ''}
+           ${state.adminPerms.can_delete ? '<button class="act-btn adm" data-act="adm-del" title="删除帖子（移入回收站）">🗑 删除</button>' : ''}
            ${state.adminPerms.can_ban && post.author_id ? '<button class="act-btn adm" data-act="ban" title="封禁该作者 7 天">⛔ 封禁7天</button>' : ''}
            ${state.adminPerms.can_digest ? `<button class="act-btn adm" data-act="digest" data-digest="${post.digest ? 'y' : 'n'}" data-id="${post.id}" title="${post.digest ? '把帖子移出精华聚合（原帖保留在主论坛）' : '把帖子加入精华聚合'}">💎 ${post.digest ? '移出精华' : '加入精华'}</button>` : ''}
          </span>`
@@ -925,7 +926,9 @@
     if (state.adminPerms && state.adminPerms.can_block) {
       const abk = card.querySelector('[data-act="block"]');
       if (abk) abk.addEventListener('click', () => adminBlockPost(post, abk));
-      const adel = card.querySelector('[data-act="del"]');
+    }
+    if (state.adminPerms && state.adminPerms.can_delete) {
+      const adel = card.querySelector('[data-act="adm-del"]');
       if (adel) adel.addEventListener('click', () => adminDeletePost(post));
     }
     if (state.adminPerms && state.adminPerms.can_ban) {
@@ -1369,8 +1372,15 @@
   function viewerViewLevel() { return loggedIn() ? myLevelNow() : 0; }
   let floorCounter = 0;
   async function countTotal() {
-    const q = currentQueryBase();
-    const { count, error } = await q.select('*', { count: 'exact', head: true });
+    // 单独构建计数查询：select 只调用一次（head+exact 仅取数量），
+    // 避免在已带 select('*') 的列表查询上二次 select 触发 PostgREST 报错、导致总数为 0
+    let q = supabase.from('forum_posts')
+      .select('id', { count: 'exact', head: true })
+      .eq('reviewed', true).eq('blocked', false);
+    q = q.or(`min_view_level.is.null,min_view_level.lte.${viewerViewLevel()}`);
+    q = q.or(`scheduled_for.is.null,scheduled_for.lte.${new Date().toISOString()}`);
+    if (state.activeTopic) q = q.eq('topic', state.activeTopic);
+    const { count, error } = await q;
     if (error) return 0;
     return count || 0;
   }

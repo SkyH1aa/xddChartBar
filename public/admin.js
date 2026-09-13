@@ -94,7 +94,7 @@
       { key: 'posts', label: '帖子管理' },
       { key: 'review', label: '吃瓜审核', perm: 'can_review' },
       { key: 'reports', label: '举报', requiresAny: ['can_report', 'can_block'] },
-      { key: 'trash', label: '回收站', perm: 'can_block' },
+      { key: 'trash', label: '回收站', perm: 'can_delete' },
       { key: 'pinned', label: '顶置管理', perm: 'can_pin' },
       { key: 'audit', label: '审计日志', perm: 'can_view_audit' },
       { key: 'blacklist', label: '黑名单', requiresAny: ['can_blacklist', 'can_block', 'can_ban'] },
@@ -629,7 +629,7 @@
     $('whoami').textContent = profile?.isFounder ? '创始人' : `${profile?.className || ''} ${profile?.name || '管理员'}`;
     const tags = [];
     const m = [
-      ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
+      ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
       ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
       ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合']
@@ -667,9 +667,13 @@
       if (p.blocked) tag += ' <span class="badge" style="color:#fff;background:var(--danger)">已屏蔽</span>';
       if (!p.reviewed) tag += ' <span class="badge" style="color:#fff;background:var(--warn)">待审核</span>';
       const buttons = [];
-      if (hasPerm('can_block')) {
+      if (hasPerm('can_block') || hasPerm('can_delete')) {
         buttons.push(`<button class="btn sm ghost" data-a="comments" data-id="${p.id}">💬 评论 (${Number(p.comment_count) || 0})</button>`);
+      }
+      if (hasPerm('can_block')) {
         buttons.push(`<button class="btn sm ghost" data-a="block" data-id="${p.id}" data-v="${p.blocked ? 'false' : 'true'}">${p.blocked ? '解除屏蔽' : '屏蔽'}</button>`);
+      }
+      if (hasPerm('can_delete')) {
         buttons.push(`<button class="btn sm danger" data-a="del" data-id="${p.id}">删除</button>`);
       }
       if (hasPerm('can_review') && !p.reviewed && !p.blocked) {
@@ -1439,7 +1443,7 @@
       c.className = 'panel fade-in-up';
       c.style.padding = '12px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px';
       const perms = [
-        ['can_block', '屏蔽/删除'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
+        ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
         ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
         ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合']
