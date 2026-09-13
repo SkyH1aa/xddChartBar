@@ -1956,7 +1956,7 @@
   let myMentorApps = []; // 当前用户的历史认证申请
   async function loadMyMentorApps() {
     if (!loggedIn()) { myMentorApps = []; return; }
-    try { myMentorApps = (await callEdge('mentor_my', {})) || []; }
+    try { myMentorApps = (await callEdge('mentor_my', { token: state.user.token })) || []; }
     catch (_e) { myMentorApps = []; }
   }
   function isApprovedMentorFor(topic) {
@@ -2077,7 +2077,7 @@
     const myappsHost = host.querySelector('[data-pcmyapps]');
     async function updateMyApps() {
       try {
-        const apps = (await callEdge('mentor_my', {})) || [];
+        const apps = (await callEdge('mentor_my', { token: state.user.token })) || [];
         myMentorApps = apps;
         if (myappsHost) myappsHost.innerHTML = apps.length
           ? apps.map((a) => `<div style="padding:6px 0;border-bottom:1px solid var(--line-soft)"><span style="font-weight:700">${escapeHtml(a.topic)}</span> · ${mentorStatusBadge(a.status)}<div style="color:var(--faint)">${escapeHtml(a.ask_title || '')}</div></div>`).join('')
@@ -2093,7 +2093,7 @@
       if (!ask_title.trim()) { window.alert('请填写擅长描述'); return; }
       applyBtn.disabled = true;
       try {
-        await callEdge('mentor_apply', { topic, ask_title });
+        await callEdge('mentor_apply', { token: state.user.token, topic, ask_title });
         window.alert('✅ 认证答主申请已提交，等待审核。');
         updateMyApps();
       } catch (e) { window.alert(e.message || '申请失败'); }
@@ -2106,7 +2106,7 @@
     if (statsBtn && statsBox) statsBtn.addEventListener('click', async () => {
       statsBtn.disabled = true;
       try {
-        const st = (await callEdge('view_stats', {})) || {};
+        const st = (await callEdge('view_stats', { token: state.user.token })) || {};
         const hours = st.hours || [];
         const max = Math.max(1, ...hours.map(Number).filter((n) => Number.isFinite(n)));
         const bar = hours.map((h, i) => {
@@ -2122,14 +2122,14 @@
     const followList = host.querySelector('[data-followlist]');
     async function updateFollows() {
       try {
-        const follows = (await callEdge('follow_list', {})) || [];
+        const follows = (await callEdge('follow_list', { token: state.user.token })) || [];
         if (followList) followList.innerHTML = follows.length
           ? follows.map((f) => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line-soft)">${escapeHtml(f.nickname)}（Lv.${f.level || '?'}）<button class="profile-editbtn" data-followrm="${f.user_id}" style="font-size:11px">移除</button></div>`).join('')
           : '<span style="color:var(--faint)">暂无特别关注</span>';
         if (followList) followList.querySelectorAll('[data-followrm]').forEach((b) => b.addEventListener('click', async () => {
           const tid = b.getAttribute('data-followrm');
           if (!tid || !confirm('确认取消特别关注该用户？')) return;
-          try { await callEdge('follow_remove', { target_id: tid }); updateFollows(); } catch (e) { window.alert(e.message); }
+          try { await callEdge('follow_remove', { token: state.user.token, target_id: tid }); updateFollows(); } catch (e) { window.alert(e.message); }
         }));
       } catch (_e) { if (followList) followList.innerHTML = '<span style="color:var(--faint)">加载失败</span>'; }
     }
@@ -2140,7 +2140,7 @@
       if (!id) { window.alert('请输入要特别关注的用户 ID'); return; }
       followBtn.disabled = true;
       try {
-        await callEdge('follow_add', { target_id: id });
+        await callEdge('follow_add', { token: state.user.token, target_id: id });
         window.alert('✅ 已添加特别关注。');
         updateFollows();
         if (host.querySelector('#pcFollowId')) host.querySelector('#pcFollowId').value = '';
@@ -2158,7 +2158,7 @@
       bcBtn.disabled = true;
       bcMsg.innerHTML = '';
       try {
-        await callEdge('broadcast_send', { title, content });
+        await callEdge('broadcast_send', { token: state.user.token, title, content });
         bcMsg.innerHTML = '<span style="color:var(--ok)">✅ 全站广播已发送（每周限 1 条）。</span>';
       } catch (e) { bcMsg.innerHTML = '<span style="color:var(--bad,var(--danger))">' + escapeHtml(e.message || '发送失败') + '</span>'; }
       bcBtn.disabled = false;
