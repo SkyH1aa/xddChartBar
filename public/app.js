@@ -34,9 +34,23 @@
   function getDeviceName() {
     try {
       const ua = navigator.userAgent || '';
-      const os = /Windows/.test(ua) ? 'Windows' : /Mac|iPhone|iPad/.test(ua) ? 'macOS/iOS' : /Android/.test(ua) ? 'Android' : /Linux/.test(ua) ? 'Linux' : '未知系统';
-      const br = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : '浏览器';
-      return `${br} · ${os}`;
+      const uaData = navigator.userAgentData || null;
+      const osMatches = ua.match(/Windows NT (\d+\.\d+)/);
+      let os = '未知系统';
+      if (osMatches && osMatches[1] >= '10.0') os = 'Windows 10/11';
+      else if (osMatches) os = 'Windows';
+      else if (/iPhone OS (\d+)_/.test(ua)) os = 'iOS ' + (ua.match(/iPhone OS (\d+)_/)[1]);
+      else if (/CPU OS (\d+)_/.test(ua) || /iPad OS (\d+)_/.test(ua)) os = 'iOS';
+      else if (/Android (\d+[\d.]*)/.test(ua)) os = 'Android ' + (ua.match(/Android (\d+[\d.]*)/)[1]);
+      else if (/Mac OS X/.test(ua)) os = 'macOS';
+      else if (/Linux/.test(ua)) os = 'Linux';
+      // 设备型号：优先取安卓 UA 里的型号，其次用 userAgentData.platform
+      let model = '';
+      const mob = ua.match(/\(([^;]+);[^)]*;\s*([^;]+)\s+Build\//);
+      if (mob && mob[2]) { model = mob[2].replace(/;/g, '').trim(); }
+      else if (uaData && uaData.platform && /Android/.test(uaData.platform)) model = model || '';
+      const br = /Edg\//.test(ua) ? 'Edge' : /CriOS\//.test(ua) ? 'Chrome' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : '浏览器';
+      return [br, model, os].filter(Boolean).join(' · ');
     } catch (_e) { return ''; }
   }
 
@@ -309,11 +323,10 @@
     const initials = userDisplay(p).charAt(0).toUpperCase();
     host.innerHTML = `
       <div class="user-area">
-        <button class="icon-btn" id="bellBtn" title="通知中心">🔔</button>
+        <button class="icon-btn" id="bellBtn" title="通知中心">🔔<span class="dot-badge notif-badge" id="notifBadge"></span></button>
         <button class="user-chip" id="userChip">
           <span class="avatar-wrap">
             <span class="avatar" style="background:${p.avatar_color || '#e07a5f'}">${escapeHtml(initials)}</span>
-            <span class="dot-badge notif-badge" id="notifBadge"></span>
           </span>
           <span class="u-name">${escapeHtml(p.nickname || p.username)}</span>
           <span class="u-level" title="经验 ${li.xp}">Lv.${lv}</span>
@@ -536,7 +549,7 @@
         <div style="display:flex;align-items:center;gap:8px;padding:7px 2px;border-top:1px solid var(--line-soft)">
           <span style="font-size:16px">${s.current ? '💻' : '📱'}</span>
           <span style="flex:1;min-width:0;font-size:12px;color:var(--text)">${escapeHtml(s.device_name)}
-            <div style="color:var(--faint);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">登录于 ${fmtTime(s.created_at)}</div>
+            <div style="color:var(--faint);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">登录于 ${fmtTime(s.created_at)}${s.ip ? ` · IP ${escapeHtml(s.ip)}` : ''}</div>
           </span>
           ${s.current ? '<span style="color:var(--ok);font-size:11px;white-space:nowrap">当前设备</span>'
             : `<button class="profile-editbtn" data-revokesid="${s.sid}" style="font-size:11px;white-space:nowrap">踢出</button>`}
@@ -662,29 +675,53 @@
       badge.textContent = n > 99 ? '99+' : n;
     } catch (_e) {}
   }
-  function scrollToPost(pid) {
-    // 统一切回 feed 视图并重载（顶置帖也被 makeCard 渲染为 article，可被查找到）
-    if (state.mode !== 'feed' || document.readyState !== 'complete') {
-      state.mode = 'feed'; state.page = 1;
+  async function scrollToPost(pid) {
+    // 统一回到「全部话题·最新」视图，页码由后端定位；顶置帖也会被 makeCard 渲染为可查找到的卡片
+    const sel = `article[data-id="${pid}"], .post-card[data-id="${pid}"]`;
+    const findInDom = () => document.querySelector(sel);
+    const onPost = (el) => {
+      const tgl = el.querySelector('.cmt-toggle');
+      const box = el.querySelector('[data-cmtbox]');
+      if (tgl && box && box.classList.contains('hidden')) tgl.click();   // 自动展开评论区
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 350); // 评论异步加载后再对齐一次
+    };
+
+    state.mode = 'feed'; state.activeTopic = ''; state.sort = 'latest';
+
+    // 1) 当前 DOM 已渲染该帖（比如翻页前就在本页）→ 直接定位
+    let el = findInDom();
+    if (el) { onPost(el); return; }
+
+    // 2) 否则用后端算出该帖在默认最新流里的页码再前往
+    if (state.page > 1) { state.page = 1; await loadFeed(); el = findInDom(); }
+    if (!el && state.user && state.user.token) {
+      try {
+        const r = await callEdge('find_post_page', { token: state.user.token, post_id: pid });
+        if (r && r.visible && r.page >= 1 && r.page !== state.page) {
+          state.page = r.page;
+          await loadFeed();
+          el = findInDom();
+        }
+      } catch (_e) {}
     }
-    loadFeed();
-    const find = () => document.querySelector(`article[data-id="${pid}"], .post-card[data-id="${pid}"]`);
-    // feed 是异步加载，需等渲染后再定位；顶置帖可能延迟挂载，多次尝试
-    let tried = 0;
-    const t = setInterval(() => {
-      tried++;
-      const el = find();
-      if (el) {
-        // 自动展开该帖评论（相当于打开帖子页面）
-        const tgl = el.querySelector('.cmt-toggle');
-        const box = el.querySelector('[data-cmtbox]');
-        if (tgl && box && box.classList.contains('hidden')) tgl.click();
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        clearInterval(t);
-      } else if (tried > 8) {
-        clearInterval(t);
+
+    // 3) 仍未命中：向前逐页扫描（覆盖同毫秒并列、推流/金顶置在独立顶置区异步挂载等边界）
+    let guard = 0;
+    while (!el && guard < 80) {
+      if (state.totalPages > state.page) {
+        state.page += 1;
+        await loadFeed();
+        el = findInDom();
+      } else {
+        // 顶置区仍在后台加载，稍候重试，避免漏掉已置顶的帖子
+        await new Promise((r) => setTimeout(r, 150));
+        el = findInDom();
       }
-    }, 150);
+      guard++;
+    }
+
+    if (el) onPost(el);
   }
   if (els.notifClear) els.notifClear.addEventListener('click', async (e) => {
     e.preventDefault();
@@ -1246,11 +1283,9 @@
   async function syncLikedFromServer() {
     if (!loggedIn()) return;
     try {
-      const { data, error } = await supabase.from('forum_like_users')
-        .select('post_id').eq('user_id', myId());
-      if (error) return;
-      const newSet = new Set((data || []).map((r) => r.post_id));
-      state.likedSet = newSet;
+      // 经 Edge Function（service-role，绕过 RLS）拉取「我赞过的帖子」，跨设备也一致
+      const list = await callEdge('user_liked_posts', { token: state.user.token });
+      state.likedSet = new Set(list || []);
       saveLikedSet();
       // 修复：点赞按钮在卡片上，按卡片 data-id 反查
       document.querySelectorAll('article.post-card').forEach((card) => {
