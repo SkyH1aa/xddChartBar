@@ -867,13 +867,19 @@
     const levelTag = cardLv ? levelBadgeHtml(ctx.authorMap[post.author_id]) : '';
     const isBoosted = !!post.boost_until && new Date(post.boost_until).getTime() > Date.now();
     const isRecommended = !!post.recommend_until && new Date(post.recommend_until).getTime() > Date.now();
+    const isGold = !!post.gold_until && new Date(post.gold_until).getTime() > Date.now();
     if (isRecommended) {
       badges += '<span class="badge recommend">🏆 传说推荐</span>';
+    }
+    if (isGold) {
+      badges += '<span class="badge" style="background:linear-gradient(135deg,#ffd76a,#cb9a2b);color:#3a2500;font-weight:700;border:1px solid rgba(255,215,120,.65);box-shadow:0 0 8px rgba(255,210,110,.45)">🪙 金牌认证</span>';
     }
     // 校史留名(55-60级)特权：淡金发光环绕边框；推荐/推流中的帖子升级为更柔和的流动高光
     const legendGold = cardLv >= 55 ? ' legend-gold-card' : '';
     const legendPrestige = cardLv >= 55 && (ctx.boosted || isBoosted || isRecommended) ? ' legend-prestige' : '';
-    card.className = 'post-card' + (ctx.pinned ? ' pinned-post' : '') + (lightfxCard ? ' lightfx-card' : '') + legendGold + legendPrestige;
+    // 金牌认证：更高级的旋转流光边框 + 暖金辉光（区别于校史留名的呼吸辉光）
+    const goldFx = isGold ? ' gold-cert-card' : '';
+    card.className = 'post-card' + (ctx.pinned ? ' pinned-post' : '') + (lightfxCard ? ' lightfx-card' : '') + legendGold + legendPrestige + goldFx;
     const ownActs = isOwn
       ? `<span class="own-acts">
            ${isBoosted ? `<span class="tiny-btn" style="color:#bd93f9">推流中至${formatTime(post.boost_until).slice(5, 16)}</span>` : ''}
@@ -888,6 +894,7 @@
            ${state.adminPerms.can_delete ? '<button class="act-btn adm" data-act="adm-del" title="删除帖子（移入回收站）">🗑 删除</button>' : ''}
            ${state.adminPerms.can_ban && post.author_id ? '<button class="act-btn adm" data-act="ban" title="封禁该作者 7 天">⛔ 封禁7天</button>' : ''}
            ${state.adminPerms.can_digest ? `<button class="act-btn adm" data-act="digest" data-digest="${post.digest ? 'y' : 'n'}" data-id="${post.id}" title="${post.digest ? '把帖子移出精华聚合（原帖保留在主论坛）' : '把帖子加入精华聚合'}">💎 ${post.digest ? '移出精华' : '加入精华'}</button>` : ''}
+           ${state.adminPerms.can_gold ? `<button class="act-btn adm" data-act="gold" title="金牌认证：自定义顶置该帖（1-96 小时）">🪙 ${isGold ? '续期认证' : '金牌认证'}</button>` : ''}
          </span>`
       : '';
     card.innerHTML = `
@@ -939,6 +946,10 @@
       const adig = card.querySelector('[data-act="digest"]');
       if (adig) adig.addEventListener('click', () => adminDigestToggle(post, adig));
     }
+    if (state.adminPerms && state.adminPerms.can_gold) {
+      const agold = card.querySelector('[data-act="gold"]');
+      if (agold) agold.addEventListener('click', () => adminGoldPost(post, agold));
+    }
     const profLink = card.querySelector('[data-open-profile]');
     if (profLink) profLink.addEventListener('click', () => { if (profLink.dataset.openProfile) openProfile(profLink.dataset.openProfile); else window.alert('该用户为匿名用户，无法访问个人主页'); });
     // 作者编辑/删除/推流
@@ -986,6 +997,22 @@
       window.alert('已封禁该作者 7 天。');
     } catch (e) { window.alert(e.message); }
     finally { btn.disabled = false; }
+  }
+
+  // ---------------- 管理员：金牌认证（可自定义顶置 1-96 小时） ----------------
+  async function adminGoldPost(post, btn) {
+    const raw = window.prompt('🪙 金牌认证\n请输入自定义顶置时长（小时）：\n范围 1-96，超出会自动按 96 处理', '24');
+    if (raw === null) return;
+    const n = parseInt(raw, 10);
+    if (isNaN(n) || n < 1) { window.alert('时长需为 1-96 的整数小时'); return; }
+    const hours = Math.min(n, 96);
+    if (!confirm(`确认对「${post.topic || ''}」帖子金牌认证并顶置 ${hours} 小时？`)) return;
+    btn.disabled = true;
+    try {
+      const r = await callEdge('gold_set', { token: state.session.token, post_id: post.id, hours });
+      window.alert(`🪙 金牌认证成功！该帖已顶置 ${r.hours} 小时，至 ${new Date(r.until).toLocaleString()}。`);
+      loadFeed(); loadPinned();
+    } catch (e) { window.alert(e.message || '操作失败'); btn.disabled = false; }
   }
 
   // ---------------- 等级特权：推流 / 助推 ----------------
@@ -1390,19 +1417,21 @@
         .order('pinned_at', { ascending: false });
       if (state.activeTopic) q = q.eq('topic', state.activeTopic);
       const { data } = await q;
-      // 推流/传说推荐的帖子也临时顶置展示
+      // 推流/传说推荐/金牌认证的帖子也临时顶置展示（金牌认证最优先置顶）
       let boosted = [];
       try {
         const now = new Date().toISOString();
         const bq = supabase.from('forum_posts').select('*').eq('reviewed', true).eq('blocked', false)
-          .or(`boost_until.gt.${now},recommend_until.gt.${now}`)
+          .or(`gold_until.gt.${now},boost_until.gt.${now},recommend_until.gt.${now}`)
           .or(`min_view_level.is.null,min_view_level.lte.${viewerViewLevel()}`)
           .or(`scheduled_for.is.null,scheduled_for.lte.${now}`)
           .order('pinned_at', { ascending: true });
         if (state.activeTopic) bq = bq.eq('topic', state.activeTopic);
         boosted = (await bq.limit(30)).data || [];
       } catch (_e) { boosted = []; }
-      const rows = [...boosted, ...(data || [])];
+      const activeGold = boosted.filter((p) => p.gold_until && new Date(p.gold_until).getTime() > Date.now());
+      const restBoost = boosted.filter((p) => !(p.gold_until && new Date(p.gold_until).getTime() > Date.now()));
+      const rows = [...activeGold, ...restBoost, ...(data || [])];
       els.pinnedFeed.innerHTML = '';
       const authorMap = await resolveAuthors(rows);
       const cards = rows.map((p) => makeCard(p, { pinned: true, boosted: !!p.boost_until, authorMap }));

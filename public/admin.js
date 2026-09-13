@@ -628,7 +628,7 @@
     $('whoami').textContent = profile?.isFounder ? '创始人' : `${profile?.className || ''} ${profile?.name || '管理员'}`;
     const tags = [];
     const m = [
-      ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
+      ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
       ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
       ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合']
@@ -684,6 +684,10 @@
       if (hasPerm('can_digest')) {
         const digested = digSet.has(p.id);
         buttons.push(`<button class="btn sm ghost" data-a="digest" data-id="${p.id}" data-digest="${digested ? '1' : '0'}">${digested ? '💎 移出精华' : '💎 加入精华'}</button>`);
+      }
+      if (hasPerm('can_gold')) {
+        const goldNow = !!p.gold_until && new Date(p.gold_until).getTime() > Date.now();
+        buttons.push(`<button class="btn sm ghost" data-a="gold" data-id="${p.id}">🪙 ${goldNow ? `续期认证` : '金牌认证'}</button>`);
       }
       card.innerHTML = `
         <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px">
@@ -750,6 +754,21 @@
     }
     if (a === 'del' && !confirm('删除后该帖将进入回收站（可恢复），确定删除？')) return;
     if (a === 'digest' && v === '1' && !confirm('把帖子移出精华聚合？原帖保留在主论坛，不受影响。')) return;
+    if (a === 'gold') {
+      const raw = prompt('🪙 金牌认证\n请输入自定义顶置时长（小时）：\n范围 1-96，超出会自动按 96 处理', '24');
+      if (raw === null) return;
+      const gh = parseInt(raw, 10);
+      if (isNaN(gh) || gh < 1) { alert('时长需为 1-96 的整数小时'); return; }
+      const hours = Math.min(gh, 96);
+      if (!confirm(`确认对该帖金牌认证并顶置 ${hours} 小时？`)) return;
+      btn.disabled = true;
+      try {
+        const r = await callEdge('gold_set', { post_id: id, hours });
+        alert(`🪙 金牌认证成功！该帖已顶置 ${r.hours} 小时，至 ${new Date(r.until).toLocaleString()}。`);
+        loadPosts();
+      } catch (err) { alert(err.message); btn.disabled = false; }
+      return;
+    }
     btn.disabled = true;
     try {
       if (a === 'block') await callEdge('block_post', { id, blocked: v === 'true' });
@@ -1442,7 +1461,7 @@
       c.className = 'panel fade-in-up';
       c.style.padding = '12px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px';
       const perms = [
-        ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
+        ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
         ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
         ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合']

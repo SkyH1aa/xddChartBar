@@ -494,9 +494,10 @@ select.input { appearance: auto; }
 @media (max-width: 720px), (prefers-reduced-motion: reduce) {
   /* 顶栏滚动时背景模糊会逐帧重算合成层，最耗性能；移动端改用半透明实色 */
   .topbar { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--topbar-bg); }
-  /* 装饰性动效全部静止：卡片入场、金色呼吸、动态光效渐变 */
+  /* 装饰性动效全部静止：卡片入场、金色呼吸、动态光效渐变、金牌扫光 */
   .fade-in-up { animation: none !important; }
   .post-card.legend-gold-card.legend-prestige { animation: none !important; }
+  .post-card.gold-cert-card::before { animation: none !important; opacity: .5; }
   .lightfx::after, .lightfx-card::after { animation: none !important; }
   .post-card { transition: none; }
 }
@@ -523,4 +524,50 @@ select.input { appearance: auto; }
   0%   { box-shadow: 0 0 0 1px rgba(226,186,86,.08), 0 0 18px rgba(228,186,80,.20), 0 0 40px rgba(228,186,80,.10); }
   50%  { box-shadow: 0 0 0 1px rgba(226,186,86,.14), 0 0 30px rgba(234,196,96,.34), 0 0 66px rgba(234,196,96,.18); }
   100% { box-shadow: 0 0 0 1px rgba(226,186,86,.08), 0 0 18px rgba(228,186,80,.20), 0 0 40px rgba(228,186,80,.10); }
+}
+
+/* ===== 金牌认证（管理员 can_gold）：更高级的旋转流光边框 + 暖金辉光 ===== */
+/* 与校史留名的“呼吸辉光”不同：这一档使用环形扫光沿边框旋转，配暖金外辉光，
+   且卡片内容顶部多一道金色镀边高光，视觉层级更高一档。 */
+@property --gold-rot { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+.post-card.gold-cert-card {
+  position: relative;
+  z-index: 0;
+  border: 1px solid rgba(240, 192, 84, .9);
+  box-shadow:
+    0 0 0 1px rgba(240, 192, 84, .12),
+    0 0 20px rgba(240, 176, 60, .32),
+    0 0 52px rgba(240, 176, 60, .16),
+    inset 0 0 20px rgba(255, 216, 128, .08);
+}
+/* 环形扫光细边：围绕卡片外缘旋转 */
+.post-card.gold-cert-card::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 3px;
+  background: conic-gradient(from var(--gold-rot, 0deg),
+    rgba(255, 226, 150, 0), rgba(255, 226, 150, .95), rgba(255, 226, 150, 0) 25%,
+    rgba(255, 178, 60, 0), rgba(255, 178, 60, .55), rgba(255, 178, 60, 0) 55%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: goldCertSpin 4.2s linear infinite;
+  opacity: .8;
+  pointer-events: none;
+}
+/* 顶部金色镀边高光条：强化“金牌”质感 */
+.post-card.gold-cert-card::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 12%; right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 226, 150, .85), transparent);
+  pointer-events: none;
+}
+@keyframes goldCertSpin {
+  to { --gold-rot: 360deg; }
 }
