@@ -20,6 +20,25 @@
   const ADMIN_PROFILE_KEY = 'nzb_admin_profile';
   const USER_TOKEN_KEY = 'nzb_user_token';
   const USER_PROFILE_KEY = 'nzb_user_profile';
+  const DEVICE_KEY = 'nzb_device_key';
+
+  // ---------------- 设备指纹（多设备登录控制用） ----------------
+  // 每台浏览器/设备一个持久随机标识：同一设备重复登录复用槽位，不同的设备在服务端计数。
+  function getDeviceKey() {
+    try {
+      let k = localStorage.getItem(DEVICE_KEY);
+      if (!k) { k = crypto.randomUUID ? crypto.randomUUID() : ('d' + Date.now() + Math.random().toString(36).slice(2)); localStorage.setItem(DEVICE_KEY, k); }
+      return k;
+    } catch (_e) { return 'd' + Date.now() + Math.random().toString(36).slice(2); }
+  }
+  function getDeviceName() {
+    try {
+      const ua = navigator.userAgent || '';
+      const os = /Windows/.test(ua) ? 'Windows' : /Mac|iPhone|iPad/.test(ua) ? 'macOS/iOS' : /Android/.test(ua) ? 'Android' : /Linux/.test(ua) ? 'Linux' : '未知系统';
+      const br = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : '浏览器';
+      return `${br} · ${os}`;
+    } catch (_e) { return ''; }
+  }
 
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -228,6 +247,39 @@
   }
   const loggedIn = () => !!(state.user.token && state.user.profile);
   function myId() { return loggedIn() ? state.user.profile.id : null; }
+  // 手动退出：先通知服务端删除该会话（释放一个设备槽位），再清理本地会话
+  function logoutUser() {
+    const tok = state.user.token;
+    state.user = { token: null, profile: null };
+    try {
+      localStorage.removeItem(USER_TOKEN_KEY);
+      localStorage.removeItem(USER_PROFILE_KEY);
+    } catch (_e) {}
+    if (tok) callEdge('logout', { token: tok }).catch(() => {});
+    renderUserBar();
+  }
+  // 会话监控：定时校验本端令牌是否仍有效。
+  // 若已被其他设备挤掉（普通用户超 5 台挤最旧 / 管理员新登录顶掉旧登录）或已过期，
+  // user_whoami 会返回 401/403 → 清除本地会话，回到未登录态。
+  const sessionMonitorReset = () => {
+    state.user = { token: null, profile: null };
+    try { localStorage.removeItem(USER_TOKEN_KEY); localStorage.removeItem(USER_PROFILE_KEY); } catch (_e) {}
+    renderUserBar();
+    loadAdminPerms();
+  };
+  function startSessionMonitor() {
+    setInterval(async () => {
+      const tok = state.user.token;
+      if (!tok) return;
+      try {
+        const r = await fetch(EDGE_URL, {
+          method: 'POST', headers: { 'content-type': 'application/json', apikey: SUPABASE_KEY },
+          body: JSON.stringify({ action: 'user_whoami', token: tok })
+        });
+        if (r.status !== 200) sessionMonitorReset(); // 会话失效/被顶掉 → 清理
+      } catch (_e) { /* 网络异常保持现状，下轮再试 */ }
+    }, 60000);
+  }
 
   // 登录用户不允许自定义昵称：直接显示/使用用户名，隐藏匿名昵称框
   function updateComposerIdentity() {
@@ -300,7 +352,7 @@
       else if (act === 'profile') openProfile(myId());
       else if (act === 'checkin') { closePops(); await doCheckin(true); }
       else if (act === 'notif') { closePops(); location.href = 'notifications.html'; }
-      else if (act === 'logout') clearUserSession();
+      else if (act === 'logout') { logoutUser(); }
       closePops();
     });
     renderPopExtras();
@@ -614,7 +666,8 @@
     err.textContent = '';
     try {
       const data = await callEdge('user_login', {
-        username: $('userLoginName').value.trim(), password: $('userLoginPass').value
+        username: $('userLoginName').value.trim(), password: $('userLoginPass').value,
+        device_key: getDeviceKey(), device_name: getDeviceName()
       });
       state.user = { token: data.token, profile: data.user };
       saveUserSession(); renderUserBar(); closeUserModal(); loadFavIds(); syncLikedFromServer();
@@ -631,7 +684,7 @@
     const regHits = sensitiveHits(username);
     if (regHits.length) { err.textContent = '⚠️ 注册用户名存在敏感词（' + regHits.map((x) => '“' + x + '”').join('、') + '），不能使用。'; return; }
     try {
-      const data = await callEdge('user_register', { username, password });
+      const data = await callEdge('user_register', { username, password, device_key: getDeviceKey(), device_name: getDeviceName() });
       state.user = { token: data.token, profile: data.user };
       saveUserSession(); renderUserBar(); closeUserModal(); loadFavIds(); syncLikedFromServer();
     } catch (e) { err.textContent = e.message; }
@@ -1932,7 +1985,7 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
     if (!username || !password) { els.loginError.textContent = '请输入账号和密码'; return; }
     els.loginBtn.disabled = true;
     try {
-      const data = await callEdge('admin_login', { username, password });
+      const data = await callEdge('admin_login', { username, password, device_key: getDeviceKey(), device_name: getDeviceName() });
       localStorage.setItem(ADMIN_TOKEN_KEY, data.token);
       localStorage.setItem(ADMIN_PROFILE_KEY, JSON.stringify(data));
       location.href = 'admin.html';
@@ -1986,6 +2039,7 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
     if (loggedIn()) { loadFavIds(); syncLikedFromServer(); refreshProfile(); checkBanStatus(); }
     subscribeRealtime();
     startClientEpochPoll();
+    startSessionMonitor();
     armScheduledTimer();
     if (unreadTimer) clearInterval(unreadTimer);
     unreadTimer = setInterval(() => { refreshUnread(); checkBanStatus(); }, 60000);
