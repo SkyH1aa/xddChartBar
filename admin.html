@@ -304,6 +304,32 @@
         认证答主申请：待审核的可通过或驳回；已通过的可取消认证。
       </div>
       <div id="mentorList"></div>
+
+      <!-- 创始人直接指派认证答主（仅创始人） -->
+      <div id="founderMentorAssign" class="panel hidden" style="margin-top:20px;border:1px dashed var(--accent,#e07a5f);border-radius:12px;padding:16px">
+        <h4 style="margin:0 0 4px">👑 创始人直接指派认证答主</h4>
+        <div style="font-size:12px;color:var(--faint);margin-bottom:14px">
+          可<b style="color:var(--text)">不受等级限制</b>，将任一指定账号<b style="color:var(--text)">直接指派</b>为指定话题的认证答主（同一账号/话题存在会直接刷新称号并置为「已通过」）。该操作会写入审计日志。
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
+          <div style="flex:1 1 200px;min-width:200px">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:4px">指定账号（输入用户名/昵称过滤）</div>
+            <input id="faUserQ" class="input" type="text" placeholder="输入关键词过滤账号…" style="width:100%" autocomplete="off" />
+            <select id="faUserSel" class="input" style="width:100%;margin-top:8px"></select>
+          </div>
+          <div style="flex:1 1 200px;min-width:200px">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:4px">指定话题（输入过滤）</div>
+            <input id="faTopicQ" class="input" type="text" placeholder="输入关键词过滤话题…" style="width:100%" autocomplete="off" />
+            <select id="faTopicSel" class="input" style="width:100%;margin-top:8px"></select>
+          </div>
+          <div style="flex:1 1 180px;min-width:180px">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:4px">答主称号（可留空默认用话题名）</div>
+            <input id="faAskTitle" class="input" type="text" placeholder="如：专业答主" maxlength="20" style="width:100%" />
+          </div>
+          <button id="faAssign" class="btn">指派为认证答主</button>
+        </div>
+        <div id="faMsg" style="font-size:12px;color:var(--faint);margin-top:10px"></div>
+      </div>
     </section>
   </div>
 

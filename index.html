@@ -260,12 +260,50 @@
         <span id="charCount" class="char-count">0 / 500</span>
         <button id="publishBtn" class="btn">发布</button>
       </div>
-      <!-- 风云学长+ 发帖特权：定时发布 / 等级可见 -->
+      <!-- 等级特权发布项：定时/等级可见/投票/连载/信纸/草稿 -->
       <div id="composerPriv" class="composer-priv hidden">
         <label>🕒 定时发布 <input id="scheduleAt" type="datetime-local" /></label>
         <label>🔒 等级可见
           <select id="minViewLevel"><option value="0">所有等级可见</option></select>
         </label>
+        <!-- Lv11+ 投票 / 问卷 -->
+        <div id="pollBuilder" class="poll-builder hidden">
+          <div class="poll-builder-row">
+            <select id="pollQtype">
+              <option value="">🗳 插入投票/问卷</option>
+              <option value="single">单选</option>
+              <option value="multi">多选</option>
+              <option value="fill">填空</option>
+            </select>
+            <input id="pollQuestion" placeholder="投票/问卷问题" maxlength="60" />
+          </div>
+          <div id="pollOptions"></div>
+          <button type="button" id="pollAddOpt" class="btn-ds pb-add">＋ 添加选项</button>
+        </div>
+        <!-- Lv21+ 连载模式 -->
+        <div id="seriesBox" class="series-box hidden">
+          <label><input type="checkbox" id="seriesOn" /> 📚 连载模式（多个帖子聚合为一帖，自动生成目录）</label>
+          <div id="seriesFields" class="series-fields hidden">
+            <input id="seriesTitle" placeholder="连载大标题（新建时必填）" maxlength="60" />
+            <select id="seriesSelect"><option value="">—— 追加到已有连载 ——</option></select>
+            <input id="seriesPartTitle" placeholder="本章小标题（可选）" maxlength="60" />
+          </div>
+        </div>
+        <!-- Lv55+ 校史留名专属信纸 -->
+        <div id="spPanel" class="stationery-panel hidden">
+          <div class="sp-title">✉️ 校史留名专属信纸（动态光效与配色自选搭配，全员可见）</div>
+          <div class="sp-group"><div class="sp-label">边框样式</div><div class="sp-swatches" data-sp="frame"></div></div>
+          <div class="sp-group"><div class="sp-label">字体效果</div><div class="sp-swatches" data-sp="effect"></div></div>
+          <div class="sp-group"><div class="sp-label">光晕颜色</div><div class="sp-swatches" data-sp="glow"></div></div>
+          <div class="sp-group"><div class="sp-label">字体颜色</div><div class="sp-swatches" data-sp="fontcolor"></div></div>
+          <div class="sp-preview" id="spPreview">信纸预览：写下属于校史留名的色彩。</div>
+        </div>
+        <!-- Lv11+ 草稿本地自动保存 -->
+        <div class="draftbar" id="draftBar">
+          <span>💾 草稿会自动保存在本机</span>
+          <button type="button" class="btn-ds" id="draftUse">使用上次草稿</button>
+          <button type="button" class="btn-ds" id="draftClear">清除草稿</button>
+        </div>
         <span id="privHint" class="hint-line" style="font-size:11px;color:var(--faint)"></span>
       </div>
       <div id="composeWarn" class="warn-line"></div>

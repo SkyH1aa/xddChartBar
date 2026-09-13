@@ -609,4 +609,108 @@ select.input { appearance: auto; }
   .author-level.badge-x.t-glow,.author-level.badge-x.t-metal,.author-level.badge-x.t-crystal,.author-level.badge-x.t-3d{animation:none!important}
   .author-level.badge-x.t-crystal::after{animation:none!important;opacity:.4}
   .author-level.badge-x.t-glow{background-color:#3b82f6}
+  .post-content.cs-style::before,.post-content.fx-glitter,.post-content.fx-sparkle,.post-content.fc-rainbow{animation:none!important}
 }
+
+/* ==================== 投票 / 问卷（Lv11+ 发帖特权） ==================== */
+.poll-box{margin:8px 14px 2px}
+.poll-wrap{background:var(--card-soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.poll-q{font-weight:700;color:var(--text);margin-bottom:9px;font-size:14px}
+.poll-opt{display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text)}
+.poll-opt:hover{background:rgba(127,127,127,.08)}
+.poll-opt input{accent-color:var(--accent,#e07a5f);margin-top:2px;cursor:pointer}
+.poll-otext{flex:1;min-width:0;word-break:break-word}
+.poll-bar{flex:0 0 92px;height:8px;border-radius:99px;background:rgba(127,127,127,.18);overflow:hidden;margin-top:5px}
+.poll-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent,#e07a5f),#f0a35c)}
+.poll-pct{flex:0 0 auto;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.poll-fill{width:100%;box-sizing:border-box;min-height:56px;background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit}
+.poll-fill:focus{outline:none;border-color:var(--accent,#e07a5f)}
+.poll-total{color:var(--faint);font-size:12px;margin-top:8px}
+.poll-hint{margin-left:8px}
+
+/* 发布框：投票构建器（Lv11+） */
+.poll-builder{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin-top:8px}
+.poll-builder-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.poll-builder-row select,.poll-builder-row input{background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 9px;font-size:12.5px;font-family:inherit}
+.pb-opt{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.pb-opt input{flex:1;background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 9px;font-size:12.5px}
+.pb-opt .pb-del{background:none;border:none;color:var(--danger,#e05e5e);cursor:pointer;font-size:14px;line-height:1}
+.pb-add{margin-top:2px}
+.composer-priv input[type=text],.composer-priv input[type=number]{background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 9px;font-size:12.5px;font-family:inherit}
+
+/* 发布框：连载模式（Lv21+） */
+.series-box{margin-top:8px;border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+.series-box label{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);cursor:pointer}
+.series-box .series-fields{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.series-box select,.series-box input{background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 9px;font-size:12.5px;font-family:inherit}
+
+/* 发布框：校史留名专属信纸（Lv55+） */
+.stationery-panel{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin-top:8px}
+.stationery-panel .sp-title{font-size:12.5px;color:var(--text);font-weight:700;margin-bottom:8px}
+.sp-group{margin-bottom:8px}
+.sp-label{font-size:11px;color:var(--faint);margin-bottom:4px}
+.sp-swatches{display:flex;gap:6px;flex-wrap:wrap}
+.sp-swatch{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:999px;padding:4px 11px;font-size:11.5px;cursor:pointer}
+.sp-swatch[data-on]{border-color:var(--accent,#e07a5f);color:var(--text);box-shadow:0 0 0 1px var(--accent,#e07a5f)}
+.sp-preview{margin-top:8px;border:1px dashed var(--line);border-radius:10px;padding:10px;font-size:13px;color:var(--muted)}
+.sp-sweet{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:12px;color:var(--faint)}
+
+/* 草稿条（Lv11+ 本地自动保存） */
+.draftbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--faint)}
+.draftbar .btn-ds{background:none;border:1px dashed var(--line);color:var(--muted);border-radius:999px;padding:4px 12px;font-size:11.5px;cursor:pointer}
+.draftbar .btn-ds:hover{color:var(--accent,#e07a5f);border-color:var(--accent,#e07a5f)}
+
+/* ==================== 校史留名专属信纸（Lv55+ 发帖特权，全站可见） ==================== */
+.post-content.cs-style{position:relative;isolation:isolate}
+.post-content.cs-style::before{content:"";position:absolute;inset:-2px;z-index:-1;border-radius:inherit;box-shadow:var(--cs-glow,none);animation:csamb 3.6s ease-in-out infinite;pointer-events:none}
+@keyframes csamb{0%,100%{opacity:.55}50%{opacity:1}}
+
+/* 信纸 frame 边框 */
+.post-content.cs-gold-line{border:1.5px solid rgba(218,178,86,.62);border-radius:10px;padding:10px 12px;box-shadow:0 0 12px rgba(218,178,86,.18)}
+.post-content.cs-ink-border{border:2px solid rgba(140,100,40,.65);border-radius:6px;padding:10px 12px}
+.post-content.cs-gradient{border-radius:12px;padding:13px 15px;background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.14)}
+.post-content.cs-double{border:3px double rgba(218,178,86,.5);border-radius:5px;padding:10px 12px}
+.post-content.cs-neon{border:1px solid rgba(170,215,255,.75);border-radius:10px;padding:10px 12px;box-shadow:0 0 12px rgba(110,175,255,.3),inset 0 0 10px rgba(110,175,255,.12)}
+.post-content.cs-shadow{border-radius:12px;padding:11px 13px;box-shadow:0 12px 26px rgba(0,0,0,.30);border:1px solid rgba(0,0,0,.14)}
+/* 信纸 glow 光晕颜色 */
+.post-content.gc-amber{--cs-glow:0 0 16px rgba(240,176,60,.38),0 0 42px rgba(240,176,60,.16)}
+.post-content.gc-gold{--cs-glow:0 0 16px rgba(228,186,80,.42),0 0 44px rgba(228,186,80,.18)}
+.post-content.gc-blue{--cs-glow:0 0 16px rgba(110,180,255,.36),0 0 42px rgba(110,180,255,.15)}
+.post-content.gc-purple{--cs-glow:0 0 16px rgba(178,130,255,.36),0 0 42px rgba(178,130,255,.15)}
+.post-content.gc-pink{--cs-glow:0 0 16px rgba(255,120,180,.36),0 0 42px rgba(255,120,180,.15)}
+.post-content.gc-green{--cs-glow:0 0 16px rgba(110,220,150,.34),0 0 42px rgba(110,220,150,.15)}
+/* 信纸 font_effect 字体效果 */
+.post-content.fx-glow{text-shadow:0 0 9px rgba(255,205,110,.75)}
+.post-content.fx-3d{text-shadow:0 1px 0 rgba(0,0,0,.45),0 2px 0 rgba(0,0,0,.30),0 3px 0 rgba(0,0,0,.22),0 3px 7px rgba(0,0,0,.28)}
+.post-content.fx-gradient{background:linear-gradient(90deg,#f6c453,#ff8f3c,#ff5f6d,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent!important}
+.post-content.fx-glitter{animation:csGlitter 1.6s steps(2,end) infinite}
+@keyframes csGlitter{0%,100%{opacity:1;text-shadow:0 0 6px rgba(255,255,255,.85)}50%{opacity:.82;text-shadow:0 0 14px rgba(220,245,255,1)}}
+.post-content.fx-sparkle{position:relative}
+.post-content.fx-sparkle::after{content:"✦ ✧ ✦";position:absolute;right:10px;top:-4px;font-size:11px;color:rgba(255,255,255,.85);pointer-events:none;animation:csSparkle 2.6s ease-in-out infinite}
+@keyframes csSparkle{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+/* 信纸 font_color 字体颜色 */
+.post-content.fc-gold{color:#f6c453!important}
+.post-content.fc-white{color:#f7f7f7!important}
+.post-content.fc-red{color:#ff6b6b!important}
+.post-content.fc-blue{color:#74b6ff!important}
+.post-content.fc-purple{color:#cfa9ff!important}
+.post-content.fc-teal{color:#55e0c8!important}
+.post-content.fc-rainbow{animation:csRainbow 6s linear infinite}
+@keyframes csRainbow{0%{color:#f87171}16%{color:#fbbf24}33%{color:#4ade80}50%{color:#22d3ee}66%{color:#a78bfa}83%{color:#f472b6}100%{color:#f87171}}
+@media (max-width:720px){
+  .post-content.cs-style::before,.post-content.fx-glitter,.post-content.fx-sparkle,.post-content.fc-rainbow{animation:none!important}
+}
+
+/* ==================== 连载目录 & 帖子合集 弹窗 ==================== */
+.series-partrow{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px dashed var(--line);font-size:13px;color:var(--text);cursor:pointer;border-radius:8px}
+.series-partrow:hover{background:rgba(127,127,127,.08)}
+.series-part-title{font-weight:700;color:var(--text);margin-bottom:4px}
+.col-wrap .col-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:13px;color:var(--text)}
+
+/* 特权中心：回收站 / 被举报 / 排名 / 合集 */
+.pc-rows hr{border:none;border-top:1px dashed var(--line-soft);margin:6px 0}
+.pc-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0;border-bottom:1px dashed var(--line-soft);font-size:12.5px;color:var(--muted)}
+.pc-row b{color:var(--text)}
+.pc-rank{display:flex;gap:16px;align-items:center;margin:8px 0}
+.pc-rank .rank-big{font-size:26px;font-weight:900;color:var(--accent,#e07a5f)}
+.profile-editbtn.sm{font-size:11px;padding:3px 9px;border-radius:999px}

@@ -74,6 +74,10 @@
     content: $('contentInput'), nickname: $('nicknameInput'), charCount: $('charCount'),
     publish: $('publishBtn'), composeWarn: $('composeWarn'), composeHint: $('composeHint'),
     composerPriv: $('composerPriv'), scheduleAt: $('scheduleAt'), minViewLevel: $('minViewLevel'), privHint: $('privHint'),
+    pollBuilder: $('pollBuilder'), pollQtype: $('pollQtype'), pollQuestion: $('pollQuestion'), pollOptions: $('pollOptions'), pollAddOpt: $('pollAddOpt'),
+    seriesBox: $('seriesBox'), seriesOn: $('seriesOn'), seriesFields: $('seriesFields'), seriesTitle: $('seriesTitle'), seriesSelect: $('seriesSelect'), seriesPartTitle: $('seriesPartTitle'),
+    spPanel: $('spPanel'), spPreview: $('spPreview'),
+    draftBar: $('draftBar'), draftUse: $('draftUse'), draftClear: $('draftClear'),
     haltPage: $('haltPage'), haltTitle: $('haltTitle'), haltSubtitle: $('haltSubtitle'),
     popupHost: $('popupHost'),
     searchInput: $('searchInput'), searchClear: $('searchClear'), searchBanner: $('searchBanner'),
@@ -102,7 +106,11 @@
     return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ` +
            `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
   }
-  function topicLimit(t) { return t === '吃瓜' ? 5000 : 500; }
+  function topicLimit(t) {
+    if (t === '吃瓜') return 5000;
+    const lv = loggedIn() ? (myLevelNow() || 0) : 0;
+    return lv >= 21 ? 700 : lv >= 11 ? 600 : 500;
+  }
   // 敏感词命中：只有内容中出现与词库“整个词条”完全一致的连续子串才命中（不做字符级/局部匹配）。
   // 若命中词被 SAFE_WORDS 里的某个豁免词完整包含（如单字“奶”被“牛奶”包含），则不算命中，避免误伤正常词。
   const SAFE_WORDS = ['牛奶', '奶茶', '奶酪', '奶牛', '酸奶', '奶粉', '奶昔', '奶嘴', '奶妈', '奶奶', '奶油', '蜜奶'] // 可按需增删
@@ -127,7 +135,7 @@
     n = Number(n) || 0;
     return n > 9999 ? '9999+' : String(n);
   }
-  // 等级：经验 = 发帖*2 + 评论 + 获赞 + 助推 + 签到；线性升级：升到下一级需 12×当前等级 经验，上限 60
+  // 等级：经验 = 发帖*3 + 评论 + 获赞 + 收藏*2 + 事件 + 奖金 + 签到；线性升级：升到下一级需 10×当前等级 经验，上限 60
   const LEVEL_TIERS = [
     { max: 10, name: '初来乍到' }, { max: 20, name: '校园萌新' }, { max: 35, name: '校园百事通' },
     { max: 45, name: '风云学长' }, { max: 54, name: '校园传说' }, { max: 60, name: '校史留名' }
@@ -140,11 +148,11 @@
       + (Number(u && u.xp_event) || 0)
       + (Number(u && u.bonus_xp) || 0) + (Number(u && u.checkin_xp) || 0);
   }
-  function cumMin(L) { return 6 * L * (L - 1); } // 达到 L 级所需累计经验（累加 12*i）
+  function cumMin(L) { return 5 * L * (L - 1); } // 达到 L 级所需累计经验（累加 10*i）
   function levelOf(u) {
     const xp = xpOf(u);
     if (xp <= 0) return 1;
-    return Math.min(60, Math.floor((1 + Math.sqrt(1 + (2 * xp) / 3)) / 2));
+    return Math.min(60, Math.floor((1 + Math.sqrt(1 + (4 * xp) / 5)) / 2));
   }
   // 管理员设定了固定等级(level>0)时优先采用，否则按经验自动计算
   function finalLevel(u) {
@@ -175,7 +183,7 @@
     let progress, nextNeed;
     if (fixed || maxed) { progress = 1; nextNeed = 0; }
     else {
-      const span = 12 * level; // 升到下一级需 12×当前等级 经验
+      const span = 10 * level; // 升到下一级需 10×当前等级 经验
       const inLevel = xp - cumMin(level);
       progress = Math.min(1, Math.max(0, inLevel / span));
       nextNeed = Math.max(0, span - inLevel);
@@ -824,13 +832,24 @@
       b.classList.toggle('active', state.favSet.has(pid));
     });
   }
-  async function toggleFav(postId, btn) {
+  async function toggleFav(postId, btn, post) {
     if (!loggedIn()) { window.alert('请先登录后收藏'); openUserModal(); return; }
     const has = state.favSet.has(postId);
+    const add = !has;
     try {
       await callEdge(has ? 'favorite_remove' : 'favorite_add', { token: state.user.token, post_id: postId });
       if (has) state.favSet.delete(postId); else state.favSet.add(postId);
-      if (btn) btn.classList.toggle('active', !has);
+      if (btn) btn.classList.toggle('active', add);
+      // 风云学长(36级)+：作者的帖子被收藏时，收藏者收到专属提示
+      if (add && post) {
+        const au = post.author_id && post._author ? post._author : null;
+        const lv = au ? finalLevel(au) : (post.author_level || 0);
+        if (lv >= 36) {
+          const nm = au ? (au.nickname || au.username || '学长') : (post.nickname || '学长');
+          const tier = lv <= 45 ? '风云学长' : (lv <= 54 ? '校园传说' : '校史留名');
+          window.alert('⭐ 你收藏了【' + tier + '】' + nm + ' 的帖子');
+        }
+      }
     } catch (e) { window.alert(e.message); }
   }
 
@@ -1020,6 +1039,8 @@
   function makeCard(post, ctx = {}) {
     const cardLv = post.author_id && ctx.authorMap && ctx.authorMap[post.author_id]
       ? Number(ctx.authorMap[post.author_id].level) || 0 : 0;
+    // 缓存作者信息，供「收藏风云学长帖」等提示读取
+    if (post.author_id && ctx.authorMap && ctx.authorMap[post.author_id]) post._author = ctx.authorMap[post.author_id];
     // 风云学长(36级)+ 动态光效作用于整个帖子卡片块（背景扫光）
     const lightfxCard = cardLv >= 36;
     const card = document.createElement('article');
@@ -1052,6 +1073,17 @@
     if (post.ask_mentor_id) {
       badges += '<span class="badge" style="background:rgba(168,130,255,.14);color:#9b6bff;border:1px solid rgba(168,130,255,.4)">🙋 向学长提问</span>';
     }
+    // 连载：Lv21+ 系列帖徽标（点击打开连载目录）
+    badges += post.series_id
+      ? `<span class="badge series-badge" data-series="${post.series_id}" data-part="${post.series_part || ''}" style="cursor:pointer;background:rgba(34,197,94,.14);color:#22c55e;border:1px solid rgba(34,197,94,.4)" title="查看连载目录">📚 连载${post.series_part ? ' 第' + post.series_part + '章' : ''}</span>`
+      : '';
+    const seriesPartTitle = (post.part_title && post.series_id)
+      ? `<div class="series-part-title" style="font-weight:700;color:var(--text);margin-bottom:4px">📖 ${escapeHtml(post.part_title)}</div>` : '';
+    // 校史留名自定义信纸：按 card_style 预设组合生成卡片样式类（全站可见）
+    const cs = post.card_style || {};
+    const contentFx = (cs.frame || cs.font_effect || cs.glow_color || cs.font_color)
+      ? ' cs-style cs-' + (cs.frame || 'none') + ' fx-' + (cs.font_effect || 'none') + ' gc-' + (cs.glow_color || 'none') + ' fc-' + (cs.font_color || 'none')
+      : '';
     // 校史留名(55-60级)特权：淡金发光环绕边框；推荐/推流中的帖子升级为更柔和的流动高光
     const legendGold = cardLv >= 55 ? ' legend-gold-card' : '';
     const legendPrestige = cardLv >= 55 && (ctx.boosted || isBoosted || isRecommended) ? ' legend-prestige' : '';
@@ -1084,7 +1116,8 @@
         <span class="post-time">${formatTime(post.created_at)}</span>
         ${floor}
       </div>
-      <div class="post-content">${escapeHtml(post.content)}${ownActs}</div>
+      <div class="post-content${contentFx}">${seriesPartTitle}${escapeHtml(post.content)}${ownActs}</div>
+      <div class="poll-box" data-pollbox style="display:none"></div>
       <div class="post-actions">
         <button class="act-btn like-btn${liked ? ' active' : ''}" title="点赞">
           <span class="like-ico">👍</span><span class="like-num">${formatCount(post.like_count)}</span>
@@ -1095,16 +1128,19 @@
         </button>
         <button class="act-btn fav-btn${favOn ? ' active' : ''}" data-pid="${post.id}" title="收藏">⭐</button>
         ${!isOwn && loggedIn() && myPriv().recommend ? `<button class="act-btn rec-btn" data-act="recommend" data-id="${post.id}" title="传说推荐（顶置1h，每日${myPriv().recommend}次）">🏆 推荐</button>` : ''}
+        ${loggedIn() && myLevelNow() >= 36 ? `<button class="act-btn col-btn" data-id="${post.id}" title="加入你的个人帖子合集（风云学长+）">📁 收藏合集</button>` : ''}
         <button class="act-btn rep-btn" data-type="post" data-id="${post.id}" title="举报">🚩</button>
         ${adminActs}
       </div>
       <div class="post-comments hidden" data-cmtbox></div>`;
     card.querySelector('.like-btn').addEventListener('click', (e) => { likePost(post, e.currentTarget); });
     card.querySelector('.cmt-toggle').addEventListener('click', () => toggleComments(card, post));
-    card.querySelector('.fav-btn').addEventListener('click', (e) => toggleFav(post.id, e.currentTarget));
+    card.querySelector('.fav-btn').addEventListener('click', (e) => toggleFav(post.id, e.currentTarget, post));
     card.querySelector('.rep-btn').addEventListener('click', (e) => {
       openReport(e.currentTarget.dataset.type, e.currentTarget.dataset.id);
     });
+    const colBtn = card.querySelector('.col-btn');
+    if (colBtn) colBtn.addEventListener('click', () => addToCollection(post));
     const recBtn = card.querySelector('[data-act="recommend"]');
     if (recBtn) recBtn.addEventListener('click', () => recommendPost(post, recBtn));
     // 管理员快捷操作
@@ -1130,6 +1166,8 @@
     }
     const profLink = card.querySelector('[data-open-profile]');
     if (profLink) profLink.addEventListener('click', () => { if (profLink.dataset.openProfile) openProfile(profLink.dataset.openProfile); else window.alert('该用户为匿名用户，无法访问个人主页'); });
+    const sbadge = card.querySelector('.series-badge');
+    if (sbadge) sbadge.addEventListener('click', (e) => { e.stopPropagation(); openSeriesModal(sbadge.dataset.series); });
     // 作者编辑/删除/推流
     if (isOwn) {
       const bBoost = card.querySelector('[data-act="boost"]');
@@ -1138,6 +1176,153 @@
       card.querySelector('[data-act="del"]').addEventListener('click', () => deleteOwnPost(post));
     }
     return card;
+  }
+
+  // ---------------- 投票 / 问卷渲染（Lv11+ 发帖特权） ----------------
+  function renderPollBox(box, poll) {
+    if (!poll) return;
+    box.style.display = '';
+    const voted = poll.myPicks.length > 0 || !!poll.myFill;
+    let optsHtml = '';
+    if (poll.qtype !== 'fill') {
+      const t = poll.qtype === 'multi' ? 'checkbox' : 'radio';
+      (poll.options || []).forEach((o, i) => {
+        const pct = poll.total ? Math.round((poll.counts[i] || 0) / poll.total * 100) : 0;
+        optsHtml += `<label class="poll-opt${voted ? ' voted' : ''}">
+          <input type="${t}" name="pollpick${poll.id}" data-i="${i}" ${voted && poll.myPicks.indexOf(i) >= 0 ? 'checked' : ''} ${voted ? 'disabled' : ''}/>
+          <span class="poll-otext">${escapeHtml(o)}</span>
+          ${voted ? `<span class="poll-bar"><i style="width:${pct}%"></i></span><span class="poll-pct">${poll.counts[i] || 0} (${pct}%)</span>` : ''}
+        </label>`;
+      });
+    }
+    const fillHtml = poll.qtype === 'fill'
+      ? `<textarea class="poll-fill" ${voted ? 'disabled' : ''} placeholder="填写你的回答">${escapeHtml(poll.myFill || '')}</textarea>` : '';
+    const foot = voted
+      ? `<div class="poll-total">已有 ${poll.total} 人参与</div>`
+      : loggedIn()
+        ? `<button class="btn poll-vote" data-poll="${poll.id}">投票</button>
+           ${poll.qtype === 'multi' ? '<span class="poll-hint" style="font-size:11px;color:var(--faint)">（可多选）</span>' : ''}`
+        : `<span class="poll-hint" style="font-size:11px;color:var(--faint)">登录后可投票</span>`;
+    box.innerHTML = `<div class="poll-wrap">
+      <div class="poll-q">🗳 ${escapeHtml(poll.question || '投票')}</div>
+      ${poll.qtype === 'fill' ? fillHtml : optsHtml}
+      ${poll.qtype === 'fill' && voted && poll.fills && poll.fills.length
+        ? '<div class="poll-fills">' + poll.fills.slice(0, 20).map((f) => '<div class="poll-fillitem">' + escapeHtml(f) + '</div>').join('') + '</div>' : ''}
+      <div class="poll-foot">${foot}</div>
+    </div>`;
+    const btn = box.querySelector('.poll-vote');
+    if (btn) btn.addEventListener('click', async () => {
+      const qtype = poll.qtype;
+      if (qtype === 'fill') {
+        const fv = box.querySelector('.poll-fill');
+        if (!fv || !fv.value.trim()) { window.alert('请填写回答内容'); return; }
+        try { await callEdge('poll_vote', { token: state.user.token, poll_id: btn.dataset.poll, fill: fv.value.trim() }); }
+        catch (e) { window.alert(e.message); return; }
+      } else {
+        const picks = Array.from(box.querySelectorAll('input:checked')).map((c) => Number(c.dataset.i));
+        if (!picks.length) { window.alert(qtype === 'single' ? '请选择一个选项' : '请至少选择一个选项'); return; }
+        if (qtype === 'single' && picks.length > 1) { window.alert('单选投票只能选一个'); return; }
+        try { await callEdge('poll_vote', { token: state.user.token, poll_id: btn.dataset.poll, picks }); }
+        catch (e) { window.alert(e.message); return; }
+      }
+      await autoRefreshPoll(box);
+    });
+  }
+  async function autoRefreshPoll(box) {
+    const card = box.closest('.post-card');
+    const pid = card ? card.dataset.id : '';
+    if (!pid) return;
+    try {
+      const list = await callEdge('poll_stats_batch', { token: state.user.token, ids: [pid] });
+      const np = (list || []).find((p) => p.post_id === pid);
+      if (np) renderPollBox(box, np); else box.style.display = 'none';
+    } catch (_e) {}
+  }
+  async function attachPolls(root) {
+    const boxes = Array.from((root || document).querySelectorAll('[data-pollbox]'));
+    if (!boxes.length) return;
+    const ids = [...new Set(boxes.map((b) => { const c = b.closest('.post-card'); return c ? c.dataset.id : ''; }).filter(Boolean))].slice(0, 60);
+    if (!ids.length) return;
+    try {
+      const list = await callEdge('poll_stats_batch', { token: loggedIn() ? state.user.token : '', ids });
+      if (!Array.isArray(list)) return;
+      boxes.forEach((box) => {
+        const c = box.closest('.post-card');
+        const pid = c ? c.dataset.id : '';
+        const np = list.find((p) => p.post_id === pid);
+        if (np) renderPollBox(box, np);
+      });
+    } catch (_e) {}
+  }
+  // ---------------- 连载目录（Lv21+） ----------------
+  async function openSeriesModal(sid) {
+    if (!sid) return;
+    let data;
+    try { data = await callEdge('series_parts', { token: loggedIn() ? state.user.token : '', series_id: sid }); } catch (_e) { return; }
+    if (!data || !data.series) { window.alert('连载不存在'); return; }
+    const parts = data.parts || [];
+    const partsHtml = parts.map((pt) => `<div class="series-partrow" data-post="${pt.id}" style="cursor:pointer;padding:8px 10px;border-bottom:1px solid var(--line-soft)">
+        📚 第 ${pt.series_part} 章 ${escapeHtml(pt.part_title || '')}
+        <span style="color:var(--faint);font-size:11px">${formatTime(pt.created_at)}</span>
+      </div>`).join('') || '<div style="color:var(--faint);padding:8px">暂无内容</div>';
+    const ov = document.createElement('div');
+    ov.className = 'modal-overlay';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+    ov.innerHTML = `<div style="background:var(--panel-bg,#fff);color:var(--text);border-radius:14px;max-width:520px;width:100%;max-height:80vh;overflow:auto;padding:18px">
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px">📚 ${escapeHtml(data.series.title || '连载')}</div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:10px">作者：${escapeHtml(data.series.owner_nick)} · 共 ${parts.length} 章</div>
+      ${partsHtml}
+      <div style="margin-top:12px;text-align:right"><button class="btn" data-close>关闭</button></div>
+    </div>`;
+    document.body.appendChild(ov);
+    ov.querySelector('[data-close]').addEventListener('click', () => ov.remove());
+    ov.addEventListener('click', (e) => { if (e.target === ov) ov.remove(); });
+    ov.querySelectorAll('.series-partrow').forEach((r) => r.addEventListener('click', () => {
+      ov.remove();
+      location.hash = '#post-' + r.dataset.post;
+      setTimeout(() => scrollToPost(r.dataset.post), 300);
+    }));
+  }
+
+  // 帖子合集详情（Lv36+）：展示合集内的帖子/连载，可移除
+  async function openCollectionModal(cid) {
+    if (!cid || !loggedIn()) return;
+    let d;
+    try { d = await callEdge('collection_detail', { token: state.user.token, collection_id: cid }); } catch (e) { window.alert(e.message); return; }
+    if (!d) { window.alert('合集不存在'); return; }
+    const items = d.items || [];
+    const rows = items.map((it) => {
+      const isSeries = !it.post_id && !!it.series_id;
+      const label = isSeries ? '📚 连载' + it.series_id.slice(0, 8) : '📝 帖子' + it.post_id.slice(0, 8);
+      const goto = isSeries ? it.series_id : it.post_id;
+      return `<div class="col-item"><span style="flex:1;min-width:0">${label}<br><span style="color:var(--faint);font-size:11px">${formatTime(it.added_at)} 加入</span></span>
+        <button class="profile-editbtn sm" data-goto="${goto}" data-gtype="${isSeries ? 'series' : 'post'}">打开</button>
+        <button class="profile-editbtn sm" data-rmitem="${it.id}">移除</button></div>`;
+    }).join('') || '<div style="color:var(--faint);padding:8px">合集内暂无内容</div>';
+    const ov = document.createElement('div');
+    ov.className = 'modal-overlay';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+    ov.innerHTML = `<div style="background:var(--panel-bg,#fff);color:var(--text);border-radius:14px;max-width:520px;width:100%;max-height:80vh;overflow:auto;padding:18px">
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px">📁 ${escapeHtml(d.title || '合集')}</div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:10px">${escapeHtml(d.intro || '')} · 共 ${items.length} 项</div>
+      ${rows}
+      <div style="margin-top:12px;text-align:right"><button class="btn" data-close>关闭</button></div>
+    </div>`;
+    document.body.appendChild(ov);
+    ov.querySelector('[data-close]').addEventListener('click', () => ov.remove());
+    ov.addEventListener('click', (e) => { if (e.target === ov) ov.remove(); });
+    ov.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => {
+      const v = b.getAttribute('data-goto');
+      if (b.getAttribute('data-gtype') === 'series') { ov.remove(); openSeriesModal(v); return; }
+      ov.remove();
+      location.hash = '#post-' + v;
+      setTimeout(() => scrollToPost(v), 300);
+    }));
+    ov.querySelectorAll('[data-rmitem]').forEach((b) => b.addEventListener('click', async () => {
+      if (!confirm('从合集中移除该项？')) return;
+      try { await callEdge('collection_remove', { token: state.user.token, collection_id: cid, item_id: b.getAttribute('data-rmitem') }); ov.remove(); openCollectionModal(cid); }
+      catch (e) { window.alert(e.message); }
+    }));
   }
 
   // ---------------- 管理员主页快捷操作：屏蔽 / 删除 / 封禁7天 ----------------
@@ -1283,6 +1468,19 @@
     } catch (e) { window.alert(e.message); }
   }
   async function deleteOwnPost(post) {
+    const lv = loggedIn() ? myLevelNow() : 0;
+    // 校园萌新(11级)+：删除走「误删恢复」回收池（每月限额，24h 内可在特权中心找回）
+    if (lv >= 11) {
+      if (!window.confirm('删除后 24 小时内可在「特权中心 → 误删恢复」找回（每月有次数限制），确定删除？')) return;
+      try {
+        await callEdge('post_delete_self', { token: state.user.token, post_id: post.id });
+        state.likedSet.delete(post.id); state.favSet.delete(post.id); saveLikedSet();
+        const card = document.querySelector(`article[data-id="${post.id}"]`);
+        if (card) card.remove();
+        window.alert('✅ 已删除。24 小时内可在「特权中心 → 误删恢复」找回。');
+      } catch (e) { window.alert(e.message); }
+      return;
+    }
     if (!window.confirm('确定删除这条帖子及其评论吗？该操作不可恢复。')) return;
     try {
       await callEdge('user_delete_post', { token: state.user.token, id: post.id });
@@ -1290,6 +1488,31 @@
       const card = document.querySelector(`article[data-id="${post.id}"]`);
       if (card) card.remove();
     } catch (e) { window.alert(e.message); }
+  }
+
+  // ---------------- 加入个人帖子合集（Lv36+ 特权） ----------------
+  async function addToCollection(post) {
+    if (!loggedIn()) { window.alert('请先登录'); openUserModal(); return; }
+    let cols = [];
+    try { cols = (await callEdge('collection_list', { token: state.user.token })) || []; } catch (e) { cols = []; }
+    const listTxt = cols.length ? cols.map((c, i) => (i + 1) + '. ' + c.title).join('\n') : '（暂无合集，输入 new 新建）';
+    const choice = window.prompt('加入个人合集：\n输入序号加入已有合集，或输入 new 新建\n\n' + listTxt);
+    if (choice == null) return;
+    const v = String(choice).trim().toLowerCase();
+    let cid = '';
+    if (v === 'new') {
+      const title = window.prompt('新建合集标题：');
+      if (!title || !title.trim()) return;
+      const intro = window.prompt('合集简介（可留空）：');
+      try { const c = await callEdge('collection_create', { token: state.user.token, title: title.trim(), intro: (intro || '').trim() }); cid = c.id; }
+      catch (e) { window.alert(e.message); return; }
+    } else {
+      const col = cols[parseInt(v, 10) - 1];
+      if (!col) { window.alert('未找到该合集'); return; }
+      cid = col.id;
+    }
+    try { await callEdge('collection_add', { token: state.user.token, collection_id: cid, post_id: post.id }); window.alert('✅ 已加入合集'); }
+    catch (e) { window.alert(e.message); }
   }
 
   // ---------------- 点赞 ----------------
@@ -1926,13 +2149,16 @@
   function updateComposerPrivileges() {
     const wrap = els.composerPriv;
     if (!wrap) return;
-    const priv = myPriv();
-    if (!priv.sched && !priv.lvlgate) { wrap.classList.add('hidden'); return; }
-    wrap.classList.remove('hidden');
     const lv = myLevelNow();
+    const priv = myPriv();
+    const canPoll = lv >= 11, canSeries = lv >= 21, canSp = lv >= 55;
+    const canSched = !!priv.sched, canLvlgate = !!priv.lvlgate;
+    const any = canPoll || canSeries || canSp || canSched || canLvlgate;
+    wrap.classList.toggle('hidden', !any);
+    if (!any) return;
     const lvSel = els.minViewLevel;
     if (lvSel) {
-      lvSel.style.display = priv.lvlgate ? '' : 'none';
+      lvSel.style.display = canLvlgate ? '' : 'none';
       if (lvSel.dataset.lv !== String(lv)) {
         const prev = lvSel.value;
         lvSel.innerHTML = '<option value="0">所有等级可见</option>' +
@@ -1942,14 +2168,139 @@
         if (lvSel.querySelector('option[value="' + prev + '"]')) lvSel.value = prev;
       }
     }
-    if (els.scheduleAt) els.scheduleAt.style.display = priv.sched ? '' : 'none';
+    if (els.scheduleAt) els.scheduleAt.style.display = canSched ? '' : 'none';
+    if (els.pollBuilder) els.pollBuilder.classList.toggle('hidden', !canPoll);
+    if (els.seriesBox) els.seriesBox.classList.toggle('hidden', !canSeries);
+    if (els.spPanel) { els.spPanel.classList.toggle('hidden', !canSp); if (canSp) { renderStationeryPalette(); updateSpPreview(); } }
+    updateDraftBar();
     if (els.privHint) {
       const parts = [];
-      if (priv.sched) parts.push('可定时发布');
-      if (priv.lvlgate) parts.push('可设等级可见');
+      if (canPoll) parts.push('可插入投票/问卷');
+      if (canSeries) parts.push('可发连载帖');
+      if (canSp) parts.push('自定义信纸');
+      if (canSched) parts.push('可定时发布');
+      if (canLvlgate) parts.push('可设等级可见');
       if (priv.recommend) parts.push('可推荐他人帖子');
-      els.privHint.textContent = '风云学长+ 特权：' + parts.join(' · ');
+      els.privHint.textContent = '我的发帖特权：' + parts.join(' · ');
     }
+  }
+
+  // ---------------- 投票 / 问卷构建器（Lv11+） ----------------
+  let pollOptCount = 0;
+  function addPollOption(val) {
+    const row = document.createElement('div');
+    row.className = 'pb-opt';
+    row.innerHTML = '<input type="text" maxlength="40" placeholder="选项' + (++pollOptCount) + '" /><button type="button" class="pb-del" title="删除此选项">✕</button>';
+    row.querySelector('input').value = val || '';
+    row.querySelector('.pb-del').addEventListener('click', () => row.remove());
+    if (els.pollOptions) els.pollOptions.appendChild(row);
+  }
+  function pollPayload() {
+    if (!els.pollQtype || !els.pollQtype.value) return null;
+    const opts = Array.from(els.pollOptions.querySelectorAll('.pb-opt input')).map((i) => i.value.trim()).filter(Boolean);
+    const qtype = els.pollQtype.value;
+    if ((qtype === 'single' || qtype === 'multi') && opts.length < 2) { window.alert('单选/多选至少需要 2 个选项'); return '::invalid'; }
+    if (opts.length > 12) { window.alert('投票选项最多 12 个'); return '::invalid'; }
+    if (!els.pollQuestion.value.trim() && qtype !== 'fill') { window.alert('投票需填写问题'); return '::invalid'; }
+    return { poll_qtype: qtype, poll_question: els.pollQuestion.value.trim(), poll_options: opts };
+  }
+
+  // ---------------- 连载模式（Lv21+） ----------------
+  async function refreshSeriesSelect() {
+    const sel = els.seriesSelect;
+    if (!sel) return;
+    const cur = sel.value;
+    let list = [];
+    try { list = (await callEdge('series_my', { token: state.user.token })) || []; } catch (_e) {}
+    sel.innerHTML = '<option value="">—— 追加到已有连载 ——</option>' +
+      list.map((s) => '<option value="' + escapeHtml(s.id) + '">📚 ' + escapeHtml(s.title || '未命名') + '</option>').join('');
+    if (cur && sel.querySelector('option[value="' + cur + '"]')) sel.value = cur;
+  }
+  function seriesPayload() {
+    if (!els.seriesOn || !els.seriesOn.checked) return {};
+    const existing = els.seriesSelect ? els.seriesSelect.value : '';
+    const newTitle = els.seriesTitle ? els.seriesTitle.value.trim() : '';
+    const partTitle = els.seriesPartTitle ? els.seriesPartTitle.value.trim() : '';
+    if (!existing && !newTitle) { window.alert('请填写连载大标题，或选择要追加的连载'); return '::invalid'; }
+    const p = { part_title: partTitle };
+    if (existing) p.series_id = existing;
+    else p.series_new_title = newTitle;
+    return p;
+  }
+
+  // ---------------- 校史留名专属信纸（Lv55+） ----------------
+  const STATIONERY_FRAMES = [['none', '无'], ['gold-line', '淡金线框'], ['ink-border', '墨色描边'], ['gradient', '渐变底'], ['double', '双重框'], ['neon', '霓虹'], ['shadow', '深影']];
+  const STATIONERY_EFFECTS = [['none', '无'], ['glow', '光晕'], ['3d', '立体'], ['gradient', '渐变字'], ['glitter', '闪烁'], ['sparkle', '星闪']];
+  const STATIONERY_GLOWS = [['none', '无'], ['gold', '鎏金'], ['amber', '琥珀'], ['blue', '幽蓝'], ['purple', '幻紫'], ['pink', '樱粉'], ['green', '青翠']];
+  const STATIONERY_FONTCOLORS = [['none', '默认'], ['gold', '鎏金'], ['white', '雪白'], ['red', '赤红'], ['blue', '湛蓝'], ['purple', '贵紫'], ['teal', '青碧'], ['rainbow', '虹彩']];
+  const spState = { frame: 'none', effect: 'none', glow: 'none', fontcolor: 'none' };
+  function renderStationeryPalette() {
+    if (!els.spPanel) return;
+    const sets = { frame: STATIONERY_FRAMES, effect: STATIONERY_EFFECTS, glow: STATIONERY_GLOWS, fontcolor: STATIONERY_FONTCOLORS };
+    els.spPanel.querySelectorAll('[data-sp]').forEach((h) => {
+      const key = h.getAttribute('data-sp');
+      const map = sets[key] || [];
+      h.innerHTML = map.map(([v, label]) =>
+        '<button type="button" class="sp-swatch" data-val="' + v + '"' + (v === spState[key] ? ' data-on' : '') + '>' + label + '</button>').join('');
+      h.querySelectorAll('.sp-swatch').forEach((b) => b.addEventListener('click', () => {
+        spState[key] = b.getAttribute('data-val');
+        renderStationeryPalette();
+        updateSpPreview();
+      }));
+    });
+  }
+  function updateSpPreview() {
+    if (!els.spPreview) return;
+    els.spPreview.className = 'sp-preview cs-style cs-' + spState.frame + ' fx-' + spState.effect + ' gc-' + spState.glow + ' fc-' + spState.fontcolor;
+    els.spPreview.textContent = '信纸预览：' + (spState.frame !== 'none' ? '边框·' : '') + (spState.effect !== 'none' ? '字体·' : '') + (spState.glow !== 'none' ? '光晕·' : '') + (spState.fontcolor !== 'none' ? '配色·' : '') + '这是你的专属信纸';
+  }
+  function cardStylePayload() {
+    if (myLevelNow() < 55) return null;
+    const cs = spState;
+    if (cs.frame === 'none' && cs.effect === 'none' && cs.glow === 'none' && cs.fontcolor === 'none') return null;
+    return { card_style: { frame: cs.frame, font_effect: cs.effect, glow_color: cs.glow, font_color: cs.fontcolor } };
+  }
+
+  // ---------------- 草稿本地自动保存（Lv11+） ----------------
+  const DRAFT_KEY = 'nzb_draft_v1';
+  function saveDraft() {
+    if (!loggedIn() || myLevelNow() < 11) return;
+    let obj = { content: els.content.value, topic: els.topicSelect.value };
+    if (!loggedIn()) obj.nickname = els.nickname.value;
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(obj)); } catch (_e) {}
+    updateDraftBar();
+  }
+  function loadDraft() {
+    if (!loggedIn() || myLevelNow() < 11) return;
+    let d; try { d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (_e) { return; }
+    if (!d || !d.content) return;
+    els.content.value = d.content;
+    if (d.topic && els.topicSelect && els.topicSelect.querySelector('option[value="' + d.topic + '"]')) els.topicSelect.value = d.topic;
+    if (d.nickname && !loggedIn()) els.nickname.value = d.nickname;
+    updateCharCount();
+    updateDraftBar();
+    if (els.composeHint) els.composeHint.textContent = '已载入上次保存的草稿，可直接发布或继续编辑。';
+  }
+  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (_e) {} updateDraftBar(); }
+  function hasDraft() { try { const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); return !!(d && d.content); } catch (_e) { return false; } }
+  function updateDraftBar() {
+    if (!els.draftBar) return;
+    const on = loggedIn() && myLevelNow() >= 11;
+    els.draftBar.style.display = on ? '' : 'none';
+    const tag = els.draftBar.querySelector('span');
+    if (tag) tag.textContent = on ? (hasDraft() ? '💾 已保存并缓冲本地草稿' : '💾 草稿会自动保存在本机') : '';
+  }
+  function clearComposerExtras() {
+    if (els.pollQtype) els.pollQtype.value = '';
+    if (els.pollQuestion) els.pollQuestion.value = '';
+    if (els.pollOptions) els.pollOptions.innerHTML = '';
+    if (els.seriesOn) els.seriesOn.checked = false;
+    if (els.seriesFields) els.seriesFields.classList.add('hidden');
+    if (els.seriesTitle) els.seriesTitle.value = '';
+    if (els.seriesSelect) els.seriesSelect.value = '';
+    if (els.seriesPartTitle) els.seriesPartTitle.value = '';
+    spState.frame = 'none'; spState.effect = 'none'; spState.glow = 'none'; spState.fontcolor = 'none';
+    renderStationeryPalette(); updateSpPreview();
   }
 
   // ---------------- 向认证答主提问 + 学长答疑帖（新增，仅登录用户可见） ----------------
@@ -2044,6 +2395,7 @@
         <label class="pf-label">领域 <select id="pcTopic"></select></label>
         <label class="pf-label">擅长标题/简介 <input class="pf-input" id="pcAskTitle" placeholder="一句话说明你擅长的领域（将展示给提问者）" /></label>
         <button class="profile-editbtn" data-pcapplybtn>✅ 申请答主</button>
+        <div style="font-size:11px;color:var(--faint);margin-top:4px">认证答主数量不限；同一账号最多同时担任 <b>3</b> 个话题的认证答主（待审核+已通过均占名额）。</div>
         <div data-pcmyapps style="margin-top:8px;font-size:12px"><span style="color:var(--faint)">加载中…</span></div>
       </div>
       ${lv >= 21 ? `<div style="margin-bottom:14px;border-top:1px solid var(--line-soft);padding-top:12px">
@@ -2056,6 +2408,24 @@
         <div data-followlist style="font-size:12px;margin-bottom:8px"><span style="color:var(--faint)">加载中…</span></div>
         <label class="pf-label">添加特别关注 <input class="pf-input" id="pcFollowId" placeholder="输入目标用户 ID" /></label>
         <button class="profile-editbtn" data-followbtn>添加关注</button>
+      </div>` : ''}
+      ${lv >= 11 ? `<div style="margin-bottom:14px;border-top:1px solid var(--line-soft);padding-top:12px">
+        <div class="pf-vis-title">♻️ 误删恢复（校园萌新+，删除后 24h 内可找回）</div>
+        <div data-recyclebox style="font-size:12px;margin-top:6px"><span style="color:var(--faint)">加载中…</span></div>
+      </div>` : ''}
+      ${lv >= 36 ? `<div style="margin-bottom:14px;border-top:1px solid var(--line-soft);padding-top:12px">
+        <div class="pf-vis-title">🚩 我被举报的历史记录（风云学长+）</div>
+        <div data-reportbox style="font-size:12px;margin-top:6px"><span style="color:var(--faint)">加载中…</span></div>
+      </div>` : ''}
+      ${lv >= 36 ? `<div style="margin-bottom:14px;border-top:1px solid var(--line-soft);padding-top:12px">
+        <div class="pf-vis-title">📁 帖子合集管理（风云学长+）</div>
+        <label class="pf-label">新建合集标题 <input class="pf-input" id="pcColTitle" placeholder="合集标题" /></label>
+        <button class="profile-editbtn" data-colcreatebtn>创建合集</button>
+        <div data-colbox style="font-size:12px;margin-top:8px"><span style="color:var(--faint)">加载中…</span></div>
+      </div>` : ''}
+      ${lv >= 46 ? `<div style="margin-bottom:14px;border-top:1px solid var(--line-soft);padding-top:12px">
+        <div class="pf-vis-title">🏆 我的等级排名（校园传说+）</div>
+        <div data-rankbox style="font-size:12px;margin-top:6px"></div>
       </div>` : ''}
       ${lv >= 46 ? `<div style="border-top:1px solid var(--line-soft);padding-top:12px">
         <div class="pf-vis-title">📢 全站广播（校园传说+，每周 1 条）</div>
@@ -2163,6 +2533,84 @@
       } catch (e) { bcMsg.innerHTML = '<span style="color:var(--bad,var(--danger))">' + escapeHtml(e.message || '发送失败') + '</span>'; }
       bcBtn.disabled = false;
     });
+
+    // 误删恢复（Lv11+）
+    const recycleBox = host.querySelector('[data-recyclebox]');
+    if (recycleBox) {
+      async function showRecycle() {
+        try {
+          const rows = (await callEdge('recycle_mine', { token: state.user.token })) || [];
+          recycleBox.innerHTML = rows.length
+            ? rows.map((r) => `<div class="pc-row"><span style="flex:1;min-width:0"><b>${escapeHtml(r.topic)}</b> · ${escapeHtml((r.content || '').slice(0, 20))}…<br><span style="color:var(--faint);font-size:11px">${formatTime(r.deleted_at)} 删</span></span><button class="profile-editbtn sm" data-restore="${r.id}">↩️ 找回</button></div>`).join('')
+            : '<span style="color:var(--faint)">回收站为空，暂无 24h 内可恢复的帖子</span>';
+          recycleBox.querySelectorAll('[data-restore]').forEach((b) => b.addEventListener('click', async () => {
+            if (!confirm('确认恢复这篇帖子？')) return;
+            try { await callEdge('restore_self_post', { token: state.user.token, post_id: b.getAttribute('data-restore') }); window.alert('✅ 已恢复（消耗 1 次本月恢复额度）。'); showRecycle(); refreshProfile(); }
+            catch (e) { window.alert(e.message); }
+          }));
+        } catch (_e) { recycleBox.innerHTML = '<span style="color:var(--faint)">加载失败</span>'; }
+      }
+      showRecycle();
+    }
+
+    // 被举报历史（Lv36+）
+    const reportBox = host.querySelector('[data-reportbox]');
+    if (reportBox) {
+      (async () => {
+        try {
+          const rows = (await callEdge('report_mine', { token: state.user.token })) || [];
+          reportBox.innerHTML = rows.length
+            ? rows.map((r) => `<div class="pc-row"><span style="flex:1;min-width:0"><b>${escapeHtml(r.target_type)}</b> · ${escapeHtml(r.reason || '')}<br><span style="color:var(--faint);font-size:11px">${formatTime(r.created_at)} · 状态：${r.status || ''} ${r.result ? '· 结果：' + escapeHtml(r.result) : ''}</span></span></div>`).join('')
+            : '<span style="color:var(--faint)">暂无被举报记录</span>';
+        } catch (_e) { reportBox.innerHTML = '<span style="color:var(--faint)">加载失败</span>'; }
+      })();
+    }
+
+    // 帖子合集管理（Lv36+）
+    const colBox = host.querySelector('[data-colbox]');
+    const colCreateBtn = host.querySelector('[data-colcreatebtn]');
+    if (colBox) {
+      async function showCollections() {
+        try {
+          const list = (await callEdge('collection_list', { token: state.user.token })) || [];
+          colBox.innerHTML = list.length
+            ? list.map((c, i) => `<div class="pc-row"><span style="flex:1;min-width:0"><b>📁 ${escapeHtml(c.title)}</b><br><span style="color:var(--faint);font-size:11px">${escapeHtml(c.intro || '')}</span></span>
+                <button class="profile-editbtn sm" data-colopen="${c.id}">查看</button>
+                <button class="profile-editbtn sm" data-colrm="${c.id}">删除</button></div>`).join('')
+            : '<span style="color:var(--faint)">暂无合集，创建第一个吧</span>';
+          colBox.querySelectorAll('[data-colopen]').forEach((b) => b.addEventListener('click', () => openCollectionModal(b.getAttribute('data-colopen'))));
+          colBox.querySelectorAll('[data-colrm]').forEach((b) => b.addEventListener('click', async () => {
+            if (!confirm('确认删除该合集？（不影响合集内帖子本身）')) return;
+            try { await callEdge('collection_delete', { token: state.user.token, collection_id: b.getAttribute('data-colrm') }); showCollections(); }
+            catch (e) { window.alert(e.message); }
+          }));
+        } catch (_e) { colBox.innerHTML = '<span style="color:var(--faint)">加载失败</span>'; }
+      }
+      showCollections();
+      if (colCreateBtn) colCreateBtn.addEventListener('click', async () => {
+        const title = (host.querySelector('#pcColTitle') || {}).value || '';
+        if (!title.trim()) { window.alert('请填写合集标题'); return; }
+        colCreateBtn.disabled = true;
+        try { await callEdge('collection_create', { token: state.user.token, title: title.trim() }); if (host.querySelector('#pcColTitle')) host.querySelector('#pcColTitle').value = ''; showCollections(); }
+        catch (e) { window.alert(e.message); }
+        colCreateBtn.disabled = false;
+      });
+    }
+
+    // 等级排名（Lv46+）
+    const rankBox = host.querySelector('[data-rankbox]');
+    if (rankBox) {
+      (async () => {
+        try {
+          const r = (await callEdge('my_rank', { token: state.user.token })) || {};
+          const around = (r.around || []).map((x) => {
+            const mark = x.id === (state.user.profile || {}).id ? '（我）' : '';
+            return `<div class="pc-row">Lv.${x.lv} · 经验 ${x.xp} ${mark}</div>`;
+          }).join('');
+          rankBox.innerHTML = `<div class="pc-rank"><span class="rank-big">#${r.rank || '—'}</span><span>共 <b>${r.total || 0}</b> 人 · 你当前 Lv.${r.level || 0}（经验 ${r.xp || 0}）</span></div><div>排名前后：</div>${around}`;
+        } catch (e) { rankBox.innerHTML = '<span style="color:var(--faint)">' + escapeHtml(e.message || '加载失败') + '</span>'; }
+      })();
+    }
   }
 
   async function publish() {
@@ -2179,12 +2627,21 @@
       if (Number.isFinite(_t) && _t > 0) schedTs = _t;
     }
     const minView = (loggedIn() && els.minViewLevel) ? (Number(els.minViewLevel.value) || 0) : 0;
+    // 等级特权发布项：投票(Lv11+) / 连载(Lv21+) / 信纸(Lv55+)
+    const pollData = (loggedIn() && myLevelNow() >= 11) ? pollPayload() : null;
+    if (pollData === '::invalid') return;
+    const seriesData = (loggedIn() && myLevelNow() >= 21 && els.seriesOn && els.seriesOn.checked) ? seriesPayload() : {};
+    if (seriesData === '::invalid') return;
+    const styleData = (myLevelNow() >= 55) ? cardStylePayload() : null;
     const basePayload = () => ({
       token: state.user.token || '', topic, nickname, content,
       ...(schedTs > 0 ? { schedule_at: new Date(schedTs).toISOString() } : {}),
       ...(loggedIn() && minView > 0 ? { min_view_level: minView } : {}),
       ...(loggedIn() && els.postAskMentor && els.postAskMentor.value ? { ask_mentor_id: els.postAskMentor.value } : {}),
-      ...(loggedIn() && els.postResolve && els.postResolve.checked ? { resolve_post: true } : {})
+      ...(loggedIn() && els.postResolve && els.postResolve.checked ? { resolve_post: true } : {}),
+      ...(pollData || {}),
+      ...seriesData,
+      ...(styleData || {})
     });
     const onSuccess = async (msg) => {
       els.content.value = '';
@@ -2193,8 +2650,11 @@
       if (els.minViewLevel) els.minViewLevel.value = '0';
       if (els.postAskMentor) els.postAskMentor.value = '';
       if (els.postResolve) els.postResolve.checked = false;
+      clearComposerExtras();
       schedTs = 0;
+      try { localStorage.removeItem(DRAFT_KEY); } catch (_e) {}
       updateCharCount();
+      updateDraftBar();
       els.composeHint.textContent = msg;
       if (state.activeTopic && state.activeTopic !== topic) { state.activeTopic = ''; renderFilterBar(); }
       state.page = 1;
@@ -2353,7 +2813,15 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
 
   // ---------------- 事件绑定 ----------------
   els.topicSelect.addEventListener('change', updateCharCount);
-  els.content.addEventListener('input', () => { updateCharCount(); els.composeWarn.textContent = ''; els.content.classList.remove('bad'); });
+  els.content.addEventListener('input', () => { updateCharCount(); els.composeWarn.textContent = ''; els.content.classList.remove('bad'); saveDraft(); });
+  // 等级特权发布项绑定：投票/连载/信纸/草稿
+  if (els.pollAddOpt) els.pollAddOpt.addEventListener('click', () => addPollOption());
+  if (els.seriesOn) els.seriesOn.addEventListener('change', () => {
+    if (els.seriesFields) els.seriesFields.classList.toggle('hidden', !els.seriesOn.checked);
+    if (els.seriesOn.checked) refreshSeriesSelect();
+  });
+  if (els.draftUse) els.draftUse.addEventListener('click', loadDraft);
+  if (els.draftClear) els.draftClear.addEventListener('click', clearDraft);
   els.publish.addEventListener('click', publish);
   $('prevPage').addEventListener('click', () => {
     if (state.page > 1) { state.page--; loadFeed(); window.scrollTo({ top: 0, behavior: 'smooth' }); }

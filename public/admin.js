@@ -1578,6 +1578,8 @@
   const MENTOR_STATUS_C = { pending: 'var(--warn)', approved: '#2e8b57', rejected: '#c26', closed: '#888' };
   async function loadMentorAdmin() {
     if (!hasPerm('can_mentor')) { $('mentorList').innerHTML = '<div class="empty">无学长认证管理权限</div>'; return; }
+    faWireOnce();
+    renderFounderMentorAssign();
     const list = $('mentorList');
     list.innerHTML = '<div class="empty">加载中…</div>';
     try {
@@ -1630,6 +1632,94 @@
     } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
   }
   $('mentorRefresh').addEventListener('click', loadMentorAdmin);
+
+  // ---------- 创始人直接指派认证答主（仅创始人，带账号/话题过滤） ----------
+  let faInit = false;
+  function renderFounderMentorAssign() {
+    const box = $('founderMentorAssign');
+    if (!box) return;
+    if (!profile?.isFounder) { box.classList.add('hidden'); return; }
+    box.classList.remove('hidden');
+    faLoadUsers($('faUserQ').value.trim());
+    faLoadTopics($('faTopicQ').value.trim());
+  }
+  async function faLoadUsers(q) {
+    const sel = $('faUserSel');
+    sel.innerHTML = '<option value="">加载账号…</option>';
+    try {
+      const items = await callEdge('admin_user_search', { q });
+      sel.innerHTML = '';
+      if (!items || !items.length) { sel.innerHTML = '<option value="">无匹配账号（试试其他关键词）</option>'; return; }
+      items.forEach((u) => {
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        opt.textContent = `${u.nickname || u.username} @${u.username}${u.banned ? '（已封禁）' : ''}`;
+        sel.appendChild(opt);
+      });
+    } catch (e) {
+      sel.innerHTML = `<option value="">加载失败：${escapeHtml(e.message)}</option>`;
+    }
+  }
+  async function faLoadTopics(q) {
+    const sel = $('faTopicSel');
+    sel.innerHTML = '<option value="">加载话题…</option>';
+    try {
+      const data = await callEdge('topics_list', {});
+      const fixed = (data && data.fixed) || [];
+      const custom = (data && data.custom) || [];
+      const names = new Set([...fixed, ...custom.filter((t) => t.is_permanent).map((t) => t.display_name)]);
+      const kw = String(q || '').trim();
+      const list = Array.from(names).filter((n) => !kw || n.indexOf(kw) >= 0).sort();
+      sel.innerHTML = '';
+      if (!list.length) { sel.innerHTML = '<option value="">无匹配话题</option>'; return; }
+      list.forEach((n) => {
+        const opt = document.createElement('option');
+        opt.value = n;
+        opt.textContent = n;
+        sel.appendChild(opt);
+      });
+    } catch (e) {
+      sel.innerHTML = `<option value="">加载失败：${escapeHtml(e.message)}</option>`;
+    }
+  }
+  function faWireOnce() {
+    if (faInit) return;
+    faInit = true;
+    let ut = null;
+    $('faUserQ').addEventListener('input', () => {
+      clearTimeout(ut);
+      const v = $('faUserQ').value.trim();
+      ut = setTimeout(() => faLoadUsers(v), 250);
+    });
+    let tt = null;
+    $('faTopicQ').addEventListener('input', () => {
+      clearTimeout(tt);
+      const v = $('faTopicQ').value.trim();
+      tt = setTimeout(() => faLoadTopics(v), 250);
+    });
+    $('faAssign').addEventListener('click', async () => {
+      const uid = $('faUserSel').value;
+      const topic = $('faTopicSel').value;
+      const askTitle = $('faAskTitle').value.trim();
+      const msg = $('faMsg');
+      if (!uid) { msg.style.color = 'var(--danger)'; msg.textContent = '请先选择一个账号（列表为空时请在上方输入关键词检索）'; return; }
+      if (!topic) { msg.style.color = 'var(--danger)'; msg.textContent = '请先选择一个话题'; return; }
+      $('faAssign').disabled = true;
+      msg.style.color = 'var(--faint)';
+      msg.textContent = '正在指派…';
+      try {
+        await callEdge('mentor_founder_assign', { user_id: uid, topic, ask_title: askTitle });
+        msg.style.color = '#2e8b57';
+        msg.textContent = '✅ 已指派为认证答主，并已站内通知该用户。';
+        $('faAskTitle').value = '';
+        loadMentorAdmin();
+      } catch (e) {
+        msg.style.color = 'var(--danger)';
+        msg.textContent = '指派失败：' + e.message;
+        $('faAssign').disabled = false;
+      }
+    });
+  }
 
   // ---------- 启动 ----------
   function boot() {
