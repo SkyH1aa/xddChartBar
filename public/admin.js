@@ -1426,6 +1426,7 @@
   // ---------- 管理员管理（创始人） ----------
   async function loadAdmins() {
     if (!profile?.isFounder) return;
+    try {
     // 待审核
     const pending = await callEdge('founder_list_pending');
     const pl = $('pendingList');
@@ -1498,6 +1499,10 @@
       });
       al.appendChild(c);
     });
+    } catch (err) {
+      const pl = $('pendingList'); if (pl) pl.innerHTML = '';
+      const al = $('adminList'); if (al) al.innerHTML = '<div class="empty" style="padding:14px">加载失败：' + escapeHtml(err.message) + '</div>';
+    }
   }
 
   // ---------- 校史留名编号管理（仅创始人） ----------
