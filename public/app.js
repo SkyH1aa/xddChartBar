@@ -462,6 +462,11 @@
         <button class="profile-editbtn" data-act="column">📚 申请个人专栏</button>
         <button class="profile-editbtn" data-act="cert">🎓 毕业纪念证书</button>
       </div>` : ''}
+      ${data.canEdit ? `<div class="prof-sessions">
+        <div class="pf-vis-title">📱 已登录设备（普通账号最多 5 台）</div>
+        <div data-devices><span style="color:var(--faint);font-size:12px">加载中…</span></div>
+        <button class="profile-editbtn" data-logout-others style="font-size:11px">🚪 退出其他所有设备</button>
+      </div>` : ''}
       ${data.canEdit ? `<div style="margin-top:8px;font-size:11px;color:var(--faint)">只能在个人中心（右上角头像 → 我的主页）编辑自己的信息。提示：敏感词会在提交前本地拦截。</div>` : ''}
     </div>`;
   }
@@ -505,6 +510,45 @@
         if (w) { w.document.write(r.cert); w.document.close(); }
       } catch (e) { window.alert(e.message); }
     });
+    const lo = body.querySelector('[data-logout-others]');
+    if (lo) lo.addEventListener('click', async () => {
+      if (!confirm('确认退出其他所有设备？仅保留当前设备在线，其他设备的登录会立即失效。')) return;
+      lo.disabled = true;
+      try { await callEdge('logout_others', { token: state.user.token }); await loadDevices(body); }
+      catch (e) { window.alert(e.message); }
+      finally { lo.disabled = false; }
+    });
+    loadDevices(body);
+  }
+  function fmtTime(iso) {
+    if (!iso) return '';
+    try { return new Date(iso).toLocaleString(); } catch (_e) { return ''; }
+  }
+  // 加载并渲染“已登录设备”列表（仅自己主页可见）→ 可踢出任意其他设备
+  async function loadDevices(body) {
+    const host = body.querySelector('[data-devices]');
+    if (!host || !state.user.token) return;
+    try {
+      const d = await callEdge('list_sessions', { token: state.user.token });
+      const list = d.sessions || [];
+      if (!list.length) { host.innerHTML = '<div style="color:var(--faint);font-size:12px;padding:4px 0">当前没有其他已登录设备（本设备不计）</div>'; return; }
+      host.innerHTML = list.map((s) => `
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 2px;border-top:1px solid var(--line-soft)">
+          <span style="font-size:16px">${s.current ? '💻' : '📱'}</span>
+          <span style="flex:1;min-width:0;font-size:12px;color:var(--text)">${escapeHtml(s.device_name)}
+            <div style="color:var(--faint);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">登录于 ${fmtTime(s.created_at)}</div>
+          </span>
+          ${s.current ? '<span style="color:var(--ok);font-size:11px;white-space:nowrap">当前设备</span>'
+            : `<button class="profile-editbtn" data-revokesid="${s.sid}" style="font-size:11px;white-space:nowrap">踢出</button>`}
+        </div>`).join('');
+      host.querySelectorAll('[data-revokesid]').forEach((b) => b.addEventListener('click', async () => {
+        const sid = b.getAttribute('data-revokesid');
+        if (!sid || !confirm('确认将该设备踢下线？该设备上的登录会立即失效。')) return;
+        b.disabled = true;
+        try { await callEdge('revoke_session', { token: state.user.token, sid }); await loadDevices(body); }
+        catch (e) { window.alert(e.message); b.disabled = false; }
+      }));
+    } catch (_e) { host.innerHTML = '<div style="color:var(--faint);font-size:12px">设备列表加载失败</div>'; }
   }
   function renderProfileEdit(body, data) {
     const p = data.profile || {};
