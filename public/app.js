@@ -197,6 +197,12 @@
     });
     let data = {};
     try { data = await res.json(); } catch (_e) {}
+    // 被其他设备挤掉/会话失效：后端返回 401 → 立即清理本地会话，回到未登录态，避免残留昵称
+    // 排除登录/注册接口自身可能返回的 401（如密码错误），避免误清当前会话
+    if (res.status === 401 && state.user && state.user.token
+      && action !== 'user_login' && action !== 'user_register' && action !== 'admin_login') {
+      sessionMonitorReset();
+    }
     if (!res.ok || data.ok === false) throw new Error(data.error || ('请求失败 ' + res.status));
     return data.data;
   }
@@ -282,7 +288,8 @@
     loadAdminPerms();
   };
   function startSessionMonitor() {
-    setInterval(async () => {
+    // 返回当前会话是否仍有效；失效则清理本地会话（被挤掉/过期）
+    async function probe() {
       const tok = state.user.token;
       if (!tok) return;
       try {
@@ -292,7 +299,12 @@
         });
         if (r.status !== 200) sessionMonitorReset(); // 会话失效/被顶掉 → 清理
       } catch (_e) { /* 网络异常保持现状，下轮再试 */ }
-    }, 60000);
+    }
+    // 定时探活（缩短到 20s，被踢后更快回到未登录态）
+    setInterval(probe, 20000);
+    // 切回本标签页时立即探活一次，让“刚被其他设备踢掉”能立刻表现为未登录
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) probe(); });
+    window.addEventListener('focus', probe);
   }
 
   // 登录用户不允许自定义昵称：直接显示/使用用户名，隐藏匿名昵称框
