@@ -20,6 +20,30 @@
   let profile = null;
   let activeTab = 'posts';
 
+  // 标签定义（含权限位）；供 renderTabs 与权限同步刷新共用
+  const TAB_DEFS = [
+    { key: 'dashboard', label: '看板' },
+    { key: 'posts', label: '帖子管理' },
+    { key: 'review', label: '吃瓜审核', perm: 'can_review' },
+    { key: 'reports', label: '举报', perm: 'can_report' },
+    { key: 'trash', label: '回收站', perm: 'can_delete' },
+    { key: 'pinned', label: '顶置管理', perm: 'can_pin' },
+    { key: 'audit', label: '审计日志', perm: 'can_view_audit' },
+    { key: 'blacklist', label: '黑名单', perm: 'can_blacklist' },
+    { key: 'userMgmt', label: '用户统一管理', perm: 'can_user_mgmt' },
+    { key: 'digests', label: '精华聚合', perm: 'can_digest' },
+    { key: 'popups', label: '弹窗公告', perm: 'can_popup' },
+    { key: 'announces', label: '公告栏', perm: 'can_notice' },
+    { key: 'bugs', label: 'Bug反馈', perm: 'can_bug' },
+    { key: 'topics', label: '自定义话题', perm: 'can_topic' },
+    { key: 'mentor', label: '🎓 学长认证', perm: 'can_mentor' },
+    { key: 'invite', label: '🔑 邀请码', perm: 'can_invite' },
+    { key: 'udellog', label: '用户删除日志', perm: 'can_del_log' },
+    { key: 'archive', label: '留档日志', perm: 'can_archive' },
+    { key: 'deviceban', label: '设备封禁', perm: 'can_deviceban' }
+  ];
+  const FOUNDER_ONLY_TABS = ['admins', 'resetPwd', 'site', 'legends'];
+
   // ---------- 工具 ----------
   function escapeHtml(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -69,6 +93,52 @@
     localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
   }
   function hasPerm(p) { return profile?.isFounder || !!profile?.perms?.[p]; }
+  // 当前标签在该权限下是否仍可用（供权限变化后判断是否需要跳走）
+  function tabAllowed(key) {
+    if (profile?.isFounder) return true;
+    if (FOUNDER_ONLY_TABS.indexOf(key) >= 0) return false;
+    const t = TAB_DEFS.find((x) => x.key === key);
+    if (!t) return false;
+    if (t.perm) return hasPerm(t.perm);
+    if (t.requiresAny) return t.requiresAny.some((p) => hasPerm(p));
+    return true;
+  }
+  // 定期同步后端最新权限：创始人删权限/停用账号后，本端界面无需重登立即生效
+  let permSyncTimer = null;
+  async function refreshAdminPerms() {
+    if (!token) return;
+    try {
+      const p = await callEdge('whoami', {});
+      if (!p) return;
+      const wasFounder = !!profile?.isFounder;
+      const oldPerms = wasFounder ? null : JSON.stringify(profile?.perms || {});
+      profile = { ...(profile || {}), ...p };
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+      const newFounder = !!profile?.isFounder;
+      const newPerms = newFounder ? null : JSON.stringify(profile?.perms || {});
+      const changed = newFounder !== wasFounder || (newPerms !== oldPerms);
+      if (changed) {
+        renderWhoami(); renderTabs();
+        if (activeTab && !tabAllowed(activeTab)) {
+          const fb = TAB_DEFS.find((t) => tabAllowed(t.key));
+          enterTab(fb ? fb.key : 'dashboard');
+        }
+      }
+    } catch (e) {
+      const msg = String((e && e.message) || '');
+      if (/账号已停用|未通过审核|登录已过期|请先登录/.test(msg)) sessionExpired();
+      // 其余错误（网络抖动/限流等）静默忽略，等待下次同步
+    }
+  }
+  function startPermSync() {
+    if (permSyncTimer) return;
+    refreshAdminPerms();
+    permSyncTimer = setInterval(refreshAdminPerms, 5000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refreshAdminPerms();
+    });
+    window.addEventListener('focus', refreshAdminPerms);
+  }
 
   // ---------- 登录 ----------
   async function doLogin() {
@@ -90,27 +160,7 @@
 
   // ---------- 渲染布局 ----------
   function renderTabs() {
-    const all = [
-      { key: 'dashboard', label: '看板' },
-      { key: 'posts', label: '帖子管理' },
-      { key: 'review', label: '吃瓜审核', perm: 'can_review' },
-      { key: 'reports', label: '举报', perm: 'can_report' },
-      { key: 'trash', label: '回收站', perm: 'can_delete' },
-      { key: 'pinned', label: '顶置管理', perm: 'can_pin' },
-      { key: 'audit', label: '审计日志', perm: 'can_view_audit' },
-      { key: 'blacklist', label: '黑名单', perm: 'can_blacklist' },
-      { key: 'userMgmt', label: '用户统一管理', perm: 'can_user_mgmt' },
-      { key: 'digests', label: '精华聚合', perm: 'can_digest' },
-      { key: 'popups', label: '弹窗公告', perm: 'can_popup' },
-      { key: 'announces', label: '公告栏', perm: 'can_notice' },
-      { key: 'bugs', label: 'Bug反馈', perm: 'can_bug' },
-      { key: 'topics', label: '自定义话题', perm: 'can_topic' },
-      { key: 'mentor', label: '🎓 学长认证', perm: 'can_mentor' },
-      { key: 'invite', label: '🔑 邀请码', perm: 'can_invite' },
-      { key: 'udellog', label: '用户删除日志', perm: 'can_del_log' },
-      { key: 'archive', label: '留档日志', perm: 'can_archive' },
-      { key: 'deviceban', label: '设备封禁', perm: 'can_deviceban' }
-    ];
+    const all = TAB_DEFS.slice();
     if (profile?.isFounder) {
       all.push({ key: 'admins', label: '管理员' }, { key: 'resetPwd', label: '重置密码' }, { key: 'site', label: '站点开关' }, { key: 'legends', label: '🏯 校史编号' });
     } else {
@@ -146,6 +196,25 @@
     } catch (_e) {}
   }
   function switchTab(key) {
+    _enterTabGuarded(key);
+  }
+  // 点击标签切换：先实时读一次最新权限，无权限则退回首个可用页面
+  async function _enterTabGuarded(key) {
+    if (token) await refreshAdminPerms();
+    if (!token || !tabAllowed(key)) {
+      if (!token) return; // 已登出：登录屏已显示
+      alert(`你已被收回「${tabTitle(key)}」的访问权限`);
+      const fb = TAB_DEFS.find((t) => tabAllowed(t.key));
+      enterTab(fb ? fb.key : 'dashboard');
+      return;
+    }
+    enterTab(key);
+  }
+  function tabTitle(key) {
+    const t = TAB_DEFS.find((x) => x.key === key);
+    return t ? t.label : key;
+  }
+  function enterTab(key) {
     activeTab = key;
     document.querySelectorAll('[id^="tab-"]').forEach((s) => s.classList.add('hidden'));
     $('tab-' + key).classList.remove('hidden');
@@ -346,7 +415,16 @@
             <button class="btn sm" data-verdict="ignore" data-rid="${report.id}">忽略</button>
             <button class="btn sm ghost" data-verdict="block" data-rid="${report.id}">屏蔽目标</button>
             <button class="btn sm danger" data-verdict="delete" data-rid="${report.id}">删除目标</button>
+            ${hasPerm('can_ban') ? `<button class="btn sm danger ghost" data-ban7="${report.id}">⛔ 快捷封号7天</button>` : ''}
           </div>`;
+        card.querySelectorAll('[data-ban7]').forEach((b) => {
+          b.addEventListener('click', async () => {
+            if (!confirm('确定对本次被举报内容的作者封号 7 天吗？封禁期间其无法发帖、点赞、评论或创建话题。')) return;
+            b.disabled = true;
+            try { await callEdge('report_ban_user', { report_id: b.dataset.ban7 }); loadReports(); refreshQueueBadges(); }
+            catch (err) { alert(err.message); b.disabled = false; }
+          });
+        });
         card.querySelectorAll('[data-verdict]').forEach((b) => {
           b.addEventListener('click', async () => {
             if (b.dataset.verdict === 'delete' && !confirm('确定删除该目标及其关联内容？')) return;
@@ -475,6 +553,12 @@
   async function loadArchive() {
     const list = $('archList');
     if (!list) return;
+    if (!hasPerm('can_archive')) {
+      list.innerHTML = '<div class="empty">🔒 你没有「留档日志」查看权限。仅可将回收站/用户删除日志/审计日志内容或手动新增留档，无法浏览、查看或删除。</div>';
+      const fbar = $('archFilterBar'); if (fbar) fbar.style.display = 'none';
+      const hint = $('archHint'); if (hint) hint.style.display = 'none';
+      return;
+    }
     list.innerHTML = '<div class="empty">加载中…</div>';
     const payload = {
       q: $('archQ')?.value.trim() || '',
@@ -1065,6 +1149,10 @@
         const goldNow = !!p.gold_until && new Date(p.gold_until).getTime() > Date.now();
         buttons.push(`<button class="btn sm ghost" data-a="gold" data-id="${p.id}">🪙 ${goldNow ? `续期认证` : '金牌认证'}</button>`);
       }
+      // 快捷留档=「帖子管理」操作：拥有 can_delete 或 can_block 之一即可（查看/删除留档日志才需 can_archive）
+      if (hasPerm('can_delete') || hasPerm('can_block')) {
+        buttons.push(`<button class="btn sm ghost" data-a="archive" data-id="${p.id}">📌 直接留档</button>`);
+      }
       card.innerHTML = `
         <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px">
           <strong>${escapeHtml(p.nickname || '匿名')}</strong> ${tag}
@@ -1146,6 +1234,7 @@
       return;
     }
     if (a === 'settopic') { onSetPostTopic(id, btn); return; }
+    if (a === 'archive') { onArchivePostDirect(id, btn); return; }
     btn.disabled = true;
     try {
       if (a === 'block') await callEdge('block_post', { id, blocked: v === 'true' });
@@ -1161,6 +1250,15 @@
     let custom = [];
     try { custom = (await callEdge('topic_admin_list', {})) || []; } catch (_e) {}
     return fixed.concat(custom.map((c) => c.display_name).filter(Boolean));
+  }
+  async function onArchivePostDirect(id, btn) {
+    if (!confirm('把该帖（含全部评论）快照加入留档日志？原帖不会被屏蔽或删除，仅保存一份永久副本。')) return;
+    btn.disabled = true;
+    try {
+      await callEdge('archive_post_direct', { post_id: id });
+      alert('📌 已把该帖直接留档（原始帖子保持不变）。');
+      loadPosts();
+    } catch (err) { alert(err.message); btn.disabled = false; }
   }
   async function onSetPostTopic(id, btn) {
     const names = await adminTopicNames();
@@ -2144,6 +2242,7 @@
     postFilterOptions();
     renderTabs();
     switchTab(activeTab);
+    startPermSync();
   }
   $('logoutBtn').addEventListener('click', () => {
     localStorage.removeItem(TOKEN_KEY);

@@ -208,7 +208,7 @@
     <section id="tab-archive" class="panel hidden">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
         <h3 style="margin:0">留档日志（永久保存）</h3>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <div id="archFilterBar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <select id="archSource" class="input" style="min-width:120px">
             <option value="">全部来源</option>
             <option value="trash">回收站</option>
@@ -221,10 +221,10 @@
           <button id="archRefresh" class="btn sm ghost">刷新</button>
         </div>
       </div>
-      <div style="font-size:12px;color:var(--faint);margin-bottom:10px">
+      <div id="archHint" style="font-size:12px;color:var(--faint);margin-bottom:10px">
         📌 <b>重要信息请加入留档日志</b>：永久保存，直到被拥有「留档日志」权限的管理员/创始人手动删除。所有管理员都可将回收站、用户删除日志、审计日志中的内容加入留档，或手动新增留档记录；但仅拥有「留档日志」权限的管理员（和创始人）可查看与删除留档记录。
       </div>
-      <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line);margin-bottom:14px">
+        <div id="archAddBox" class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line);margin-bottom:14px">
         <h4 style="margin:0 0 10px">➕ 手动新增留档</h4>
         <div class="form-field"><label>标题</label><input id="archAddTitle" class="input" type="text" maxlength="200" /></div>
         <div class="form-field"><label>简介（建议填写事件背景/重要说明）</label><input id="archAddIntro" class="input" type="text" maxlength="500" /></div>
