@@ -3078,10 +3078,22 @@
         if (payload.new && payload.new.id) onRealtimeNewPost(payload.new);
       })
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'forum_posts' }, (payload) => {
-        if (payload.old) onRealtimeDelPost(payload.old.id);
+        if (payload.old) onRealtimeRemovePost(payload.old.id);
+      })
+      // 管理员屏蔽/取消审核（blocked 置 true 或 reviewed 置 false）→ 视为失效，立即静默移除卡片
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'forum_posts' }, (payload) => {
+        const row = payload.new;
+        if (row && row.id && (row.blocked === true || row.reviewed !== true)) onRealtimeRemovePost(row.id);
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'forum_comments' }, (payload) => {
         if (payload.new) onRealtimeNewComment(payload.new);
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'forum_comments' }, (payload) => {
+        if (payload.old && payload.old.post_id) onRealtimeCommentGone(payload.old.post_id);
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'forum_comments' }, (payload) => {
+        const row = payload.new;
+        if (row && row.post_id && row.blocked === true) onRealtimeCommentGone(row.post_id);
       })
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') { everSubscribed = true; state.channelDown = false; }
@@ -3112,14 +3124,27 @@
       observeReveal(els.feed);
     } catch (_e) {}
   }
-  // 删帖：静默移除对应主列表卡片与顶置卡片
-  function onRealtimeDelPost(id) {
+  // 删帖/屏蔽帖：静默移除对应主列表卡片与顶置卡片，任何视图下都立刻让该内容消失
+  function onRealtimeRemovePost(id) {
     if (!id) return;
     const card = els.feed && els.feed.querySelector(`[data-id="${id}"]`);
     if (card) card.remove();
     if (els.pinnedFeed) {
       const pin = els.pinnedFeed.querySelector(`[data-id="${id}"]`);
       if (pin) pin.remove();
+    }
+    // 若个人中心/合集等面板里正好展示该帖快照，一并从 DOM 移除
+    document.querySelectorAll(`.post-card[data-id="${id}"], article[data-id="${id}"]`)
+      .forEach((el) => el.remove());
+  }
+  // 评论被删/被屏蔽：若该帖评论区已在展开，则重载该帖评论，移除被清掉的内容
+  function onRealtimeCommentGone(postId) {
+    if (!postId) return;
+    const card = document.querySelector(`article[data-id="${postId}"], .post-card[data-id="${postId}"]`);
+    if (!card) return;
+    const box = card.querySelector('[data-cmtbox]');
+    if (box && !box.classList.contains('hidden') && box.dataset.loaded) {
+      loadComments(box, { id: postId });
     }
   }
   // 新评论 / 新回复：更新该帖评论数；若评论已展开则仅重载该帖评论（不影响其他卡片）
@@ -3154,8 +3179,39 @@
       await refreshUnread();
       await syncLikedFromServer();
       if (typeof loadFavIds === 'function') await loadFavIds();
+      await quietRemoveBlockedPosts();
     } catch (_e) {}
     reconcileLock = false;
+  }
+  // 轻量兜底：5s 轮询时对“当前已渲染”的帖子做实时核对，发现已被管理员屏蔽/删除的立即移出 DOM，
+  // 防止不刷新页面的人滞留并保存已封禁内容（realtime 未就绪/被丢帧时的兜底；只建子集查询，不重建列表）
+  let blockedCheckLock = false;
+  async function quietRemoveBlockedPosts() {
+    if (blockedCheckLock) return;
+    const ids = new Set();
+    const nodes = [];
+    if (els.feed) nodes.push(...els.feed.querySelectorAll('article[data-id], .post-card[data-id]'));
+    if (els.pinnedFeed) nodes.push(...els.pinnedFeed.querySelectorAll('article[data-id], .post-card[data-id]'));
+    for (const n of nodes) {
+      const id = n.dataset.id;
+      if (id) ids.add(id);
+    }
+    if (!ids.size) return;
+    blockedCheckLock = true;
+    try {
+      const arr = [...ids];
+      const live = new Set();
+      for (let i = 0; i < arr.length; i += 40) {
+        const { data } = await supabase.from('forum_posts').select('id, blocked').in('id', arr.slice(i, i + 40));
+        // 只把“仍可见”的（未被屏蔽、未被硬删——硬删行不会被查出）视为活着；屏蔽行不加入 live 即被移除
+        for (const r of (data || [])) if (r && r.id && r.blocked !== true) live.add(r.id);
+      }
+      for (const n of nodes) {
+        const id = n.dataset.id;
+        if (id && !live.has(id)) n.remove();
+      }
+    } catch (_e) {}
+    blockedCheckLock = false;
   }
   let newPostPollLock = false;
   async function silentPollNewPosts() {
