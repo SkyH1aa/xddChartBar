@@ -3055,7 +3055,7 @@
       });
     state.channel = ch;
     // realtime 一直没就绪（很可能触发免费版并发上限/网络受限）→ 降级为新帖轮询兜底
-    setTimeout(() => { if (!everSubscribed) realtimeFallback(); }, 9000);
+    setTimeout(() => { if (!everSubscribed) realtimeFallback(); }, 5000);
   }
   function realtimeFallback() {
     if (state.pollFallbackOn) return;
@@ -3107,9 +3107,9 @@
   function startSilentPoll(isFallback) {
     if (silentPollTimer) return;
     // 无论 realtime 是否可用，都静默同步赞态/收藏/未读（只更新按钮与角标，不重建列表、不整页刷新）
-    silentPollTimer = setInterval(() => { silentReconcile(); }, 20000);
+    silentPollTimer = setInterval(() => { silentReconcile(); }, 5000);
     if (isFallback) {
-      fallbackPollTimer = setInterval(() => { silentPollNewPosts(); }, 15000);
+      fallbackPollTimer = setInterval(() => { silentPollNewPosts(); }, 7000);
     }
   }
   let reconcileLock = false;
