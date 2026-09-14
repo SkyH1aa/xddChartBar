@@ -1080,6 +1080,40 @@
     $('bugSubmitBtn').disabled = false;
   });
 
+  // 查看我的反馈记录（含管理员回应）
+  $('myFeedbackBtn').addEventListener('click', loadMyFeedback);
+  async function loadMyFeedback() {
+    const listEl = $('myFeedbackList');
+    listEl.classList.toggle('hidden');
+    if (listEl.classList.contains('hidden')) { listEl.innerHTML = ''; return; }
+    if (!loggedIn()) { listEl.innerHTML = '<div class="poll-hint">请先登录，登录后才能查看你的反馈记录。</div>'; return; }
+    listEl.innerHTML = '<div class="poll-hint">加载中…</div>';
+    try {
+      const rows = (await callEdge('bug_feedback_my', { token: state.user.token })) || [];
+      if (!rows.length) { listEl.innerHTML = '<div class="poll-hint">你还没有提交过反馈，提交后可以在这里跟踪管理员回复。</div>'; return; }
+      listEl.innerHTML = rows.map(myFeedbackCard).join('');
+    } catch (e) { listEl.innerHTML = `<div class="poll-hint">${escapeHtml(e.message)}</div>`; }
+  }
+  function myFeedbackCard(r) {
+    const stMap = { new: ['待处理', '#9ca3af'], replied: ['已回复', '#3b82f6'], resolved: ['已解决', '#22c55e'] };
+    const st = stMap[r.status] || ['待处理', '#9ca3af'];
+    const replyAt = (r.status === 'replied' && r.updated_at) ? ` · ${formatTime(r.updated_at)}` : '';
+    return `<div style="padding:9px 0;border-bottom:1px dashed var(--line)">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="badge" style="background:${st[1]};color:#fff;font-size:11px">${st[0]}</span>
+        <b style="font-size:13px">${escapeHtml(r.category || '')}</b>
+        <span style="margin-left:auto;font-size:11px;color:var(--faint)">${formatTime(r.created_at)}</span>
+      </div>
+      <div style="margin-top:5px;font-size:12px;color:var(--text);white-space:pre-wrap;word-break:break-word">${escapeHtml(r.content || '')}</div>
+      ${r.admin_reply
+        ? `<div style="margin-top:8px;font-size:12px;background:var(--card);border-left:3px solid var(--accent);padding:8px 10px;border-radius:6px">
+            <div style="color:var(--faint);font-size:11px">管理员 ${escapeHtml(r.replied_by || '')} 回复${escapeHtml(replyAt)}</div>
+            <div style="margin-top:3px;color:var(--text);white-space:pre-wrap;word-break:break-word">${escapeHtml(r.admin_reply)}</div>
+          </div>`
+        : '<div style="margin-top:6px;font-size:12px;color:var(--faint)">⏳ 管理员尚未回复，请耐心等待。</div>'}
+    </div>`;
+  }
+
   // 敏感词误屏蔽通用提示
   const MISBLOCK_HINT = ' 如果你认为我们误屏蔽了关键词，请在「🐞 反馈」中选「关键词误屏蔽」粘贴你的原文！';
 
