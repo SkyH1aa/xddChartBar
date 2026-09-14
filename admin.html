@@ -110,6 +110,7 @@
         <h3 style="margin:0">操作审计日志</h3>
         <button id="auditRefresh" class="btn ghost sm">刷新</button>
       </div>
+      <div style="font-size:12px;color:var(--accent,#e07a5f);margin-bottom:10px">📌 重要操作记录请点每条日志上的「加入留档」，永久保存至留档日志（审计日志仅保留 90 天，会过期清理）。</div>
       <div id="auditList"></div>
     </section>
 
@@ -182,6 +183,58 @@
         </div>
       </div>
       <div id="trashList"></div>
+      <div style="font-size:12px;color:var(--accent,#e07a5f);margin-top:10px">📌 重要信息请点每条帖子上的「加入留档」永久保存至留档日志（不占用回收站额度、不会被自动清理）。</div>
+    </section>
+
+    <!-- 用户删除日志（can_del_log） -->
+    <section id="tab-udellog" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">用户删除日志（最多保留 60 天）</h3>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input id="udelQ" class="input" placeholder="用户名 / 内容 / 话题检索" style="min-width:160px;max-width:220px" maxlength="30" />
+          <input id="udelFrom" class="input" type="date" title="删除时间起" />
+          <input id="udelTo" class="input" type="date" title="删除时间止" />
+          <button id="udelSearch" class="btn sm">过滤</button>
+          <button id="udelRefresh" class="btn sm ghost">刷新</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:10px">
+        记录用户<b>自行删除</b>的帖子：作者、发布时间、删除时间与内容。管理员只能「彻底删除」或「加入留档」，无法恢复用户已删除的帖子。<b>重要信息请点「📌 加入留档」永久保存。</b>
+      </div>
+      <div id="udelList"></div>
+    </section>
+
+    <!-- 留档日志（can_archive：查看/删除；全管理员可新增） -->
+    <section id="tab-archive" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">留档日志（永久保存）</h3>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="archSource" class="input" style="min-width:120px">
+            <option value="">全部来源</option>
+            <option value="trash">回收站</option>
+            <option value="user_del">用户删除日志</option>
+            <option value="audit">审计日志</option>
+            <option value="manual">手动新增</option>
+          </select>
+          <input id="archQ" class="input" placeholder="标题 / 简介 / 内容 / 作者检索" style="min-width:160px;max-width:220px" maxlength="30" />
+          <button id="archSearch" class="btn sm">过滤</button>
+          <button id="archRefresh" class="btn sm ghost">刷新</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:10px">
+        📌 <b>重要信息请加入留档日志</b>：永久保存，直到被拥有「留档日志」权限的管理员/创始人手动删除。所有管理员都可将回收站、用户删除日志、审计日志中的内容加入留档，或手动新增留档记录；但仅拥有「留档日志」权限的管理员（和创始人）可查看与删除留档记录。
+      </div>
+      <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line);margin-bottom:14px">
+        <h4 style="margin:0 0 10px">➕ 手动新增留档</h4>
+        <div class="form-field"><label>标题</label><input id="archAddTitle" class="input" type="text" maxlength="200" /></div>
+        <div class="form-field"><label>简介（建议填写事件背景/重要说明）</label><input id="archAddIntro" class="input" type="text" maxlength="500" /></div>
+        <div class="form-field"><label>正文内容</label><textarea id="archAddBody" class="input" style="width:100%;min-height:70px;resize:vertical;background:var(--input-bg);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px" maxlength="6000"></textarea></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button id="archAddBtn" class="btn sm">新增留档</button>
+          <span style="font-size:12px;color:var(--faint)">建议同时注明：发帖时间、删除/屏蔽时间、删除人（管理员/用户）、事件经过等关键信息。</span>
+        </div>
+      </div>
+      <div id="archList"></div>
     </section>
 
     <!-- 顶置管理 -->

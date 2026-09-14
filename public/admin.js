@@ -106,7 +106,9 @@
       { key: 'bugs', label: 'Bug反馈', perm: 'can_bug' },
       { key: 'topics', label: '自定义话题', perm: 'can_topic' },
       { key: 'mentor', label: '🎓 学长认证', perm: 'can_mentor' },
-      { key: 'invite', label: '🔑 邀请码', perm: 'can_invite' }
+      { key: 'invite', label: '🔑 邀请码', perm: 'can_invite' },
+      { key: 'udellog', label: '用户删除日志', perm: 'can_del_log' },
+      { key: 'archive', label: '留档日志', perm: 'can_archive' }
     ];
     if (profile?.isFounder) {
       all.push({ key: 'admins', label: '管理员' }, { key: 'resetPwd', label: '重置密码' }, { key: 'site', label: '站点开关' }, { key: 'legends', label: '🏯 校史编号' });
@@ -172,6 +174,8 @@
     if (key === 'legends') loadLegends();
     if (key === 'mentor') loadMentorAdmin();
     if (key === 'invite') loadInvites();
+    if (key === 'udellog') loadUdelLog();
+    if (key === 'archive') loadArchive();
   }
 
   // ---------- 邀请码管理（can_invite） ----------
@@ -393,13 +397,175 @@
           <span style="margin:0 8px;color:var(--muted)">${escapeHtml(a.action)}</span>
           <span style="color:var(--faint)">${escapeHtml(a.detail)}</span>
           <span style="float:right;color:var(--faint);font-size:12px">${formatTime(a.created_at)}</span>
-          ${a.target_type ? `<div style="margin-top:6px"><button class="btn sm ghost" data-src="${a.id}" data-type="${escapeHtml(a.target_type)}">查看${a.target_type === 'comment' ? '评论' : '帖子'}原文</button></div>` : ''}`;
+          ${a.target_type ? `<div style="margin-top:6px"><button class="btn sm ghost" data-src="${a.id}" data-type="${escapeHtml(a.target_type)}">查看${a.target_type === 'comment' ? '评论' : '帖子'}原文</button></div>` : ''}
+          <div style="margin-top:6px"><button class="btn sm ghost" data-archaudit="${a.id}">📌 加入留档</button></div>`;
         c.querySelector('[data-src]')?.addEventListener('click', (b) => showAuditSource(a.id));
+        c.querySelector('[data-archaudit]')?.addEventListener('click', async () => {
+          const intro = prompt('加入留档（可填简介/重要说明，留空则无）：', '');
+          if (intro === null) return;
+          try { await callEdge('audit_archive', { id: a.id, intro }); alert('✅ 已加入留档日志（永久保存）'); }
+          catch (err) { alert(err.message); }
+        });
         list.appendChild(c);
       });
     } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
   }
   $('auditRefresh').addEventListener('click', loadAudit);
+
+  // ---------- 用户删除日志（can_del_log：查看/彻底删除；留档对全部管理员开放） ----------
+  async function loadUdelLog() {
+    const list = $('udelList');
+    if (!list) return;
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    const payload = {
+      q: $('udelQ')?.value.trim() || '',
+      from: $('udelFrom')?.value ? new Date($('udelFrom').value + 'T00:00:00+08:00').toISOString() : '',
+      to: $('udelTo')?.value ? new Date($('udelTo').value + 'T23:59:59+08:00').toISOString() : ''
+    };
+    try {
+      const data = await callEdge('udel_log_list', payload);
+      if (!data.length) { list.innerHTML = '<div class="empty">暂无用户删除日志</div>'; return; }
+      list.innerHTML = '';
+      data.forEach((d) => {
+        const c = document.createElement('div');
+        c.className = 'panel fade-in-up';
+        c.style.padding = '12px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '10px';
+        c.innerHTML = `
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+            <strong style="font-size:13px">${escapeHtml(d.nickname || '匿名')}</strong>
+            <span class="badge topic">${escapeHtml(d.topic || '闲聊')}</span>
+            <span style="color:var(--faint);font-size:12px">发布 ${formatTime(d.created_at)}</span>
+            <span style="color:var(--danger,#e05e5e);font-size:12px">删除 ${formatTime(d.deleted_at)}</span>
+          </div>
+          <div style="background:var(--card-soft,#eee);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:8px">
+            <div style="font-size:13px;color:var(--text);white-space:pre-wrap;word-break:break-word">${escapeHtml(d.content)}${d.content.length >= 200 ? '…' : ''}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn sm ghost" data-udel="archive" data-id="${d.id}">📌 加入留档</button>
+            <button class="btn sm danger" data-udel="purge" data-id="${d.id}">彻底删除</button>
+          </div>`;
+        c.querySelectorAll('[data-udel]').forEach((b) => {
+          b.addEventListener('click', async () => {
+            const act = b.dataset.udel;
+            if (act === 'archive') {
+              const intro = prompt('加入留档（可填简介/重要说明，留空则无）：', '');
+              if (intro === null) return;
+              try { await callEdge('udel_log_archive', { id: d.id, intro }); alert('✅ 已加入留档日志（永久保存）'); loadUdelLog(); }
+              catch (err) { alert(err.message); }
+              return;
+            }
+            if (!confirm('彻底删除该条删除日志记录（仅移除日志，原帖已由用户自行删除，无法恢复），确定？')) return;
+            b.disabled = true;
+            try { await callEdge('udel_log_purge', { id: d.id }); loadUdelLog(); }
+            catch (err) { alert(err.message); b.disabled = false; }
+          });
+        });
+        list.appendChild(c);
+      });
+    } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
+  }
+  $('udelRefresh')?.addEventListener('click', loadUdelLog);
+  $('udelSearch')?.addEventListener('click', loadUdelLog);
+  $('udelQ')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadUdelLog(); });
+
+  // ---------- 留档日志（can_archive：查看/删除；全管理员可新增） ----------
+  const ARCH_SRC = { trash: '回收站', user_del: '用户删除日志', audit: '审计日志', manual: '手动新增' };
+  async function loadArchive() {
+    const list = $('archList');
+    if (!list) return;
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    const payload = {
+      q: $('archQ')?.value.trim() || '',
+      source: $('archSource')?.value || '',
+      from: '', to: ''
+    };
+    try {
+      const data = await callEdge('archive_list', payload);
+      if (!data.length) { list.innerHTML = '<div class="empty">暂无留档记录</div>'; return; }
+      list.innerHTML = '';
+      data.forEach((r) => {
+        const c = document.createElement('div');
+        c.className = 'panel fade-in-up';
+        c.style.padding = '12px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '10px';
+        const srcTag = `<span class="badge">${escapeHtml(ARCH_SRC[r.source] || r.source || '留档')}</span>`;
+        c.innerHTML = `
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+            <strong style="font-size:13px">${escapeHtml(r.title || '（无标题）')}</strong> ${srcTag}
+            <span style="color:var(--faint);font-size:12px">留档 ${formatTime(r.created_at)} · 归档人 ${escapeHtml(r.archived_by || '—')}</span>
+          </div>
+          ${r.intro ? `<div style="color:var(--accent,#e07a5f);font-size:12px;margin-bottom:4px">📝 ${escapeHtml(r.intro)}</div>` : ''}
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;line-height:1.6">
+            ${r.author_name ? `作者 ${escapeHtml(r.author_name)} · ` : ''}
+            ${r.actor_name ? `删除/操作人 ${escapeHtml(r.actor_name)} · ` : ''}
+            ${r.post_time ? `发帖 ${formatTime(r.post_time)} · ` : ''}
+            ${r.del_time ? `删除/屏蔽 ${formatTime(r.del_time)}` : ''}
+          </div>
+          <div style="background:var(--card-soft,#eee);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:8px">
+            <div style="font-size:13px;color:var(--text);white-space:pre-wrap;word-break:break-word;max-height:120px;overflow:auto">${escapeHtml(r.body || '（无正文）')}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn sm ghost" data-arch="view" data-id="${r.id}">查看全文</button>
+            <button class="btn sm danger" data-arch="del" data-id="${r.id}">删除留档</button>
+          </div>`;
+        c.querySelectorAll('[data-arch]').forEach((b) => {
+          b.addEventListener('click', async () => {
+            const act = b.dataset.arch;
+            if (act === 'view') { openArchive(r.id); return; }
+            if (!confirm(`确认删除这条留档记录「${r.title || '（无标题）'}」？删除后不可恢复。`)) return;
+            b.disabled = true;
+            try { await callEdge('archive_delete', { id: r.id }); loadArchive(); }
+            catch (err) { alert(err.message); b.disabled = false; }
+          });
+        });
+        list.appendChild(c);
+      });
+    } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
+  }
+  async function openArchive(id) {
+    let r;
+    try { r = await callEdge('archive_get', { id }); }
+    catch (e) { alert(e.message); return; }
+    const mask = document.createElement('div');
+    mask.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(10,12,25,.6);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)';
+    mask.innerHTML = `<div style="width:min(640px,96vw);max-height:86vh;overflow:auto;background:var(--card,#fff);border:1px solid var(--line);border-radius:16px;padding:20px 22px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-weight:800;color:var(--text);font-size:17px">📌 留档详情</span>
+        <span class="badge">${escapeHtml(ARCH_SRC[r.source] || r.source || '留档')}</span>
+        <button id="arch-close" style="margin-left:auto;background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer">×</button>
+      </div>
+      <div style="font-weight:700;color:var(--text);font-size:15px;margin-bottom:8px">${escapeHtml(r.title || '（无标题）')}</div>
+      ${r.intro ? `<div style="color:var(--accent,#e07a5f);font-size:13px;margin-bottom:8px">📝 ${escapeHtml(r.intro)}</div>` : ''}
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.7">
+        ${r.author_name ? `作者：${escapeHtml(r.author_name)}<br>` : ''}
+        ${r.actor_name ? `删除/操作人：${escapeHtml(r.actor_name)}<br>` : ''}
+        ${r.post_time ? `发帖时间：${formatTime(r.post_time)}<br>` : ''}
+        ${r.del_time ? `删除/屏蔽时间：${formatTime(r.del_time)}<br>` : ''}
+        留档时间：${formatTime(r.created_at)} · 归档人：${escapeHtml(r.archived_by || '—')}
+      </div>
+      <div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--card-soft,#f5f6f8)">
+        <div style="color:var(--text);white-space:pre-wrap;word-break:break-word;line-height:1.7">${escapeHtml(r.body || '（无正文）')}</div>
+      </div>
+    </div>`;
+    mask.querySelector('#arch-close').addEventListener('click', () => mask.remove());
+    mask.addEventListener('mousedown', (e) => { if (e.target === mask) mask.remove(); });
+    document.body.appendChild(mask);
+  }
+  $('archRefresh')?.addEventListener('click', loadArchive);
+  $('archSearch')?.addEventListener('click', loadArchive);
+  $('archQ')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadArchive(); });
+  $('archAddBtn')?.addEventListener('click', async () => {
+    const title = $('archAddTitle').value.trim();
+    const intro = $('archAddIntro').value.trim();
+    const body = $('archAddBody').value.trim();
+    if (!title && !body) { alert('请至少填写标题或正文内容'); return; }
+    $('archAddBtn').disabled = true;
+    try {
+      await callEdge('archive_add', { title, intro, body });
+      alert('✅ 已新增留档记录（永久保存）');
+      $('archAddTitle').value = ''; $('archAddIntro').value = ''; $('archAddBody').value = '';
+      loadArchive();
+    } catch (err) { alert(err.message); } finally { $('archAddBtn').disabled = false; }
+  });
 
   // ---------- 发布/昵称黑名单 ----------
   async function loadBlacklist() {
@@ -735,7 +901,7 @@
       ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
       ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码']
+      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志']
     ];
     tags.push(...m.filter(([k]) => hasPerm(k)).map(([, l]) => `<span class="badge">${l}</span>`));
     (profile?.isFounder ? m : m.filter(([k]) => profile?.perms?.[k])).forEach(([k, label]) => {
@@ -1101,11 +1267,19 @@
             <button class="btn sm" data-tr="view" data-id="${t.id}" ${t.has_snapshot ? '' : 'disabled'}>👁 查看快照</button>
             <button class="btn sm" data-tr="restore" data-id="${t.id}">恢复帖子</button>
             <button class="btn sm danger" data-tr="purge" data-id="${t.id}">彻底删除</button>
+            <button class="btn sm ghost" data-tr="archive" data-id="${t.id}">📌 加入留档</button>
           </div>`;
         c.querySelectorAll('[data-tr]').forEach((b) => {
           b.addEventListener('click', async () => {
             const act = b.dataset.tr;
             if (act === 'view') { openTrashSnapshot(t.id); return; }
+            if (act === 'archive') {
+              const intro = prompt('加入留档（可填简介/重要说明，留空则无）：', '');
+              if (intro === null) return;
+              try { await callEdge('trash_archive', { id: t.id, intro }); alert('✅ 已加入留档日志（永久保存）'); loadTrash(); }
+              catch (err) { alert(err.message); }
+              return;
+            }
             if (act === 'purge' && !confirm('彻底删除后无法恢复，确定？')) return;
             if (act === 'restore' && !confirm('恢复将把帖子和评论还原为未屏蔽状态，确定？')) return;
             b.disabled = true;
@@ -1600,7 +1774,7 @@
         ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
         ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码']
+        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志']
       ];
       const toggles = perms.map(([k, label]) => {
         const on = !!a[k];
