@@ -58,8 +58,8 @@
       <div id="digestList"></div>
     </section>
 
-    <!-- 专栏管理（并入帖子管理；需 can_column 权限） -->
-    <section id="columnMgmt" class="panel hidden" style="margin-top:18px">
+    <!-- 专栏管理（独立标签页；需 can_column 权限） -->
+    <section id="tab-columns" class="panel hidden">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0 14px">
         <h3 style="margin:0">🎓 专栏管理（校友专栏）</h3>
         <select id="colStatusFilter" class="input" style="min-width:110px">
@@ -68,7 +68,15 @@
           <option value="open">已开通</option>
           <option value="closed">已关闭</option>
         </select>
+        <input id="colKeyword" class="input" placeholder="搜索专栏名 / 创始人" style="width:240px" />
         <button id="colMgmtRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <!-- 指派开通：管理员可直接为用户开通默认模板专栏（不受等级限制），介绍/公告等由用户自行修改 -->
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px">
+        <strong style="font-size:14px">✨ 指派开通（默认模板）</strong>
+        <input id="colAssignUser" class="input" placeholder="用户账号或昵称" style="width:240px" />
+        <button id="colAssignBtn" class="btn sm">📤 指派开通</button>
+        <span style="color:var(--faint);font-size:12px">被指派用户将直接获得默认模板专栏（不受等级限制）。</span>
       </div>
       <div id="colAdminList">
         <div class="empty">加载中…</div>

@@ -27,6 +27,7 @@
     { key: 'review', label: '吃瓜审核', perm: 'can_review' },
     { key: 'reports', label: '举报', perm: 'can_report' },
     { key: 'trash', label: '回收站', perm: 'can_delete' },
+    { key: 'columns', label: '🎓 专栏管理', perm: 'can_column' },
     { key: 'pinned', label: '顶置管理', perm: 'can_pin' },
     { key: 'audit', label: '审计日志', perm: 'can_view_audit' },
     { key: 'blacklist', label: '黑名单', perm: 'can_blacklist' },
@@ -221,6 +222,7 @@
     renderTabs();
     if (key === 'dashboard') loadDashboard();
     if (key === 'posts') loadPosts();
+    if (key === 'columns') loadColAdminMgmt();
     if (key === 'review') loadReview();
     if (key === 'reports') loadReports();
     if (key === 'trash') loadTrash();
@@ -1164,7 +1166,6 @@
       card.addEventListener('click', onPostAction);
       list.appendChild(card);
     });
-    renderColAdminSection();
   }
   async function toggleInlineComments(postId, box) {
     if (box.style.display !== 'none') { box.style.display = 'none'; return; }
@@ -1307,20 +1308,15 @@
   $('postFilter').addEventListener('change', loadPosts);
   $('postRefresh').addEventListener('click', loadPosts);
 
-  // ---------- 专栏管理（并入帖子管理；can_column） ----------
+  // ---------- 专栏管理（独立标签页；can_column） ----------
   let colMgtStatus = '';
-  function renderColAdminSection() {
-    const box = $('columnMgmt');
-    if (!box) return;
-    if (!hasPerm('can_column')) { box.classList.add('hidden'); return; }
-    box.classList.remove('hidden');
-    loadColAdminMgmt();
-  }
+  let colMgtKeyword = '';
   async function loadColAdminMgmt() {
     const list = $('colAdminList');
+    if (!list) return;
     list.innerHTML = '<div class="empty">加载中…</div>';
     try {
-      const rows = await callEdge('column_admin_list', { status: colMgtStatus });
+      const rows = await callEdge('column_admin_list', { status: colMgtStatus, keyword: colMgtKeyword });
       if (!rows.length) { list.innerHTML = '<div class="empty">暂无专栏记录</div>'; return; }
       const stMap = { pending: '待审核', open: '已开通', closed: '已关闭' };
       const stC = { pending: '#e0a030', open: '#3fae6b', closed: '#888' };
@@ -1435,7 +1431,21 @@
     } catch (e) { box.innerHTML = `<div class="empty" style="padding:8px">加载失败：${escapeHtml(e.message)}</div>`; }
   }
   $('colStatusFilter').addEventListener('change', () => { colMgtStatus = $('colStatusFilter').value; loadColAdminMgmt(); });
+  $('colKeyword').addEventListener('input', () => { colMgtKeyword = $('colKeyword').value.trim(); loadColAdminMgmt(); });
   $('colMgmtRefresh').addEventListener('click', loadColAdminMgmt);
+  $('colAssignBtn').addEventListener('click', async () => {
+    const uname = ($('colAssignUser').value || '').trim();
+    if (!uname) { alert('请输入要指派的用户账号或昵称'); return; }
+    if (!confirm(`确定为「${uname}」直接开通一个默认模板专栏吗？他将立即获得该专栏（不受等级限制）。`)) return;
+    const btn = $('colAssignBtn'); btn.disabled = true;
+    try {
+      const r = await callEdge('column_assign', { username: uname });
+      alert(r.message || '指派开通成功。');
+      $('colAssignUser').value = '';
+      loadColAdminMgmt();
+    } catch (err) { alert(err.message); }
+    finally { btn.disabled = false; }
+  });
 
   // ---------- 回收站 ----------
   async function loadTrash() {
