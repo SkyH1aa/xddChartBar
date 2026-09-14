@@ -605,7 +605,7 @@
       }
       if (d.banned && d.banned.length) {
         list.appendChild(blockTitle('已封禁设备（这些设备无法再登录 / 创建账号）'));
-        d.banned.forEach((b: any) => {
+        d.banned.forEach((b) => {
           const c = document.createElement('div');
           c.className = 'panel fade-in-up';
           c.style.padding = '10px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px'; c.style.fontSize = '12.5px';
@@ -626,7 +626,7 @@
       }
       if (d.terminated && d.terminated.length) {
         list.appendChild(blockTitle('已注销账号的设备（可一键封禁）'));
-        d.terminated.forEach((t: any) => {
+        d.terminated.forEach((t) => {
           const c = document.createElement('div');
           c.className = 'panel fade-in-up';
           c.style.padding = '10px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px'; c.style.fontSize = '12.5px';
@@ -646,7 +646,7 @@
       }
     } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
   }
-  function blockTitle(t: string) {
+  function blockTitle(t) {
     const el = document.createElement('h4');
     el.style.cssText = 'margin:14px 0 8px;font-size:13px;color:var(--text)';
     el.textContent = t;
