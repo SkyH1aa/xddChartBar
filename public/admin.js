@@ -1532,7 +1532,10 @@
           <span style="font-size:13px;color:var(--muted)">${t.post_count} 帖</span>
           <span style="font-size:12px;color:var(--faint)">创建者：${escapeHtml(t.created_by)}</span>
           ${t.is_permanent ? '' : `<span style="font-size:12px;color:var(--faint)">到期：${formatTime(t.expires_at)}</span>`}
-          <button class="btn sm danger" data-del="${t.id}" style="margin-left:auto">删除</button>
+          <span style="margin-left:auto;display:flex;gap:6px">
+            ${t.is_permanent ? '' : `<button class="btn sm ghost" data-prom="${t.id}">⬆️ 立刻转正</button>`}
+            <button class="btn sm danger" data-del="${t.id}">删除</button>
+          </span>
         </div>
         <div style="font-size:12px;color:var(--faint)">删除后，该话题下的全部帖子（含顶置）及其附属评论将一并转入「闲聊」话题。</div>`;
       list.appendChild(c);
@@ -1540,6 +1543,12 @@
         if (!confirm(`确认删除「${t.display_name}」话题？\n该话题下所有帖子 + 评论将转入「闲聊」。即使已是永久话题也会被删除。`)) return;
         el.currentTarget.disabled = true;
         try { await callEdge('topic_delete', { topic_id: t.id }); loadTopicsAdmin(); }
+        catch (err) { alert(err.message); el.currentTarget.disabled = false; }
+      });
+      c.querySelector('[data-prom]')?.addEventListener('click', async (el) => {
+        if (!confirm(`确认将话题「${t.display_name}」立刻转正为永久话题？转正后不再过期、可被用作认证话题。`)) return;
+        el.currentTarget.disabled = true;
+        try { await callEdge('topic_promote', { topic_id: t.id }); loadTopicsAdmin(); }
         catch (err) { alert(err.message); el.currentTarget.disabled = false; }
       });
     });

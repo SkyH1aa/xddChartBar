@@ -3034,24 +3034,112 @@
       schedTimer = setTimeout(() => { schedTimer = null; loadPinned(); loadFeed(); armScheduledTimer(); }, delay);
     } catch (_e) { /* 内部错误不影响主流程 */ }
   }
+  // ---------------- 实时推送：新帖 / 新评论·回复（其余走静默轮询） ----------------
   function subscribeRealtime() {
     if (state.channel) return;
+    state.channelDown = true;
+    let everSubscribed = false;
     const ch = supabase.channel('public-forum')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'forum_posts' }, () => { scheduleReload(); })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'forum_comments' }, (payload) => {
-        const row = payload.new;
-        const card = document.querySelector(`article[data-id="${row.post_id}"]`);
-        if (!card) return;
-        const num = card.querySelector('.cmt-toggle .cmt-num');
-        if (num) num.textContent = formatCount((parseInt(num.textContent.replace('+', ''), 10) || 0) + 1);
-        const box = card.querySelector('[data-cmtbox]');
-        if (box && !box.classList.contains('hidden') && box.dataset.loaded) {
-          const post = { id: row.post_id };
-          loadComments(box, post);
-        }
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'forum_posts' }, (payload) => {
+        if (payload.new && payload.new.id) onRealtimeNewPost(payload.new);
       })
-      .subscribe();
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'forum_posts' }, (payload) => {
+        if (payload.old) onRealtimeDelPost(payload.old.id);
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'forum_comments' }, (payload) => {
+        if (payload.new) onRealtimeNewComment(payload.new);
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') { everSubscribed = true; state.channelDown = false; }
+        else if (everSubscribed) state.channelDown = true; // 订阅后掉线，也降级补充轮询
+      });
     state.channel = ch;
+    // realtime 一直没就绪（很可能触发免费版并发上限/网络受限）→ 降级为新帖轮询兜底
+    setTimeout(() => { if (!everSubscribed) realtimeFallback(); }, 9000);
+  }
+  function realtimeFallback() {
+    if (state.pollFallbackOn) return;
+    state.pollFallbackOn = true;
+    startSilentPoll(true);
+  }
+
+  // 新帖：在当前 feed 视图、话题/等级/定时可见性匹配时，静默置顶插入，不整页刷新
+  async function onRealtimeNewPost(row) {
+    if (state.mode !== 'feed' || !els.feed) return;
+    if (state.activeTopic && state.activeTopic !== row.topic) return;
+    if (row.reviewed !== true || row.blocked === true) return;
+    if (row.min_view_level && Number(row.min_view_level) > viewerViewLevel()) return;
+    if (row.scheduled_for && new Date(row.scheduled_for).getTime() > Date.now()) return;
+    if (els.feed.querySelector(`[data-id="${row.id}"]`)) return; // 已在列表，避免重复
+    try {
+      const authorMap = await resolveAuthors([row]);
+      els.feed.prepend(makeCard(row, { authorMap, live: true }));
+      attachPolls(els.feed); attachQuizzes(els.feed);
+      observeReveal(els.feed);
+    } catch (_e) {}
+  }
+  // 删帖：静默移除对应主列表卡片与顶置卡片
+  function onRealtimeDelPost(id) {
+    if (!id) return;
+    const card = els.feed && els.feed.querySelector(`[data-id="${id}"]`);
+    if (card) card.remove();
+    if (els.pinnedFeed) {
+      const pin = els.pinnedFeed.querySelector(`[data-id="${id}"]`);
+      if (pin) pin.remove();
+    }
+  }
+  // 新评论 / 新回复：更新该帖评论数；若评论已展开则仅重载该帖评论（不影响其他卡片）
+  function onRealtimeNewComment(row) {
+    if (!row || !row.post_id) return;
+    const card = document.querySelector(`article[data-id="${row.post_id}"], .post-card[data-id="${row.post_id}"]`);
+    if (!card) return;
+    const num = card.querySelector('.cmt-toggle .cmt-num');
+    if (num) num.textContent = formatCount((parseInt((num.textContent || '0').replace('+', ''), 10) || 0) + 1);
+    const box = card.querySelector('[data-cmtbox]');
+    if (box && !box.classList.contains('hidden') && box.dataset.loaded) {
+      loadComments(box, { id: row.post_id });
+    }
+  }
+
+  // ---------------- 静默轮询：赞/收藏/未读同步；realtime 掉线时为新帖兜底 ----------------
+  let silentPollTimer = null;
+  let fallbackPollTimer = null;
+  function startSilentPoll(isFallback) {
+    if (silentPollTimer) return;
+    // 无论 realtime 是否可用，都静默同步赞态/收藏/未读（只更新按钮与角标，不重建列表、不整页刷新）
+    silentPollTimer = setInterval(() => { silentReconcile(); }, 20000);
+    if (isFallback) {
+      fallbackPollTimer = setInterval(() => { silentPollNewPosts(); }, 15000);
+    }
+  }
+  let reconcileLock = false;
+  async function silentReconcile() {
+    if (reconcileLock || !loggedIn()) return;
+    reconcileLock = true;
+    try {
+      await refreshUnread();
+      await syncLikedFromServer();
+      if (typeof loadFavIds === 'function') await loadFavIds();
+    } catch (_e) {}
+    reconcileLock = false;
+  }
+  let newPostPollLock = false;
+  async function silentPollNewPosts() {
+    if (newPostPollLock || !loggedIn() || state.mode !== 'feed' || !els.feed) return;
+    newPostPollLock = true;
+    try {
+      const now = new Date().toISOString();
+      const { data } = await supabase.from('forum_posts')
+        .select('id')
+        .eq('reviewed', true).eq('blocked', false)
+        .or(`scheduled_for.is.null,scheduled_for.lte.${now}`)
+        .order('created_at', { ascending: false }).limit(1);
+      const top = data && data[0];
+      if (!top || els.feed.querySelector(`[data-id="${top.id}"]`)) return;
+      const { data: full } = await supabase.from('forum_posts').select('*').eq('id', top.id).maybeSingle();
+      if (full) await onRealtimeNewPost(full);
+    } catch (_e) {}
+    newPostPollLock = false;
   }
 
   // ---------------- 管理员登录 / 注册 ----------------
@@ -3158,6 +3246,7 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
     loadLeaderboard();
     loadFavIds(); syncLikedFromServer(); refreshProfile(); checkBanStatus();
     subscribeRealtime();
+    startSilentPoll(false);
     startClientEpochPoll();
     startSessionMonitor();
     armScheduledTimer();
