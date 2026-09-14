@@ -159,6 +159,33 @@
   $('loginBtn').addEventListener('click', doLogin);
   $('loginPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
 
+  // ---------- 修改密码（仅非创始人） ----------
+  function toggleChangePwd(show) {
+    $('changePwdPanel').classList.toggle('hidden', !show);
+    $('changePwdError').textContent = '';
+    if (show) { $('cpOld').value = ''; $('cpNew').value = ''; $('cpNew2').value = ''; }
+  }
+  $('changePwdBtn').addEventListener('click', () => toggleChangePwd($('changePwdPanel').classList.contains('hidden')));
+  $('changePwdCancel').addEventListener('click', () => toggleChangePwd(false));
+  $('changePwdSave').addEventListener('click', async () => {
+    const oldP = $('cpOld').value;
+    const newP = $('cpNew').value;
+    const newP2 = $('cpNew2').value;
+    $('changePwdError').textContent = '';
+    if (!oldP || !newP) { $('changePwdError').textContent = '请输入原密码和新密码'; return; }
+    if (newP.length < 6) { $('changePwdError').textContent = '新密码至少 6 位'; return; }
+    if (newP !== newP2) { $('changePwdError').textContent = '两次输入的新密码不一致'; return; }
+    $('changePwdSave').disabled = true;
+    try {
+      await callEdge('admin_change_password', { old_password: oldP, new_password: newP });
+      $('changePwdError').textContent = '';
+      toggleChangePwd(false);
+      window.alert('✅ 密码修改成功，下次登录请使用新密码。');
+    } catch (e) {
+      $('changePwdError').textContent = e.message;
+    } finally { $('changePwdSave').disabled = false; }
+  });
+
   // ---------- 渲染布局 ----------
   function renderTabs() {
     const all = TAB_DEFS.slice();
@@ -1085,6 +1112,8 @@
 
   function renderWhoami() {
     $('whoami').textContent = profile?.isFounder ? '创始人' : `${profile?.className || ''} ${profile?.name || '管理员'}`;
+    $('changePwdBtn').style.display = profile?.isFounder ? 'none' : '';
+    $('changePwdBtn').title = '修改自己的登录密码';
     const tags = [];
     const m = [
       ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
@@ -1914,11 +1943,13 @@
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
           <span class="badge topic">${escapeHtml(t.display_name)}</span>
           ${t.is_permanent ? '<span class="badge" style="color:#fff;background:#2e8b57">永久</span>' : ''}
+          ${t.reverted_at && !t.is_permanent ? '<span class="badge" style="color:#fff;background:#b8860b">已转回 · 96h 倒计时</span>' : ''}
+          ${t.reverted_at && !t.is_permanent && t.post_count > 10 ? '<span class="badge" style="color:#fff;background:#2e8b57">可再次转正</span>' : ''}
           <span style="font-size:13px;color:var(--muted)">${t.post_count} 帖</span>
           <span style="font-size:12px;color:var(--faint)">创建者：${escapeHtml(t.created_by)}</span>
-          ${t.is_permanent ? '' : `<span style="font-size:12px;color:var(--faint)">到期：${formatTime(t.expires_at)}</span>`}
+          ${t.is_permanent ? '' : `<span style="font-size:12px;color:var(--faint)">到期：${formatTime(t.expires_at)}${t.reverted_at ? '（96h 倒计时，超 10 帖可再次转正）' : ''}</span>`}
           <span style="margin-left:auto;display:flex;gap:6px">
-            ${t.is_permanent ? '' : `<button class="btn sm ghost" data-prom="${t.id}">⬆️ 立刻转正</button>`}
+            ${t.is_permanent ? `<button class="btn sm ghost" data-rev="${t.id}">⏪ 转回自定义话题</button>` : `<button class="btn sm ghost" data-prom="${t.id}">⬆️ 立刻转正</button>`}
             <button class="btn sm danger" data-del="${t.id}">删除</button>
           </span>
         </div>
@@ -1931,9 +1962,20 @@
         catch (err) { alert(err.message); el.currentTarget.disabled = false; }
       });
       c.querySelector('[data-prom]')?.addEventListener('click', async (el) => {
+        const reverted = !!t.reverted_at;
+        if (reverted && t.post_count <= 10) {
+          alert(`话题「${t.display_name}」已转回自定义话题，需在 96 小时内发布超过 10 帖才可再次转正（当前 ${t.post_count} 帖）。`);
+          return;
+        }
         if (!confirm(`确认将话题「${t.display_name}」立刻转正为永久话题？转正后不再过期、可被用作认证话题。`)) return;
         el.currentTarget.disabled = true;
         try { await callEdge('topic_promote', { topic_id: t.id }); loadTopicsAdmin(); }
+        catch (err) { alert(err.message); el.currentTarget.disabled = false; }
+      });
+      c.querySelector('[data-rev]')?.addEventListener('click', async (el) => {
+        if (!confirm(`确认将永久话题「${t.display_name}」转回自定义话题？\n转回后进入 96 小时倒计时；96 小时内发布超过 10 帖可再次转正，否则到期后该话题及帖子将被清理。`)) return;
+        el.currentTarget.disabled = true;
+        try { await callEdge('topic_revert', { topic_id: t.id }); loadTopicsAdmin(); }
         catch (err) { alert(err.message); el.currentTarget.disabled = false; }
       });
     });
