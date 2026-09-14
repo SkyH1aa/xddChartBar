@@ -537,7 +537,7 @@
       const val = p[f.key];
       if (!data.canEdit && !data.isAdmin && !showIt) return '';
       if (!val) return '';
-      return `<div class="profile-row"><span class="profile-row-label">${f.label}</span><span class="profile-row-val">${multiLine(val)}</span></div>`;
+      return `<div class="profile-row"><span class="profile-row-label">${escapeHtml(f.label)}</span><span class="profile-row-val">${multiLine(escapeHtml(val))}</span></div>`;
     }).join('');
     return `<div class="profile-cview">
       <div class="profile-avatar" style="background:${(state.user.profile && myId() === u.id) ? (state.user.profile.avatar_color || '#e07a5f') : '#e07a5f'}">${escapeHtml((nick || '?').charAt(0).toUpperCase())}</div>
