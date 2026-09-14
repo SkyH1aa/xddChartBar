@@ -237,6 +237,31 @@
       <div id="archList"></div>
     </section>
 
+    <!-- 设备封禁（can_deviceban） -->
+    <section id="tab-deviceban" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">设备封禁（设备指纹代替真实 MAC）</h3>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input id="deviceBanQ" class="input" placeholder="设备指纹 / 用户名 / 原因检索" style="min-width:180px;max-width:240px" maxlength="40" />
+          <button id="deviceBanSearch" class="btn sm">过滤</button>
+          <button id="deviceBanRefresh" class="btn sm ghost">刷新</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:10px">
+        浏览器无法读取真实网卡 MAC，这里以「设备指纹」（登录/注册时生成的设备ID）作为设备身份。被永久注销的用户会在此列出其设备，可一键封禁；被封禁的设备将<b>无法再登录、也无法再创建账号</b>。
+      </div>
+      <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line);margin-bottom:14px">
+        <h4 style="margin:0 0 10px">➕ 手动封禁设备</h4>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input id="deviceBanInput" class="input" placeholder="设备指纹（可为空，用下方列表一键封禁）" style="min-width:220px;max-width:300px" maxlength="128" />
+          <input id="deviceBanUser" class="input" placeholder="关联用户名（可选）" style="min-width:120px;max-width:160px" maxlength="40" />
+          <input id="deviceBanReason" class="input" placeholder="封禁原因（建议填写）" style="min-width:160px;max-width:220px" maxlength="200" />
+          <button id="deviceBanAddBtn" class="btn sm">封禁</button>
+        </div>
+      </div>
+      <div id="deviceBanList"></div>
+    </section>
+
     <!-- 顶置管理 -->
     <section id="tab-pinned" class="panel hidden">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">

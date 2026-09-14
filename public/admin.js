@@ -108,7 +108,8 @@
       { key: 'mentor', label: '🎓 学长认证', perm: 'can_mentor' },
       { key: 'invite', label: '🔑 邀请码', perm: 'can_invite' },
       { key: 'udellog', label: '用户删除日志', perm: 'can_del_log' },
-      { key: 'archive', label: '留档日志', perm: 'can_archive' }
+      { key: 'archive', label: '留档日志', perm: 'can_archive' },
+      { key: 'deviceban', label: '设备封禁', perm: 'can_deviceban' }
     ];
     if (profile?.isFounder) {
       all.push({ key: 'admins', label: '管理员' }, { key: 'resetPwd', label: '重置密码' }, { key: 'site', label: '站点开关' }, { key: 'legends', label: '🏯 校史编号' });
@@ -176,6 +177,7 @@
     if (key === 'invite') loadInvites();
     if (key === 'udellog') loadUdelLog();
     if (key === 'archive') loadArchive();
+    if (key === 'deviceban') loadDeviceBan();
   }
 
   // ---------- 邀请码管理（can_invite） ----------
@@ -525,6 +527,26 @@
     let r;
     try { r = await callEdge('archive_get', { id }); }
     catch (e) { alert(e.message); return; }
+    // 若该留档带原帖全量快照，拼一段“原帖快照 + 全部评论”区块
+    let snapHtml = '';
+    const sp = r.snapshot;
+    if (sp && sp.post) {
+      const p = sp.post;
+      snapHtml += `<div style="margin-top:14px;border:1px solid var(--accent,#e07a5f);border-radius:10px;padding:10px 12px;background:var(--card-soft,#f5f6f8)">
+        <div style="font-size:12px;color:var(--accent,#e07a5f);font-weight:600;margin-bottom:6px">📸 原帖完整快照</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">${p.topic ? '话题：' + escapeHtml(p.topic) : ''}${p.nickname ? ' · 作者：' + escapeHtml(p.nickname) : ''}${p.created_at ? ' · 发帖：' + formatTime(p.created_at) : ''}</div>
+        <div style="color:var(--text);white-space:pre-wrap;word-break:break-word;line-height:1.7">${escapeHtml(p.content || '（无正文）')}</div>
+      </div>`;
+      const cs = sp.comments || [];
+      if (cs.length) {
+        snapHtml += `<div style="margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px">`;
+        snapHtml += `<div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px">💬 原帖评论（${cs.length}）</div>`;
+        cs.forEach((cm) => {
+          snapHtml += `<div style="font-size:12.5px;margin-bottom:8px;border-left:2px solid var(--line);padding-left:8px"><strong>${escapeHtml(cm.nickname || '匿名')}</strong> <span style="color:var(--faint);font-size:11px">${formatTime(cm.created_at)}</span><div style="white-space:pre-wrap;word-break:break-word;color:var(--text)">${escapeHtml(cm.content || '')}</div></div>`;
+        });
+        snapHtml += `</div>`;
+      }
+    }
     const mask = document.createElement('div');
     mask.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(10,12,25,.6);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)';
     mask.innerHTML = `<div style="width:min(640px,96vw);max-height:86vh;overflow:auto;background:var(--card,#fff);border:1px solid var(--line);border-radius:16px;padding:20px 22px">
@@ -545,6 +567,7 @@
       <div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--card-soft,#f5f6f8)">
         <div style="color:var(--text);white-space:pre-wrap;word-break:break-word;line-height:1.7">${escapeHtml(r.body || '（无正文）')}</div>
       </div>
+      ${snapHtml}
     </div>`;
     mask.querySelector('#arch-close').addEventListener('click', () => mask.remove());
     mask.addEventListener('mousedown', (e) => { if (e.target === mask) mask.remove(); });
@@ -565,6 +588,86 @@
       $('archAddTitle').value = ''; $('archAddIntro').value = ''; $('archAddBody').value = '';
       loadArchive();
     } catch (err) { alert(err.message); } finally { $('archAddBtn').disabled = false; }
+  });
+
+  // ---------- 设备封禁（can_deviceban） ----------
+  async function loadDeviceBan() {
+    const list = $('deviceBanList');
+    if (!list) return;
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    const q = $('deviceBanQ')?.value.trim() || '';
+    try {
+      const d = await callEdge('admin_deviceban_list', { q });
+      list.innerHTML = '';
+      if ((!d.banned || !d.banned.length) && (!d.terminated || !d.terminated.length)) {
+        list.innerHTML = '<div class="empty">暂无已封禁设备。用户被永久注销后这里会列出其设备，可一键封禁。</div>';
+        return;
+      }
+      if (d.banned && d.banned.length) {
+        list.appendChild(blockTitle('已封禁设备（这些设备无法再登录 / 创建账号）'));
+        d.banned.forEach((b: any) => {
+          const c = document.createElement('div');
+          c.className = 'panel fade-in-up';
+          c.style.padding = '10px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px'; c.style.fontSize = '12.5px';
+          c.innerHTML = `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <code style="font-family:monospace;background:var(--card-soft,#eee);padding:2px 6px;border-radius:6px;font-size:12px;word-break:break-all">${escapeHtml(b.device_id)}</code>
+            ${b.username ? `<span class="badge topic">${escapeHtml(b.username)}</span>` : ''}
+            <span style="color:var(--muted)">${escapeHtml(b.reason || '')}</span>
+            <span style="margin-left:auto;color:var(--faint);font-size:11px">${formatTime(b.created_at)} · 由 ${escapeHtml(b.banned_by || '—')}</span>
+            <button class="btn sm ghost" data-devunban="${escapeHtml(b.device_id)}">解封</button>
+          </div>`;
+          c.querySelector('[data-devunban]')?.addEventListener('click', async () => {
+            if (!confirm('确认解除该设备的封禁？此设备将可再次登录/注册。')) return;
+            try { await callEdge('admin_deviceban_remove', { device_id: b.device_id }); alert('✅ 已解除设备封禁'); loadDeviceBan(); }
+            catch (err) { alert(err.message); }
+          });
+          list.appendChild(c);
+        });
+      }
+      if (d.terminated && d.terminated.length) {
+        list.appendChild(blockTitle('已注销账号的设备（可一键封禁）'));
+        d.terminated.forEach((t: any) => {
+          const c = document.createElement('div');
+          c.className = 'panel fade-in-up';
+          c.style.padding = '10px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px'; c.style.fontSize = '12.5px';
+          c.innerHTML = `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <strong>@${escapeHtml(t.username)}</strong>
+            <code style="font-family:monospace;background:var(--card-soft,#eee);padding:2px 6px;border-radius:6px;font-size:12px;word-break:break-all">${escapeHtml(t.device_id)}</code>
+            <span style="margin-left:auto;color:var(--faint);font-size:11px">注销于 ${formatTime(t.created_at)} · ${escapeHtml(t.terminated_by || '—')}</span>
+            <button class="btn sm danger" data-devban="${escapeHtml(t.device_id)}">封禁该设备</button>
+          </div>`;
+          c.querySelector('[data-devban]')?.addEventListener('click', async () => {
+            if (!confirm(`确认封禁「@${t.username}」所在的这台设备？封禁后该设备无法再登录/创建账号。`)) return;
+            try { await callEdge('admin_deviceban_add', { device_id: t.device_id, username: t.username, reason: '随账号 ' + t.username + ' 永久注销一并封禁' }); alert('✅ 已封禁该设备'); loadDeviceBan(); }
+            catch (err) { alert(err.message); }
+          });
+          list.appendChild(c);
+        });
+      }
+    } catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
+  }
+  function blockTitle(t: string) {
+    const el = document.createElement('h4');
+    el.style.cssText = 'margin:14px 0 8px;font-size:13px;color:var(--text)';
+    el.textContent = t;
+    return el;
+  }
+  $('deviceBanRefresh')?.addEventListener('click', loadDeviceBan);
+  $('deviceBanSearch')?.addEventListener('click', loadDeviceBan);
+  $('deviceBanQ')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadDeviceBan(); });
+  $('deviceBanAddBtn')?.addEventListener('click', async () => {
+    const d = $('deviceBanInput')?.value.trim();
+    const reason = $('deviceBanReason')?.value.trim();
+    const uname = $('deviceBanUser')?.value.trim();
+    if (!d) { alert('请填写设备指纹'); return; }
+    try {
+      await callEdge('admin_deviceban_add', { device_id: d, reason, username: uname });
+      alert('✅ 已封禁该设备');
+      if ($('deviceBanInput')) $('deviceBanInput').value = '';
+      if ($('deviceBanReason')) $('deviceBanReason').value = '';
+      if ($('deviceBanUser')) $('deviceBanUser').value = '';
+      loadDeviceBan();
+    } catch (err) { alert(err.message); }
   });
 
   // ---------- 发布/昵称黑名单 ----------
@@ -901,7 +1004,7 @@
       ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
       ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志']
+      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志'], ['can_deviceban', '设备封禁']
     ];
     tags.push(...m.filter(([k]) => hasPerm(k)).map(([, l]) => `<span class="badge">${l}</span>`));
     (profile?.isFounder ? m : m.filter(([k]) => profile?.perms?.[k])).forEach(([k, label]) => {
@@ -1774,7 +1877,7 @@
         ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
         ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志']
+        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志'], ['can_deviceban', '设备封禁']
       ];
       const toggles = perms.map(([k, label]) => {
         const on = !!a[k];
