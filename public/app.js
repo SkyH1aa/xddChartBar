@@ -101,6 +101,7 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
   function formatTime(iso) {
+    if (window.ClubTime) { const s = window.ClubTime.str(iso); if (s) return s; }
     const d = new Date(iso);
     const p = (n) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ` +
@@ -582,7 +583,7 @@
       try {
         const d = await callEdge('export_posts', { token: state.user.token });
         const rows = [...(d.posts || []), ...(d.pinned || [])]
-          .map((x) => `[${x.topic}]${x.nickname ? ' @' + x.nickname : ''} ${x.created_at ? new Date(x.created_at).toLocaleString() : ''}\n${x.content}`)
+          .map((x) => `[${x.topic}]${x.nickname ? ' @' + x.nickname : ''} ${x.created_at ? formatTime(x.created_at) : ''}\n${x.content}`)
           .join('\n\n────────────────────────\n\n');
         const blob = new Blob([rows || '暂无帖子数据'], { type: 'text/plain;charset=utf-8' });
         const a = document.createElement('a');
@@ -616,6 +617,7 @@
     loadDevices(body);
   }
   function fmtTime(iso) {
+    if (window.ClubTime) { const s = window.ClubTime.str(iso); if (s) return s; }
     if (!iso) return '';
     try { return new Date(iso).toLocaleString(); } catch (_e) { return ''; }
   }
@@ -1023,7 +1025,7 @@
         ${items.map((a) => `
           <div class="announce-item">
             <div class="a-title">${escapeHtml(a.title)}</div>
-            <div class="a-meta">${escapeHtml(a.created_at || '').slice(0, 16).replace('T', ' ')}</div>
+            <div class="a-meta">${escapeHtml(formatTime(a.created_at))}</div>
             <div class="a-content">${escapeHtml(a.content)}</div>
           </div>`).join('')}
       </div>`;
@@ -1043,6 +1045,22 @@
     bugModal.classList.remove('hidden');
     setTimeout(() => $('bugContent').focus(), 30);
   }
+  // 合作咨询弹窗
+  const coopModal = $('coopModal');
+  function openCoopModal() { coopModal.classList.remove('hidden'); }
+  function copyTextFallback(text) {
+    const ta = document.createElement('textarea'); ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta);
+    ta.select(); try { document.execCommand('copy'); } catch (_e) {} document.body.removeChild(ta);
+  }
+  $('openCoopBtn').addEventListener('click', openCoopModal);
+  $('closeCoopModal').addEventListener('click', () => coopModal.classList.add('hidden'));
+  coopModal.addEventListener('click', (e) => { if (e.target === coopModal) coopModal.classList.add('hidden'); });
+  $('coopWechat').addEventListener('click', () => {
+    const code = $('coopWechat');
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText('Jay_DouHao').then(() => alert('微信号已复制：Jay_DouHao')).catch(() => { copyTextFallback('Jay_DouHao'); alert('请长按复制：Jay_DouHao'); });
+    else { copyTextFallback('Jay_DouHao'); alert('请长按复制微信号：Jay_DouHao'); }
+  });
   $('openBugBtn').addEventListener('click', () => openBugModal(false));
   $('closeBugModal').addEventListener('click', () => bugModal.classList.add('hidden'));
   bugModal.addEventListener('click', (e) => { if (e.target === bugModal) bugModal.classList.add('hidden'); });
@@ -1562,7 +1580,7 @@
     btn.disabled = true;
     try {
       const r = await callEdge('gold_set', { token: state.session.token, post_id: post.id, hours });
-      window.alert(`🪙 金牌认证成功！该帖已顶置 ${r.hours} 小时，至 ${new Date(r.until).toLocaleString()}。`);
+      window.alert(`🪙 金牌认证成功！该帖已顶置 ${r.hours} 小时，至 ${formatTime(r.until)}。`);
       loadFeed(); loadPinned();
     } catch (e) { window.alert(e.message || '操作失败'); btn.disabled = false; }
   }
@@ -2631,7 +2649,7 @@
         if (seen) continue;
         try { localStorage.setItem(key, '1'); } catch (_e) {}
         const head = (b.nickname ? b.nickname + ' · ' : '') + (b.title || '全站广播');
-        const stamp = b.created_at ? ('\n\n' + String(b.created_at).slice(0, 16).replace('T', ' ')) : '';
+        const stamp = b.created_at ? ('\n\n' + formatTime(b.created_at)) : '';
         renderPopup({ title: head, content: (b.content || '') + stamp });
         return;
       }

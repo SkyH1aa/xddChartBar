@@ -26,6 +26,7 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
   function formatTime(iso) {
+    if (window.ClubTime) { const s = window.ClubTime.str(iso); if (s) return s; }
     const d = new Date(iso); const p = (n) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
   }
@@ -870,7 +871,7 @@
       btn.disabled = true;
       try {
         const r = await callEdge('gold_set', { post_id: id, hours });
-        alert(`🪙 金牌认证成功！该帖已顶置 ${r.hours} 小时，至 ${new Date(r.until).toLocaleString()}。`);
+        alert(`🪙 金牌认证成功！该帖已顶置 ${r.hours} 小时，至 ${formatTime(r.until)}。`);
         loadPosts();
       } catch (err) { alert(err.message); btn.disabled = false; }
       return;
@@ -1477,7 +1478,7 @@
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
           <span class="badge topic">${escapeHtml(BUG_LABEL[b.category] || b.category)}</span>
           <span class="badge" style="background:${b.status === 'resolved' ? '#2e8b57' : (b.status === 'replied' ? 'var(--warn)' : 'var(--danger)')};">${BUG_STATUS[b.status] || b.status}</span>
-          <span style="font-size:12px;color:var(--faint)">${escapeHtml(b.user_name)} · ${escapeHtml(b.created_at || '').slice(0, 16).replace('T', ' ')}</span>
+          <span style="font-size:12px;color:var(--faint)">${escapeHtml(b.user_name)} · ${escapeHtml(formatTime(b.created_at))}</span>
         </div>
         <div style="color:var(--text);font-size:13px;white-space:pre-wrap;margin-bottom:8px;border-left:3px solid var(--line);padding-left:10px">${escapeHtml(b.content)}</div>
         ${b.admin_reply ? `<div style="background:var(--card-soft);border:1px dashed var(--line);border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:13px;color:var(--accent,#e07a5f)">管理员（${escapeHtml(b.replied_by || '')}）：${escapeHtml(b.admin_reply)}</div>` : ''}

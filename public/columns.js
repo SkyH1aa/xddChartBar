@@ -29,11 +29,13 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
   function formatTime(iso) {
+    if (window.ClubTime) { const s = window.ClubTime.str(iso); if (s) return s; }
     if (!iso) return '';
     const d = new Date(iso); const p = (n) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
   }
   function formatShort(iso) {
+    if (window.ClubTime) { const s = window.ClubTime.str(iso); if (s) return s.slice(5); }
     if (!iso) return '';
     const d = new Date(iso); const p = (n) => String(n).padStart(2, '0');
     return `${d.getMonth() + 1}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;

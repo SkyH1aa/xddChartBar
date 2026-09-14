@@ -30,6 +30,34 @@
     return hour >= 6 && hour < 18 ? 'light' : 'dark';
   }
 
+  // ---------- 全局北京时间格式化（全站统一按 Asia/Shanghai 渲染，杜绝“服务器时间/UTC”） ----------
+  function bjPartsOf(date) {
+    const fmt = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Shanghai', hour12: false,
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+    const out = {};
+    for (const p of fmt.formatToParts(date)) if (p.type !== 'literal') out[p.type] = p.value;
+    if (out.hour === '24') out.hour = '00';
+    return out;
+  }
+  function bjStr(iso) {
+    const d = iso ? new Date(iso) : new Date();
+    if (isNaN(d.getTime())) return '';
+    const p = bjPartsOf(d);
+    return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}:${p.second}`;
+  }
+  function bjDay(iso) {
+    const d = iso ? new Date(iso) : new Date();
+    if (isNaN(d.getTime())) return '';
+    const p = bjPartsOf(d);
+    return `${p.year}-${p.month}-${p.day}`;
+  }
+  window.ClubTime = {
+    str: bjStr, day: bjDay, now: () => new Date()
+  };
+
   function normalizeMode(value) {
     const mode = String(value || '').trim().toLowerCase();
     return MODES.includes(mode) ? mode : 'auto';
