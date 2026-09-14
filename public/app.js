@@ -1422,13 +1422,25 @@
     let html = `<div class="quiz-detail-title">📊 详细反馈（共 ${st.detail.length} 人，仅你可见）</div><table class="quiz-detail-table"><thead><tr><th>#</th><th>用户</th>${qs.map((qq) => `<th>${escapeHtml(qq.q || ('题' + (qq.index + 1)))}</th>`).join('')}<th>提交时间</th></tr></thead><tbody>`;
     st.detail.forEach((row, ri) => {
       const a = Array.isArray(row.answers) ? row.answers : [];
-      html += `<tr><td>${ri + 1}</td><td>${escapeHtml(String(row.user_id || '').slice(0, 8))}</td>`;
+      html += `<tr><td>${ri + 1}</td><td>${escapeHtml(String(row.user_nick || '').slice(0, 24) || String(row.user_id || '').slice(0, 8))}</td>`;
       qs.forEach((qq, i) => {
         const av = a[i];
         let c = '';
+        const pctText = (oi) => {
+          const cnt = (qq.counts && qq.counts[oi]) || 0;
+          const pct = st.total ? Math.round(cnt / st.total * 100) : 0;
+          return cnt ? `（${cnt}人 · ${pct}%）` : '（0%）';
+        };
         if (qq.type === 'fill') c = String(av == null ? '' : av);
-        else if (qq.type === 'multi') c = (Array.isArray(av) ? av : []).map((k) => qq.options[k] ?? '').join(' / ');
-        else { const k = Number(av); c = (Number.isInteger(k) && qq.options[k] != null) ? qq.options[k] : ''; }
+        else if (qq.type === 'multi') {
+          c = (Array.isArray(av) ? av : []).map((k) => {
+            const oi = Number(k);
+            return (Number.isInteger(oi) && qq.options[oi] != null) ? qq.options[oi] + pctText(oi) : '';
+          }).filter(Boolean).join(' / ');
+        } else {
+          const k = Number(av);
+          c = (Number.isInteger(k) && qq.options[k] != null) ? qq.options[k] + pctText(k) : '';
+        }
         html += `<td>${escapeHtml(c)}</td>`;
       });
       html += `<td>${formatTime(row.created_at).slice(5, 16)}</td></tr>`;
@@ -2708,6 +2720,10 @@
         <button class="profile-editbtn" data-colcreatebtn>创建合集</button>
         <div data-colbox style="font-size:12px;margin-top:8px"><span style="color:var(--faint)">加载中…</span></div>
       </div>` : ''}
+      <div style="margin-bottom:14px;border-top:1px solid var(--line-soft);padding-top:12px">
+        <div class="pf-vis-title">📚 我的连载（点击「查看目录」查看连载内的全部帖子）</div>
+        <div data-serialsbox style="font-size:12px;margin-top:8px"><span style="color:var(--faint)">加载中…</span></div>
+      </div>
       ${lv >= 46 ? `<div style="margin-bottom:14px;border-top:1px solid var(--line-soft);padding-top:12px">
         <div class="pf-vis-title">🏆 我的等级排名（校园传说+）</div>
         <div data-rankbox style="font-size:12px;margin-top:6px"></div>
@@ -2893,6 +2909,21 @@
       });
     }
 
+    // 我的连载（点击「查看目录」→ 列出该连载内全部帖子，点击跳转对应帖子）
+    const serialsBox = host.querySelector('[data-serialsbox]');
+    if (serialsBox) {
+      (async () => {
+        try {
+          const list = (await callEdge('series_my', { token: state.user.token })) || [];
+          serialsBox.innerHTML = list.length
+            ? list.map((s) => `<div class="pc-row"><span style="flex:1;min-width:0"><b>📚 ${escapeHtml(s.title)}</b><br><span style="color:var(--faint);font-size:11px">${formatTime(s.created_at)}${s.intro ? ' · ' + escapeHtml(s.intro) : ''}</span></span>
+              <button class="profile-editbtn sm" data-serialopen="${s.id}" title="查看连载内全部帖子（关闭个人中心）">查看目录</button></div>`).join('')
+            : '<span style="color:var(--faint)">暂无连载</span>';
+          serialsBox.querySelectorAll('[data-serialopen]').forEach((b) => b.addEventListener('click', () => { closeProfileModal(); openSeriesModal(b.getAttribute('data-serialopen')); }));
+        } catch (_e) { serialsBox.innerHTML = '<span style="color:var(--faint)">加载失败</span>'; }
+      })();
+    }
+
     // 等级排名（Lv46+）
     const rankBox = host.querySelector('[data-rankbox]');
     if (rankBox) {
@@ -2965,7 +2996,10 @@
     els.composeHint.textContent = '';
     if (!content) { warn.textContent = '内容不能为空'; return; }
     if (content.length > limit) { warn.textContent = `内容超出${limit}字上限`; return; }
-    const hitWords = sensitiveHits(content).concat(sensitiveHits(nickname));
+    const quizText = (quizData && Array.isArray(quizData.quiz_questions))
+      ? quizData.quiz_questions.map((qq) => [qq.q, ...(qq.options || [])].filter((x) => x != null).join(' ')).join(' ')
+      : '';
+    const hitWords = sensitiveHits(content).concat(sensitiveHits(nickname), quizText ? sensitiveHits(quizText) : []);
     if (hitWords.length) {
       warn.textContent = '⚠️ 发布内容存在敏感词（' + hitWords.map((x) => '“' + x + '”').join('、') + '），不得发布。' + MISBLOCK_HINT;
       els.content.classList.add('bad');
