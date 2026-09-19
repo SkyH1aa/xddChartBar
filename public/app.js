@@ -2066,25 +2066,47 @@
   }
   async function loadPinned() {
     try {
-      let q = supabase.from('forum_pinned_posts').select('*').eq('blocked', false)
+      const now = new Date().toISOString();
+      let pinnedQ = supabase.from('forum_pinned_posts').select('*').eq('reviewed', true).eq('blocked', false)
+        .or(`min_view_level.is.null,min_view_level.lte.${viewerViewLevel()}`)
+        .or(`scheduled_for.is.null,scheduled_for.lte.${now}`)
         .order('pinned_at', { ascending: false });
-      if (state.activeTopic) q = q.eq('topic', state.activeTopic);
-      const { data } = await q;
-      // 推流/传说推荐/金牌认证的帖子也临时顶置展示（金牌认证最优先置顶）
-      let boosted = [];
-      try {
-        const now = new Date().toISOString();
-        const bq = supabase.from('forum_posts').select('*').eq('reviewed', true).eq('blocked', false)
-          .or(`gold_until.gt.${now},boost_until.gt.${now},recommend_until.gt.${now}`)
-          .or(`min_view_level.is.null,min_view_level.lte.${viewerViewLevel()}`)
-          .or(`scheduled_for.is.null,scheduled_for.lte.${now}`)
-          .order('pinned_at', { ascending: true });
-        if (state.activeTopic) bq = bq.eq('topic', state.activeTopic);
-        boosted = (await bq.limit(30)).data || [];
-      } catch (_e) { boosted = []; }
-      const activeGold = boosted.filter((p) => p.gold_until && new Date(p.gold_until).getTime() > Date.now());
-      const restBoost = boosted.filter((p) => !(p.gold_until && new Date(p.gold_until).getTime() > Date.now()));
-      const rows = [...activeGold, ...restBoost, ...(data || [])];
+      let normalBoostQ = supabase.from('forum_posts').select('*').eq('reviewed', true).eq('blocked', false)
+        .or(`gold_until.gt.${now},boost_until.gt.${now},recommend_until.gt.${now}`)
+        .or(`min_view_level.is.null,min_view_level.lte.${viewerViewLevel()}`)
+        .or(`scheduled_for.is.null,scheduled_for.lte.${now}`)
+        .order('pinned_at', { ascending: true });
+      let pinnedBoostQ = supabase.from('forum_pinned_posts').select('*').eq('reviewed', true).eq('blocked', false)
+        .or(`gold_until.gt.${now},boost_until.gt.${now},recommend_until.gt.${now}`)
+        .or(`min_view_level.is.null,min_view_level.lte.${viewerViewLevel()}`)
+        .or(`scheduled_for.is.null,scheduled_for.lte.${now}`)
+        .order('pinned_at', { ascending: true });
+      if (state.activeTopic) {
+        pinnedQ = pinnedQ.eq('topic', state.activeTopic);
+        normalBoostQ = normalBoostQ.eq('topic', state.activeTopic);
+        pinnedBoostQ = pinnedBoostQ.eq('topic', state.activeTopic);
+      }
+      const [pinnedResult, normalBoostResult, pinnedBoostResult] = await Promise.all([
+        pinnedQ,
+        normalBoostQ.limit(30),
+        pinnedBoostQ.limit(30)
+      ]);
+      const basePinned = pinnedResult.data || [];
+      const boosted = [...(normalBoostResult.data || []), ...(pinnedBoostResult.data || [])];
+      // 同一帖子可能同时存在于“普通状态流”和“管理员顶置表”，按 id 去重，避免重复展示。
+      const byId = new Map();
+      [...boosted, ...basePinned].forEach((p) => {
+        if (!byId.has(p.id)) byId.set(p.id, p);
+      });
+      const rows = [...byId.values()];
+      rows.sort((a, b) => {
+        const ag = a.gold_until && new Date(a.gold_until).getTime() > Date.now();
+        const bg = b.gold_until && new Date(b.gold_until).getTime() > Date.now();
+        if (ag !== bg) return ag ? -1 : 1;
+        const at = new Date(a.pinned_at || a.created_at || 0).getTime();
+        const bt = new Date(b.pinned_at || b.created_at || 0).getTime();
+        return bt - at;
+      });
       els.pinnedFeed.innerHTML = '';
       const authorMap = await resolveAuthors(rows);
       const cards = rows.map((p) => makeCard(p, { pinned: true, boosted: !!p.boost_until, authorMap }));
