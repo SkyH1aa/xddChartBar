@@ -556,6 +556,7 @@
       </div>` : ''}
       ${data.canEdit ? `<div class="prof-sessions">
         <div class="pf-vis-title">📱 已登录设备（普通账号最多 5 台）</div>
+        <div data-login-policy style="color:var(--faint);font-size:11px;margin:5px 0">登录策略加载中…</div>
         <div data-devices><span style="color:var(--faint);font-size:12px">加载中…</span></div>
         <button class="profile-editbtn" data-logout-others style="font-size:11px">🚪 退出其他所有设备</button>
       </div>` : ''}
@@ -621,19 +622,32 @@
     if (!iso) return '';
     try { return new Date(iso).toLocaleString(); } catch (_e) { return ''; }
   }
+  function formatSessionRemaining(sec) {
+    const n = Math.max(0, Number(sec) || 0);
+    if (!n) return '已过期';
+    const h = Math.floor(n / 3600);
+    const m = Math.floor((n % 3600) / 60);
+    return h ? `${h}小时${m ? ` ${m}分钟` : ''}` : `${Math.max(1, m)}分钟`;
+  }
   // 加载并渲染“已登录设备”列表（仅自己主页可见）→ 可踢出任意其他设备
   async function loadDevices(body) {
     const host = body.querySelector('[data-devices]');
     if (!host || !state.user.token) return;
     try {
       const d = await callEdge('list_sessions', { token: state.user.token });
+      const policy = d.login_policy || {};
+      const policyHost = body.querySelector('[data-login-policy]');
+      if (policyHost) {
+        const renewal = policy.renew_on_login === false ? '关闭登录续期' : '开启登录续期';
+        policyHost.textContent = `有效期 ${policy.ttl_hours || 24} 小时 · ${renewal}${policy.effective_at ? ` · 生效于 ${fmtTime(policy.effective_at)}` : ''}`;
+      }
       const list = d.sessions || [];
       if (!list.length) { host.innerHTML = '<div style="color:var(--faint);font-size:12px;padding:4px 0">当前没有其他已登录设备（本设备不计）</div>'; return; }
       host.innerHTML = list.map((s) => `
         <div style="display:flex;align-items:center;gap:8px;padding:7px 2px;border-top:1px solid var(--line-soft)">
           <span style="font-size:16px">${s.current ? '💻' : '📱'}</span>
           <span style="flex:1;min-width:0;font-size:12px;color:var(--text)">${escapeHtml(s.device_name)}
-            <div style="color:var(--faint);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">登录于 ${fmtTime(s.created_at)}${s.ip ? ` · IP ${escapeHtml(s.ip)}` : ''}</div>
+            <div style="color:var(--faint);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">登录于 ${fmtTime(s.created_at)}${s.ip ? ` · IP ${escapeHtml(s.ip)}` : ''}<br>到期于 ${fmtTime(s.expires_at)} · 剩余 ${formatSessionRemaining(s.remaining_seconds)}</div>
           </span>
           ${s.current ? '<span style="color:var(--ok);font-size:11px;white-space:nowrap">当前设备</span>'
             : `<button class="profile-editbtn" data-revokesid="${s.sid}" style="font-size:11px;white-space:nowrap">踢出</button>`}
@@ -658,6 +672,13 @@
         </label>
       </div>
       <label class="pf-label">昵称（改名后历史帖子/评论同步生效）<input class="pf-input" data-nick maxlength="24" value="${escapeHtml((data.user && data.user.nickname) || '')}"></label>
+      <div style="margin:14px 0 4px;border-top:1px solid var(--line);padding-top:12px">
+        <div style="font-weight:700;color:var(--text);font-size:13px">登录有效期</div>
+        <div style="color:var(--faint);font-size:11px;margin:4px 0 8px">每台设备分别计算，保存后立即生效；范围为 1-720 小时（最长 30 天）。</div>
+        <label class="pf-label">有效期（小时）<input class="pf-input" type="number" min="1" max="720" step="1" data-login-ttl value="24"></label>
+        <label style="display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;margin-top:7px"><input type="checkbox" data-login-renew checked> 开启登录续期：同一设备再次登录时重新计算有效期</label>
+        <div style="color:var(--faint);font-size:11px;margin-top:5px">关闭后，期间再次登录不会改变该设备原有到期时间。</div>
+      </div>
       <div class="pf-grid">
         ${profileFieldHtml(p)}
       </div>
@@ -686,6 +707,12 @@
       <div class="pf-err" data-pf-error></div>
     </div>`;
     body.querySelector('[data-back]').addEventListener('click', () => renderProfileInto(body, data));
+    callEdge('user_login_policy_get', { token: state.user.token }).then((policy) => {
+      const ttl = body.querySelector('[data-login-ttl]');
+      const renew = body.querySelector('[data-login-renew]');
+      if (ttl) ttl.value = String(policy.ttl_hours || 24);
+      if (renew) renew.checked = policy.renew_on_login !== false;
+    }).catch(() => {});
     const pwdErr = body.querySelector('[data-pwd-error]');
     const pwdBtn = body.querySelector('[data-pwd-save]');
     if (pwdBtn) pwdBtn.addEventListener('click', async () => {
@@ -719,6 +746,14 @@
       };
       // 本地敏感词 + 黑名单检测（不上传服务器判定）
       const payload = collect();
+      const ttlEl = body.querySelector('[data-login-ttl]');
+      const ttlHours = Number(ttlEl ? ttlEl.value : 24);
+      const renewOnLogin = !!body.querySelector('[data-login-renew]')?.checked;
+      if (!Number.isInteger(ttlHours) || ttlHours < 1 || ttlHours > 720) {
+        errEl.textContent = '登录有效期必须是 1-720 小时的整数';
+        errEl.style.color = '#e05e5e';
+        return;
+      }
       const nickEl = body.querySelector('[data-nick]');
       const newNick = nickEl ? nickEl.value.trim() : '';
       const combined = Object.entries(payload).map(([k, v]) => String(v)).join(' ') + payload.tags.join(' ');
@@ -740,6 +775,15 @@
           await loadPinned();
         }
         await callEdge('profile_save', { token: state.user.token, ...payload });
+        try {
+          const policyResult = await callEdge('user_login_policy_save', { token: state.user.token, ttl_hours: ttlHours, renew_on_login: renewOnLogin });
+          if (policyResult && policyResult.token) {
+            state.user.token = policyResult.token;
+            saveUserSession();
+          }
+        } catch (policyError) {
+          throw new Error('个人资料已保存，但登录策略保存失败：' + policyError.message);
+        }
         window.alert('保存成功' + (newNick && newNick !== oldNick ? `（新的昵称 = 你的登录账号名：${newNick}，此后请用「${newNick}」登录；历史帖子/评论已同步）` : ''));
         openProfile(myId());
       }
