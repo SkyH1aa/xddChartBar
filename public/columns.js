@@ -94,8 +94,48 @@
     });
     let data = {};
     try { data = await res.json(); } catch (_e) {}
-    if (!res.ok || data.ok === false) throw new Error(data.error || ('请求失败 ' + res.status));
+    if (!res.ok || data.ok === false) {
+      const error = new Error(data.error || ('请求失败 ' + res.status));
+      error.need_captcha = !!data.need_captcha;
+      error.captcha = data.captcha || null;
+      throw error;
+    }
     return data.data;
+  }
+
+  function solveCaptchaPrompt(cap, title) {
+    const modal = $('captchaModal');
+    if (!cap || !cap.id || !modal || !cap.balls) return Promise.resolve(null);
+    return new Promise((resolve) => {
+      const board = $('captchaBoard');
+      const selected = new Set();
+      $('captchaTitle').textContent = title || '请完成验证';
+      $('captchaStatus').textContent = '已选择 0 / 2';
+      $('captchaConfirm').disabled = true;
+      board.innerHTML = '';
+      modal.classList.remove('hidden');
+      cap.balls.forEach((ball, index) => {
+        const el = document.createElement('button');
+        el.type = 'button'; el.className = 'captcha-ball'; el.title = '验证码球';
+        el.style.left = `${ball.x}%`; el.style.top = `${ball.y}%`;
+        el.style.background = ball.color; el.style.color = ball.color;
+        el.addEventListener('click', () => {
+          if (selected.has(index)) selected.delete(index);
+          else if (selected.size < 2) selected.add(index);
+          el.classList.toggle('selected', selected.has(index));
+          $('captchaStatus').textContent = `已选择 ${selected.size} / 2`;
+          $('captchaConfirm').disabled = selected.size !== 2;
+        });
+        board.appendChild(el);
+      });
+      const close = (value) => {
+        modal.classList.add('hidden'); board.innerHTML = '';
+        $('captchaCancel').onclick = null; $('captchaConfirm').onclick = null;
+        resolve(value);
+      };
+      $('captchaCancel').onclick = () => close(null);
+      $('captchaConfirm').onclick = () => close({ captcha_id: cap.id, captcha_ans: [...selected], captcha_sig: cap.sig, captcha_exp: cap.exp });
+    });
   }
 
   // ---------------- 全局刷新轮询 ----------------
@@ -332,11 +372,23 @@
     const hits = sensitiveHits(content);
     if (hits.length) { $('colComposeHint').textContent = '⚠️ 发布内容存在敏感词（' + hits.map((x) => '“' + x + '”').join('、') + '），不得发布。'; return; }
     const btn = $('colPublish'); btn.disabled = true;
+    const payload = { column_id: activeCol.id, content };
     try {
-      await callEdge('col_post_create', { column_id: activeCol.id, content });
+      await callEdge('col_post_create', payload);
       ta.value = ''; $('colChar').textContent = '0 / 2000'; $('colComposeHint').textContent = '✅ 已发布';
       colState.page = 1; await loadColFeed();
-    } catch (e) { $('colComposeHint').textContent = e.message; }
+    } catch (e) {
+      if (e.need_captcha && e.captcha) {
+        const challenge = await solveCaptchaPrompt(e.captcha, '今日发布次数已达到 10 条，请完成人机验证');
+        if (challenge) {
+          try {
+            await callEdge('col_post_create', { ...payload, ...challenge });
+            ta.value = ''; $('colChar').textContent = '0 / 2000'; $('colComposeHint').textContent = '✅ 已发布';
+            colState.page = 1; await loadColFeed();
+          } catch (retryError) { $('colComposeHint').textContent = retryError.message; }
+        } else $('colComposeHint').textContent = '已取消人机验证，未发布';
+      } else $('colComposeHint').textContent = e.message;
+    }
     btn.disabled = false;
   }
 
@@ -506,12 +558,25 @@
         const hits = sensitiveHits(content);
         if (hits.length) { warn.textContent = '⚠️ 存在敏感词（' + hits.map((x) => '“' + x + '”').join('、') + '），不得发布。'; return; }
         b.disabled = true;
+        const payload = { post_id: postId, parent_id: replyTo || '', content };
         try {
-          await callEdge('col_comment_create', { post_id: postId, parent_id: replyTo || '', content });
+          await callEdge('col_comment_create', payload);
           inp.value = ''; warn.textContent = ''; replyTo = null;
           const t = box.querySelector(`[data-cmttarget="${postId}"]`); if (t) { t.textContent = '回复: —'; t.classList.remove('on'); }
           await loadComments(postId);
-        } catch (e) { warn.textContent = e.message; }
+        } catch (e) {
+          if (e.need_captcha && e.captcha) {
+            const challenge = await solveCaptchaPrompt(e.captcha, '今日发布次数已达到 10 条，请完成人机验证');
+            if (challenge) {
+              try {
+                await callEdge('col_comment_create', { ...payload, ...challenge });
+                inp.value = ''; warn.textContent = ''; replyTo = null;
+                const t = box.querySelector(`[data-cmttarget="${postId}"]`); if (t) { t.textContent = '回复: —'; t.classList.remove('on'); }
+                await loadComments(postId);
+              } catch (retryError) { warn.textContent = retryError.message; }
+            } else warn.textContent = '已取消人机验证，未发布';
+          } else warn.textContent = e.message;
+        }
         b.disabled = false;
       });
     });

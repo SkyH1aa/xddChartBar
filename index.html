@@ -427,6 +427,17 @@
     </div>
   </div>
 
+  <!-- ================= 人机验证弹窗 ================= -->
+  <div id="captchaModal" class="modal-backdrop hidden" aria-modal="true" role="dialog">
+    <div class="modal-card captcha-card">
+      <div class="captcha-kicker">SECURITY CHECK</div>
+      <h3 id="captchaTitle">请完成验证</h3>
+      <p class="captcha-copy">点击页面上两个红色球完成验证</p>
+      <div id="captchaBoard" class="captcha-board"></div>
+      <div class="captcha-footer"><span id="captchaStatus">已选择 0 / 2</span><button id="captchaCancel" class="btn ghost sm">取消</button><button id="captchaConfirm" class="btn sm" disabled>确认</button></div>
+    </div>
+  </div>
+
   <!-- ================= 举报弹窗 ================= -->
   <div id="reportModal" class="modal-backdrop hidden">
     <div class="modal-card" style="max-width:430px">

@@ -85,6 +85,7 @@
     weekHot: $('weekHot'), topicAct: $('topicAct'),
     notifPanel: $('notifPanel'), notifList: $('notifList'), notifClear: $('notifClear'),
     userModal: $('userModal'),
+    captchaModal: $('captchaModal'), captchaBoard: $('captchaBoard'), captchaTitle: $('captchaTitle'), captchaStatus: $('captchaStatus'), captchaConfirm: $('captchaConfirm'), captchaCancel: $('captchaCancel'),
     reportModal: $('reportModal'), reportReason: $('reportReason'), reportError: $('reportError'), reportSubmitBtn: $('reportSubmitBtn'),
     adminModal: $('adminModal'), adminModalTitle: $('adminModalTitle'),
     adminFormLogin: $('adminFormLogin'), adminFormRegister: $('adminFormRegister'),
@@ -236,12 +237,31 @@
     }
     return data.data;
   }
-  async function solveCaptchaPrompt(cap, title) {
-    if (!cap || !cap.id) return null;
-    const answer = window.prompt((title || '人机验证') + '：请输入计算结果\n' + cap.question);
-    if (answer == null) return null;
-    const value = parseInt(String(answer).trim(), 10);
-    return Number.isFinite(value) ? { captcha_id: cap.id, captcha_ans: value, captcha_sig: cap.sig, captcha_exp: cap.exp } : null;
+  function solveCaptchaPrompt(cap, title) {
+    if (!cap || !cap.id || !els.captchaModal) return Promise.resolve(null);
+    return new Promise((resolve) => {
+      const selected = new Set();
+      els.captchaTitle.textContent = title || '请完成验证';
+      els.captchaBoard.innerHTML = '';
+      els.captchaStatus.textContent = '已选择 0 / 2';
+      els.captchaConfirm.disabled = true;
+      els.captchaModal.classList.remove('hidden');
+      cap.balls.forEach((ball, index) => {
+        const el = document.createElement('button');
+        el.type = 'button'; el.className = 'captcha-ball'; el.title = '验证码球';
+        el.style.left = `${ball.x}%`; el.style.top = `${ball.y}%`; el.style.background = ball.color; el.style.color = ball.color;
+        el.addEventListener('click', () => {
+          if (selected.has(index)) selected.delete(index); else if (selected.size < 2) selected.add(index);
+          el.classList.toggle('selected', selected.has(index));
+          els.captchaStatus.textContent = `已选择 ${selected.size} / 2`;
+          els.captchaConfirm.disabled = selected.size !== 2;
+        });
+        els.captchaBoard.appendChild(el);
+      });
+      const close = (value) => { els.captchaModal.classList.add('hidden'); els.captchaBoard.innerHTML = ''; els.captchaCancel.onclick = null; els.captchaConfirm.onclick = null; resolve(value); };
+      els.captchaCancel.onclick = () => close(null);
+      els.captchaConfirm.onclick = () => close({ captcha_id: cap.id, captcha_ans: [...selected], captcha_sig: cap.sig, captcha_exp: cap.exp });
+    });
   }
 
   // ---------------- 全局刷新轮询 ----------------
@@ -902,16 +922,32 @@
   $('userLoginBtn').addEventListener('click', async () => {
     const err = $('userLoginError');
     err.textContent = '';
+    let loginCap;
+    try { loginCap = await callEdge('captcha_new', {}); } catch (e) { err.textContent = e.message || '人机验证加载失败'; return; }
+    const loginChallenge = await solveCaptchaPrompt(loginCap, '登录人机验证');
+    if (!loginChallenge) { err.textContent = '已取消人机验证，未登录'; return; }
+    const loginPayload = {
+      username: $('userLoginName').value.trim(), password: $('userLoginPass').value,
+      device_key: getDeviceKey(), device_name: getDeviceName(), ...loginChallenge
+    };
     try {
-      const data = await callEdge('user_login', {
-        username: $('userLoginName').value.trim(), password: $('userLoginPass').value,
-        device_key: getDeviceKey(), device_name: getDeviceName()
-      });
+      const data = await callEdge('user_login', loginPayload);
       state.user = { token: data.token, profile: data.user };
       saveUserSession();
       // 强制登录：登录成功后整页刷新，改为按登录态加载论坛内容
       window.location.reload();
-    } catch (e) { err.textContent = e.message; }
+    } catch (e) {
+      if (e.need_captcha && e.captcha) {
+        const retryChallenge = await solveCaptchaPrompt(e.captcha, '登录人机验证');
+        if (!retryChallenge) { err.textContent = '已取消人机验证，未登录'; return; }
+        try {
+          const data = await callEdge('user_login', { ...loginPayload, ...retryChallenge });
+          state.user = { token: data.token, profile: data.user };
+          saveUserSession();
+          window.location.reload();
+        } catch (retryError) { err.textContent = retryError.message; }
+      } else err.textContent = e.message;
+    }
   });
   $('userRegBtn').addEventListener('click', async () => {
     const err = $('userRegError');
@@ -926,12 +962,10 @@
     let cap;
     try { cap = await callEdge('captcha_new', {}); } catch (e) { err.textContent = e.message || '人机验证加载失败'; return; }
     if (!cap || !cap.id) { err.textContent = '人机验证加载失败，请稍后重试'; return; }
-    const answer = window.prompt('注册人机验证：请输入计算结果\n' + cap.question);
-    if (answer == null) { err.textContent = '已取消人机验证，未注册'; return; }
-    const captchaAns = parseInt(String(answer).trim(), 10);
-    if (!Number.isFinite(captchaAns)) { err.textContent = '请输入正确的数字'; return; }
+    const registerChallenge = await solveCaptchaPrompt(cap, '注册人机验证');
+    if (!registerChallenge) { err.textContent = '已取消人机验证，未注册'; return; }
     try {
-      const data = await callEdge('user_register', { username, password, device_key: getDeviceKey(), device_name: getDeviceName(), invite_code: $('userRegInvite')?.value.trim().toUpperCase() || '', captcha_id: cap.id, captcha_ans: captchaAns, captcha_sig: cap.sig, captcha_exp: cap.exp });
+      const data = await callEdge('user_register', { username, password, device_key: getDeviceKey(), device_name: getDeviceName(), invite_code: $('userRegInvite')?.value.trim().toUpperCase() || '', ...registerChallenge });
       state.user = { token: data.token, profile: data.user };
       saveUserSession(); renderUserBar(); closeUserModal();
       // 强制登录：注册后整页刷新，改为按登录态加载论坛内容
@@ -3170,14 +3204,12 @@
       let cap;
       try { cap = await callEdge('captcha_new', {}); } catch (_e) {}
       if (cap && cap.id) {
-        const ans = window.prompt('防刷验证：请输入计算结果\n' + cap.question + '\n（匿名发布需要，登录后可免）');
-        if (ans == null) { warn.textContent = '已取消防刷验证，未发布'; return; }
-        const num = parseInt(String(ans).trim(), 10);
-        if (!Number.isFinite(num)) { warn.textContent = '请输入正确的数字'; return; }
+        const anonymousChallenge = await solveCaptchaPrompt(cap, '匿名发布人机验证');
+        if (!anonymousChallenge) { warn.textContent = '已取消人机验证，未发布'; return; }
         els.publish.disabled = true;
         warn.textContent = '';
         try {
-          await callEdge('post_create', { ...basePayload(), captcha_id: cap.id, captcha_ans: num, captcha_sig: cap.sig, captcha_exp: cap.exp });
+          await callEdge('post_create', { ...basePayload(), ...anonymousChallenge });
           await onSuccess(succMsg());
         } catch (e) {
           warn.textContent = '发布失败：' + (e.message || '未知错误');
