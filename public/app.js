@@ -712,7 +712,13 @@
       const renew = body.querySelector('[data-login-renew]');
       if (ttl) ttl.value = String(policy.ttl_hours || 24);
       if (renew) renew.checked = policy.renew_on_login !== false;
-    }).catch(() => {});
+    }).catch((e) => {
+      const err = body.querySelector('[data-pf-error]');
+      if (err) {
+        err.textContent = '登录策略加载失败：' + (e && e.message ? e.message : '请稍后重试');
+        err.style.color = '#e05e5e';
+      }
+    });
     const pwdErr = body.querySelector('[data-pwd-error]');
     const pwdBtn = body.querySelector('[data-pwd-save]');
     if (pwdBtn) pwdBtn.addEventListener('click', async () => {
