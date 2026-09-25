@@ -228,8 +228,20 @@
       && action !== 'user_login' && action !== 'user_register' && action !== 'admin_login' && action !== 'whoami') {
       sessionMonitorReset();
     }
-    if (!res.ok || data.ok === false) throw new Error(data.error || ('请求失败 ' + res.status));
+    if (!res.ok || data.ok === false) {
+      const error = new Error(data.error || ('请求失败 ' + res.status));
+      error.need_captcha = !!data.need_captcha;
+      error.captcha = data.captcha || null;
+      throw error;
+    }
     return data.data;
+  }
+  async function solveCaptchaPrompt(cap, title) {
+    if (!cap || !cap.id) return null;
+    const answer = window.prompt((title || '人机验证') + '：请输入计算结果\n' + cap.question);
+    if (answer == null) return null;
+    const value = parseInt(String(answer).trim(), 10);
+    return Number.isFinite(value) ? { captcha_id: cap.id, captcha_ans: value, captcha_sig: cap.sig, captcha_exp: cap.exp } : null;
   }
 
   // ---------------- 全局刷新轮询 ----------------
@@ -911,13 +923,29 @@
     // 注册用户名同样做敏感词检测（与发帖/昵称一致）
     const regHits = sensitiveHits(username);
     if (regHits.length) { err.textContent = '⚠️ 注册用户名存在敏感词（' + regHits.map((x) => '“' + x + '”').join('、') + '），不能使用。'; return; }
+    let cap;
+    try { cap = await callEdge('captcha_new', {}); } catch (e) { err.textContent = e.message || '人机验证加载失败'; return; }
+    if (!cap || !cap.id) { err.textContent = '人机验证加载失败，请稍后重试'; return; }
+    const answer = window.prompt('注册人机验证：请输入计算结果\n' + cap.question);
+    if (answer == null) { err.textContent = '已取消人机验证，未注册'; return; }
+    const captchaAns = parseInt(String(answer).trim(), 10);
+    if (!Number.isFinite(captchaAns)) { err.textContent = '请输入正确的数字'; return; }
     try {
-      const data = await callEdge('user_register', { username, password, device_key: getDeviceKey(), device_name: getDeviceName(), invite_code: $('userRegInvite')?.value.trim().toUpperCase() || '' });
+      const data = await callEdge('user_register', { username, password, device_key: getDeviceKey(), device_name: getDeviceName(), invite_code: $('userRegInvite')?.value.trim().toUpperCase() || '', captcha_id: cap.id, captcha_ans: captchaAns, captcha_sig: cap.sig, captcha_exp: cap.exp });
       state.user = { token: data.token, profile: data.user };
       saveUserSession(); renderUserBar(); closeUserModal();
       // 强制登录：注册后整页刷新，改为按登录态加载论坛内容
       window.location.reload();
-    } catch (e) { err.textContent = e.message; }
+    } catch (e) {
+      if (e.need_captcha && e.captcha) {
+        const retryCap = await solveCaptchaPrompt(e.captcha, '注册人机验证');
+        if (!retryCap) { err.textContent = '已取消人机验证，未注册'; return; }
+        try {
+          const data = await callEdge('user_register', { username, password, device_key: getDeviceKey(), device_name: getDeviceName(), invite_code: $('userRegInvite')?.value.trim().toUpperCase() || '', ...retryCap });
+          state.user = { token: data.token, profile: data.user }; saveUserSession(); renderUserBar(); closeUserModal(); window.location.reload();
+        } catch (retryError) { err.textContent = retryError.message; }
+      } else err.textContent = e.message;
+    }
   });
 
   // ---------------- 收藏 ----------------
@@ -2066,7 +2094,23 @@
       const num = toggle.querySelector('.cmt-num');
       num.textContent = formatCount((parseInt(num.textContent.replace('+', ''), 10) || 0) + 1);
     } catch (e) {
-      w.textContent = '发布失败：' + e.message;
+      if (e.need_captcha && e.captcha) {
+        const retryCap = await solveCaptchaPrompt(e.captcha, '今日发布次数已达到 10 条，请完成人机验证');
+        if (retryCap) {
+          try {
+            await callEdge('comment_create', {
+              token: state.user.token || '', post_id: post.id, parent_id: box._replyTo || null, nickname, content, ...retryCap
+            });
+            box._replyTo = null;
+            box.querySelector('.cmt-target').textContent = '';
+            box.querySelector('.cmt-target').classList.remove('on');
+            box.querySelector('.cmt-input').value = '';
+            box.querySelector('.cmt-count').textContent = '0/250';
+            await loadComments(box, post);
+            refreshProfile();
+          } catch (retryError) { w.textContent = '发布失败：' + retryError.message; }
+        } else w.textContent = '已取消人机验证，未发布';
+      } else w.textContent = '发布失败：' + e.message;
     }
     btn.disabled = false;
   }
@@ -3149,7 +3193,16 @@
       if (res && res.need_captcha) { warn.textContent = '防刷验证暂不可用，请刷新后重试'; els.publish.disabled = false; return; }
       await onSuccess(succMsg());
     } catch (e) {
-      warn.textContent = '发布失败：' + (e.message || '未知错误');
+      if (e.need_captcha && e.captcha) {
+        const retryCap = await solveCaptchaPrompt(e.captcha, '今日发布次数已达到 10 条，请完成人机验证');
+        if (!retryCap) { warn.textContent = '已取消人机验证，未发布'; els.publish.disabled = false; return; }
+        try {
+          await callEdge('post_create', { ...basePayload(), ...retryCap });
+          await onSuccess(succMsg());
+        } catch (retryError) { warn.textContent = '发布失败：' + (retryError.message || '未知错误'); }
+      } else {
+        warn.textContent = '发布失败：' + (e.message || '未知错误');
+      }
     } finally {
       els.publish.disabled = false;
     }
