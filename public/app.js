@@ -238,29 +238,60 @@
     return data.data;
   }
   function solveCaptchaPrompt(cap, title) {
-    if (!cap || !cap.id || !els.captchaModal) return Promise.resolve(null);
+    if (!cap || !cap.id || !els.captchaModal || !Array.isArray(cap.balls)) return Promise.resolve(null);
     return new Promise((resolve) => {
       const selected = new Set();
+      const events = [];
+      const clicks = [];
+      const openedAt = Date.now();
+      let inputType = 'mouse';
+      const board = els.captchaBoard;
+      const record = (type, event) => {
+        if (events.length >= 160) return;
+        const rect = board.getBoundingClientRect();
+        const point = event.touches?.[0] || event.changedTouches?.[0] || event;
+        if (!point || !rect.width || !rect.height) return;
+        events.push({
+          type, x: Math.max(0, Math.min(100, ((point.clientX - rect.left) / rect.width) * 100)),
+          y: Math.max(0, Math.min(100, ((point.clientY - rect.top) / rect.height) * 100)), t: Date.now()
+        });
+      };
       els.captchaTitle.textContent = title || '请完成验证';
-      els.captchaBoard.innerHTML = '';
+      board.innerHTML = '';
       els.captchaStatus.textContent = '已选择 0 / 2';
       els.captchaConfirm.disabled = true;
       els.captchaModal.classList.remove('hidden');
+      const moveEvents = window.PointerEvent ? ['pointermove'] : ['mousemove', 'touchmove'];
+      moveEvents.forEach((name) => board.addEventListener(name, (e) => { if (e.pointerType === 'touch') inputType = 'touch'; else if (e.pointerType === 'pen') inputType = 'pen'; record(name, e); }, { passive: true }));
+      board.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') inputType = 'touch'; else if (e.pointerType === 'pen') inputType = 'pen'; record('pointerdown', e); }, { passive: true });
+      board.addEventListener('touchstart', (e) => { inputType = 'touch'; record('touchstart', e); }, { passive: true });
       cap.balls.forEach((ball, index) => {
         const el = document.createElement('button');
         el.type = 'button'; el.className = 'captcha-ball'; el.title = '验证码球';
         el.style.left = `${ball.x}%`; el.style.top = `${ball.y}%`; el.style.background = ball.color; el.style.color = ball.color;
-        el.addEventListener('click', () => {
+        const select = (event) => {
+          if (event.pointerType === 'touch') inputType = 'touch'; else if (event.pointerType === 'pen') inputType = 'pen';
+          record('click', event);
+          const rect = board.getBoundingClientRect();
+          const point = event.changedTouches?.[0] || event;
+          const x = ((point.clientX - rect.left) / rect.width) * 100;
+          const y = ((point.clientY - rect.top) / rect.height) * 100;
           if (selected.has(index)) selected.delete(index); else if (selected.size < 2) selected.add(index);
+          if (selected.has(index)) clicks.push({ index, x, y, t: Date.now() });
+          else {
+            const at = clicks.findIndex((c) => c.index === index);
+            if (at >= 0) clicks.splice(at, 1);
+          }
           el.classList.toggle('selected', selected.has(index));
           els.captchaStatus.textContent = `已选择 ${selected.size} / 2`;
           els.captchaConfirm.disabled = selected.size !== 2;
-        });
+        };
+        el.addEventListener('click', select);
         els.captchaBoard.appendChild(el);
       });
-      const close = (value) => { els.captchaModal.classList.add('hidden'); els.captchaBoard.innerHTML = ''; els.captchaCancel.onclick = null; els.captchaConfirm.onclick = null; resolve(value); };
+      const close = (value) => { els.captchaModal.classList.add('hidden'); board.innerHTML = ''; els.captchaCancel.onclick = null; els.captchaConfirm.onclick = null; resolve(value); };
       els.captchaCancel.onclick = () => close(null);
-      els.captchaConfirm.onclick = () => close({ captcha_id: cap.id, captcha_ans: [...selected], captcha_sig: cap.sig, captcha_exp: cap.exp });
+      els.captchaConfirm.onclick = () => close({ captcha_id: cap.id, captcha_ans: [...selected], captcha_sig: cap.sig, captcha_exp: cap.exp, captcha_balls: cap.balls, captcha_behavior: { opened_at: openedAt, events, clicks, input: inputType, viewport: { w: window.innerWidth, h: window.innerHeight } } });
     });
   }
 

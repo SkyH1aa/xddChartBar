@@ -426,7 +426,12 @@ select.input { appearance: auto; }
 .captcha-card { max-width: 460px; padding: 26px; }
 .captcha-kicker { color: var(--accent, #c9603f); font-size: 10px; letter-spacing: .18em; font-weight: 800; }
 .captcha-copy { color: var(--muted); margin: -8px 0 14px; font-size: 13px; }
-.captcha-board { position: relative; height: 290px; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: radial-gradient(circle at 20% 20%, rgba(255,255,255,.08), transparent 38%), var(--bg); }
+.captcha-board { position: relative;
+  height: 290px;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  border: 1px solid var(--line); border-radius: 14px; background: radial-gradient(circle at 20% 20%, rgba(255,255,255,.08), transparent 38%), var(--bg); }
 .captcha-ball { position: absolute; width: 42px; height: 42px; transform: translate(-50%, -50%); border: 3px solid rgba(255,255,255,.7); border-radius: 50%; cursor: pointer; box-shadow: 0 7px 16px rgba(0,0,0,.22); transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease; }
 .captcha-ball:hover { transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 9px 22px rgba(0,0,0,.35); }
 .captcha-ball.selected { transform: translate(-50%, -50%) scale(1.12); box-shadow: 0 0 0 5px rgba(255,255,255,.85), 0 0 24px currentColor; }
