@@ -105,45 +105,23 @@
 
   function solveCaptchaPrompt(cap, title) {
     const modal = $('captchaModal');
-    if (!cap || !cap.id || !modal || !Array.isArray(cap.balls)) return Promise.resolve(null);
+    if (!cap || !cap.id || !modal) return Promise.resolve(null);
     return new Promise((resolve) => {
       const board = $('captchaBoard');
       const selected = new Set();
-      const events = [];
-      const clicks = [];
-      const openedAt = Date.now();
-      let inputType = 'mouse';
-      const record = (type, event) => {
-        if (events.length >= 160) return;
-        const rect = board.getBoundingClientRect();
-        const point = event.touches?.[0] || event.changedTouches?.[0] || event;
-        if (!point || !rect.width || !rect.height) return;
-        events.push({ type, x: Math.max(0, Math.min(100, ((point.clientX - rect.left) / rect.width) * 100)), y: Math.max(0, Math.min(100, ((point.clientY - rect.top) / rect.height) * 100)), t: Date.now() });
-      };
       $('captchaTitle').textContent = title || '请完成验证';
       $('captchaStatus').textContent = '已选择 0 / 2';
       $('captchaConfirm').disabled = true;
       board.innerHTML = '';
       modal.classList.remove('hidden');
-      const moveEvents = window.PointerEvent ? ['pointermove'] : ['mousemove', 'touchmove'];
-      moveEvents.forEach((name) => board.addEventListener(name, (e) => { if (e.pointerType === 'touch') inputType = 'touch'; else if (e.pointerType === 'pen') inputType = 'pen'; record(name, e); }, { passive: true }));
-      board.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') inputType = 'touch'; else if (e.pointerType === 'pen') inputType = 'pen'; record('pointerdown', e); }, { passive: true });
-      board.addEventListener('touchstart', (e) => { inputType = 'touch'; record('touchstart', e); }, { passive: true });
       cap.balls.forEach((ball, index) => {
         const el = document.createElement('button');
         el.type = 'button'; el.className = 'captcha-ball'; el.title = '验证码球';
         el.style.left = `${ball.x}%`; el.style.top = `${ball.y}%`;
         el.style.background = ball.color; el.style.color = ball.color;
-        el.addEventListener('click', (event) => {
-          if (event.pointerType === 'touch') inputType = 'touch'; else if (event.pointerType === 'pen') inputType = 'pen';
-          record('click', event);
-          const rect = board.getBoundingClientRect();
-          const point = event.changedTouches?.[0] || event;
-          const x = ((point.clientX - rect.left) / rect.width) * 100;
-          const y = ((point.clientY - rect.top) / rect.height) * 100;
-          if (selected.has(index)) selected.delete(index); else if (selected.size < 2) selected.add(index);
-          if (selected.has(index)) clicks.push({ index, x, y, t: Date.now() });
-          else { const at = clicks.findIndex((c) => c.index === index); if (at >= 0) clicks.splice(at, 1); }
+        el.addEventListener('click', () => {
+          if (selected.has(index)) selected.delete(index);
+          else if (selected.size < 2) selected.add(index);
           el.classList.toggle('selected', selected.has(index));
           $('captchaStatus').textContent = `已选择 ${selected.size} / 2`;
           $('captchaConfirm').disabled = selected.size !== 2;
@@ -152,7 +130,7 @@
       });
       const close = (value) => { modal.classList.add('hidden'); board.innerHTML = ''; $('captchaCancel').onclick = null; $('captchaConfirm').onclick = null; resolve(value); };
       $('captchaCancel').onclick = () => close(null);
-      $('captchaConfirm').onclick = () => close({ captcha_id: cap.id, captcha_ans: [...selected], captcha_sig: cap.sig, captcha_exp: cap.exp, captcha_balls: cap.balls, captcha_behavior: { opened_at: openedAt, events, clicks, input: inputType, viewport: { w: window.innerWidth, h: window.innerHeight } } });
+      $('captchaConfirm').onclick = () => close({ captcha_id: cap.id, captcha_ans: [...selected], captcha_sig: cap.sig, captcha_exp: cap.exp });
     });
   }
 
