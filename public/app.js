@@ -598,7 +598,7 @@
     if (!data) { body.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted)">主页加载失败</div>'; return; }
     body.innerHTML = renderProfile(data);
     body.querySelectorAll('[data-pact]').forEach((b) => b.addEventListener('click', () => { const ps = state.user.profile; renderProfileInto(body, data); }));
-    if (data.canEdit) { bindProfileEdit(body, data, overlay); renderPrivilegeCenter(body); loadDmPref(body, data); bindDmPref(body, data); }
+    if (data.canEdit) { bindProfileEdit(body, data, overlay); renderPrivilegeCenter(body); loadDmPref(body, data); bindDmPref(body, data); loadBondPanel(body); }
     // 他人主页：发起私信（走第二期私信面板，服务端按「陌生人私信」开关裁定）
     const dmBtn = body.querySelector('[data-dm-user]');
     if (dmBtn) dmBtn.addEventListener('click', () => {
@@ -686,6 +686,10 @@
         <div style="color:var(--faint);font-size:11px;margin-top:4px">关闭后，其他人无法主动向你发起新私信；你主动发起的私信、以及已经存在的会话都不受影响。</div>
         <div data-dm-pref-msg style="font-size:11px;min-height:15px;margin-top:2px"></div>
       </div>` : ''}
+      ${data.canEdit ? `<div class="prof-bond">
+        <div class="pf-vis-title">💞 我的续缘</div>
+        <div data-bond-box style="font-size:12px;margin-top:6px"><span style="color:var(--faint)">加载中…</span></div>
+      </div>` : ''}
       ${data.canEdit ? `<div style="margin-top:8px;font-size:11px;color:var(--faint)">只能在个人中心（右上角头像 → 我的主页）编辑自己的信息。提示：敏感词会在提交前本地拦截。</div>` : ''}
       ${!data.canEdit && u.id ? `<div class="pcol-section" data-public-coll style="margin-top:14px;border-top:1px solid var(--line-soft);padding-top:12px">
         <div class="pf-vis-title">📁 公开帖子合集</div>
@@ -734,6 +738,96 @@
         cb.checked = prev;
         if (msg) { msg.style.color = '#e05e5e'; msg.textContent = (err && err.message) || '保存失败，请稍后重试'; }
       } finally { cb.disabled = false; }
+    });
+  }
+  // ---------------- 续缘（个人主页） ----------------
+  const bondState = { loaded: false, list: [], show: false, showPeer: '' };
+  function bondColorStyle(b) {
+    return /^#[0-9a-f]{6}$/i.test(b.color || '') ? ` style="--bond-c:${b.color}"` : '';
+  }
+  function renderBondPanel(box) {
+    const list = bondState.list || [];
+    if (!list.length) {
+      box.innerHTML = '<span style="color:var(--faint)">还没有续缘。和同一个人连续互聊 3 天以上就会开始结缘～</span>';
+      return;
+    }
+    const rows = list.map((b) => {
+      // 未满 3 天还没有档位：只展示互聊进度，不给颜色选择
+      const canColor = !!b.tier && b.tier !== 'jieyuan';
+      const badge = b.tier
+        ? `<span class="dm-bond bond-${escapeHtml(b.tier)}"${bondColorStyle(b)}>${escapeHtml(b.name)} ${b.days} 天</span>`
+        : '<span class="dm-bond bond-pending">未形成续缘</span>';
+      let note;
+      if (!b.tier) note = `<span class="bond-note">已互聊 ${b.days} 天 · 还差 ${b.need} 天形成续缘</span>`;
+      else if (!canColor) note = '<span class="bond-note">满 11 天（牵缘）后可自定义颜色</span>';
+      else note = `<label class="bond-color">颜色 <input type="color" value="${/^#[0-9a-f]{6}$/i.test(b.color || '') ? b.color : '#e07a5f'}" data-bond-color="${escapeHtml(b.peer_id)}"></label>`;
+      return `<div class="bond-row">${badge}<span class="bond-row-name">与 ${escapeHtml(b.peer_nickname)}</span>${note}</div>`;
+    }).join('');
+    const golds = list.filter((b) => b.tier === 'jinyu');
+    const showcase = golds.length
+      ? `<div class="bond-show-row">
+          <label class="prof-dmpref-row"><input type="checkbox" data-bond-show ${bondState.show ? 'checked' : ''}><span>在帖子里展示我的「金玉良缘」特效</span></label>
+          <select class="input" data-bond-peer style="margin-top:6px;max-width:240px">
+            <option value="">选择展示对象…</option>
+            ${golds.map((g) => `<option value="${escapeHtml(g.peer_id)}" ${bondState.showPeer === g.peer_id ? 'selected' : ''}>${escapeHtml(g.name)} ${g.days} 天 · ${escapeHtml(g.peer_nickname)}</option>`).join('')}
+          </select>
+          <div data-bond-msg style="font-size:11px;min-height:15px;margin-top:2px"></div>
+        </div>`
+      : '<div style="color:var(--faint);font-size:11px;margin-top:6px">连续互聊满 100 天（金玉良缘）后，可选择在帖子里展示续缘特效。</div>';
+    box.innerHTML = rows + showcase;
+  }
+  async function loadBondPanel(body) {
+    const box = body.querySelector('[data-bond-box]');
+    if (!box || !state.user.token) return;
+    try {
+      const r = await callEdge('bond_mine', { token: state.user.token }) || {};
+      bondState.list = r.list || [];
+      bondState.show = !!r.show;
+      bondState.showPeer = r.show_peer || '';
+      bondState.loaded = true;
+      renderBondPanel(box);
+    } catch (_e) { box.innerHTML = '<span style="color:var(--faint)">续缘信息加载失败</span>'; return; }
+    box.addEventListener('change', async (e) => {
+      // 重绘后 [data-bond-msg] 会换新节点，故每次惰性查询
+      const setMsg = (text, ok) => {
+        const m = box.querySelector('[data-bond-msg]');
+        if (m) { m.style.color = ok ? 'var(--ok)' : '#e05e5e'; m.textContent = text; }
+      };
+      const colorInput = e.target.closest('[data-bond-color]');
+      if (colorInput) {
+        const pid = colorInput.getAttribute('data-bond-color');
+        try {
+          await callEdge('bond_set_color', { token: state.user.token, peer_id: pid, color: colorInput.value });
+          const b = bondState.list.find((x) => x.peer_id === pid); if (b) b.color = colorInput.value;
+          renderBondPanel(box);
+          setMsg('✅ 颜色已更新', true);
+        } catch (err) { setMsg(err.message, false); }
+        return;
+      }
+      const showCb = e.target.closest('[data-bond-show]');
+      if (showCb) {
+        const peerSel = box.querySelector('[data-bond-peer]');
+        const peerId = peerSel ? peerSel.value : '';
+        // 先勾选、还没挑对象：先不落库，提示去下拉框里选一个（下拉框不再禁用，随时可选）
+        if (showCb.checked && !peerId) { setMsg('请从下面的下拉框选择要展示的续缘对象', false); return; }
+        try {
+          const r = await callEdge('bond_pref_save', { token: state.user.token, show: showCb.checked, peer_id: showCb.checked ? peerId : '' });
+          bondState.show = !!r.show; bondState.showPeer = r.peer_id || '';
+          renderBondPanel(box);
+          setMsg(bondState.show ? '✅ 已开启：发帖时会展示你的续缘特效' : '✅ 已关闭续缘展示', true);
+        } catch (err) { showCb.checked = !showCb.checked; setMsg(err.message, false); }
+        return;
+      }
+      const peerSel = e.target.closest('[data-bond-peer]');
+      if (peerSel) {
+        if (!peerSel.value) { setMsg('请选择一个要展示的续缘对象', false); return; }
+        try {
+          const r = await callEdge('bond_pref_save', { token: state.user.token, show: true, peer_id: peerSel.value });
+          bondState.show = !!r.show; bondState.showPeer = r.peer_id || '';
+          renderBondPanel(box);
+          setMsg('✅ 已开启：发帖时会展示你的续缘特效', true);
+        } catch (err) { setMsg(err.message, false); }
+      }
     });
   }
   function multiLine(s) { return String(s || '').replace(/\n/g, '<br>'); }
@@ -1387,6 +1481,11 @@
       const { data } = await supabase.from('forum_users')
         .select('id, nickname, post_count, comment_count, like_received, level, bonus_xp, checkin_xp, col_post_count, col_comment_count, col_like_received, xp_post_comment, fav_received, xp_event, legend_no').in('id', ids);
       (data || []).forEach((u) => { map[u.id] = { nickname: u.nickname || u.username || '', level: finalLevel(u), legend_no: u.legend_no || null }; });
+      // 续缘展示：仅返回开启了展示的金玉良缘作者，失败不影响帖子渲染
+      try {
+        const showcase = await callEdge('bond_showcase', { user_ids: ids }) || {};
+        Object.keys(showcase).forEach((uid) => { if (map[uid]) map[uid].bond = showcase[uid]; });
+      } catch (_e) { /* ignore */ }
     }
     return map;
   }
@@ -1414,6 +1513,14 @@
     const favOn = state.favSet.has(post.id);
     const floor = ctx.floor != null ? `<span class="post-floor">#${ctx.floor ? ctx.floor : ''}</span>` : '';
     const levelTag = cardLv ? levelBadgeHtml(ctx.authorMap[post.author_id]) : '';
+    // 续缘展示（金玉良缘）：作者在个人主页开启后，帖子额外展示续缘标识与特效
+    const authorBond = (post.author_id && ctx.authorMap && ctx.authorMap[post.author_id])
+      ? ctx.authorMap[post.author_id].bond : null;
+    const bondColor = authorBond && /^#[0-9a-f]{6}$/i.test(authorBond.color || '') ? authorBond.color : '';
+    const bondTag = authorBond
+      ? `<span class="bond-tag bond-${authorBond.tier}"${bondColor ? ` style="--bond-c:${bondColor}"` : ''} title="与 ${escapeHtml(authorBond.peer_nickname || 'TA')} 连续互聊 ${authorBond.days} 天">💞 ${escapeHtml(authorBond.name)} ${authorBond.days} 天</span>`
+      : '';
+    const bondCardFx = authorBond ? ' bond-show-card' : '';
     const isBoosted = !!post.boost_until && new Date(post.boost_until).getTime() > Date.now();
     const isRecommended = !!post.recommend_until && new Date(post.recommend_until).getTime() > Date.now();
     const isGold = !!post.gold_until && new Date(post.gold_until).getTime() > Date.now();
@@ -1445,7 +1552,7 @@
     const legendPrestige = cardLv >= 55 && (ctx.boosted || isBoosted || isRecommended) ? ' legend-prestige' : '';
     // 金牌认证：更高级的旋转流光边框 + 暖金辉光（区别于校史留名的呼吸辉光）
     const goldFx = isGold ? ' gold-cert-card' : '';
-    card.className = 'post-card' + (ctx.pinned ? ' pinned-post' : '') + (lightfxCard ? ' lightfx-card' : '') + legendGold + legendPrestige + goldFx;
+    card.className = 'post-card' + (ctx.pinned ? ' pinned-post' : '') + (lightfxCard ? ' lightfx-card' : '') + legendGold + legendPrestige + goldFx + bondCardFx;
     const ownActs = isOwn
       ? `<span class="own-acts">
            ${isBoosted ? `<span class="tiny-btn" style="color:#bd93f9">推流中至${formatTime(post.boost_until).slice(5, 16)}</span>` : ''}
@@ -1466,6 +1573,7 @@
     card.innerHTML = `
       <div class="post-head">
         <span class="nickname">${isAnon ? nickHtml : `<span class="nickname-link" data-open-profile="${post.author_id || ''}">${nickHtml}${levelTag}</span>`}</span>
+        ${bondTag}
         ${badges}
         <span class="badge seen">新</span>
         ${isOwn ? '<span class="badge pinned" style="color:#4dabf7">自己</span>' : ''}

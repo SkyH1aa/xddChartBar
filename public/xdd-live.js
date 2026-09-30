@@ -199,6 +199,7 @@
     built: false, mask: null, open: false, tab: 'threads',
     threads: [], threadsSig: '',
     threadId: '', peer: null, messages: [], blocked: false, blockedReason: '', selfDisabled: false,
+    bond: null,
     msgSig: '', hasMore: false, loadingOlder: false,
     favs: [], favSet: new Set(),
     readSent: new Set(), io: null
@@ -206,6 +207,19 @@
 
   function msgSigOf(list) {
     return list.map((m) => `${m.id}:${m.recalled ? 1 : 0}:${m.read ? 1 : 0}:${m.blocked ? 1 : 0}`).join('|');
+  }
+  // 续缘标识：档位决定特效，颜色可自定义（--bond-c）；未满 3 天时展示进度「已互聊 x 天 · 还差 x 天」
+  function bondBadgeHtml(bond, extraCls) {
+    if (!bond || !bond.days) return '';
+    const cls = extraCls ? ' ' + extraCls : '';
+    if (!bond.tier) {
+      const tip = `与 TA 已互聊 ${bond.days} 天，还差 ${bond.need} 天形成续缘`;
+      return `<span class="dm-bond bond-pending${cls}" title="${escapeHtml(tip)}">已互聊 ${bond.days} 天 · 还差 ${bond.need} 天</span>`;
+    }
+    const color = /^#[0-9a-f]{6}$/i.test(bond.color || '') ? bond.color : '';
+    const style = color ? ` style="--bond-c:${color}"` : '';
+    const label = `${bond.name} ${bond.days} 天`;
+    return `<span class="dm-bond bond-${escapeHtml(bond.tier)}${cls}"${style} title="与 TA 连续互聊 ${bond.days} 天">${escapeHtml(label)}</span>`;
   }
   function card() { return dm.mask ? dm.mask.querySelector('.dm-card') : null; }
   function q(sel) { return dm.mask ? dm.mask.querySelector(sel) : null; }
@@ -238,6 +252,7 @@
               <button class="dm-back" title="返回会话列表">‹</button>
               <span class="dm-peer-name"></span>
               <span class="dm-peer-lv"></span>
+              <span class="dm-peer-bond"></span>
               <span class="dm-peer-gone"></span>
             </div>
             <div class="dm-banner" style="display:none"></div>
@@ -356,6 +371,7 @@
     dm.messages = [];
     dm.msgSig = '';
     dm.hasMore = false;
+    dm.bond = null;
     dm.readSent = new Set();
     q('.dm-msgs').innerHTML = '<div class="dm-empty">加载中…</div>';
     try {
@@ -363,6 +379,7 @@
       dm.peer = r.peer || dm.peer;
       dm.blocked = !!r.thread.blocked;
       dm.blockedReason = r.thread.blocked_reason || '';
+      dm.bond = r.bond || null;
       dm.selfDisabled = !!r.self_disabled;
       dm.hasMore = !!r.has_more;
       dm.messages = r.messages || [];
@@ -380,6 +397,7 @@
     if (r.peer) dm.peer = r.peer;
     dm.blocked = !!r.thread.blocked;
     dm.blockedReason = r.thread.blocked_reason || '';
+    dm.bond = r.bond || null;
     dm.selfDisabled = !!r.self_disabled;
     dm.hasMore = !!r.has_more;
     dm.messages = r.messages || [];
@@ -391,6 +409,7 @@
     const p = dm.peer || {};
     q('.dm-peer-name').textContent = p.nickname || p.username || '已注销用户';
     q('.dm-peer-lv').textContent = 'Lv.' + (Number(p.level) || 0);
+    q('.dm-peer-bond').innerHTML = bondBadgeHtml(dm.bond);
     q('.dm-peer-gone').textContent = p.gone ? '已注销' : '';
     const banner = q('.dm-banner');
     const locked = dm.blocked || dm.selfDisabled;
@@ -583,7 +602,7 @@
       return `<div class="dm-thread${t.id === dm.threadId ? ' on' : ''}" data-thread="${t.id}">
         <span class="dm-th-avatar">${escapeHtml(String(name).slice(0, 1))}</span>
         <span class="dm-th-body">
-          <span class="dm-th-top"><b>${escapeHtml(name)}</b>${p.gone ? '<i class="dm-th-gone">已注销</i>' : ''}<span class="dm-th-time">${escapeHtml(fmtShort(t.last_message_at))}</span></span>
+          <span class="dm-th-top"><b>${escapeHtml(name)}</b>${bondBadgeHtml(t.bond, 'sm')}${p.gone ? '<i class="dm-th-gone">已注销</i>' : ''}<span class="dm-th-time">${escapeHtml(fmtShort(t.last_message_at))}</span></span>
           <span class="dm-th-prev">${escapeHtml(t.last_preview || '')}</span>
         </span>
         ${t.blocked ? '<span class="dm-th-blk">封禁</span>' : ''}
@@ -650,18 +669,21 @@
     const blockedChanged = !!t.blocked !== dm.blocked;
     dm.blocked = !!t.blocked;
     dm.blockedReason = t.block_reason || '';
+    const bondSig = (b) => (b ? `${b.tier}:${b.days}:${b.color || ''}` : '');
+    const bondChanged = bondSig(t.bond) !== bondSig(dm.bond);
+    dm.bond = t.bond || null;
     const list = data.messages || [];
     const sig = msgSigOf(list);
     if (sig !== dm.msgSig) {
       dm.messages = list;
       renderThread();
-    } else if (blockedChanged) {
+    } else if (blockedChanged || bondChanged) {
       renderThread();
     }
   }
   function applyThreads(list) {
     dm.threads = list;
-    const sig = list.map((t) => `${t.id}:${t.unread}:${t.last_message_at || ''}:${t.blocked ? 1 : 0}:${t.last_preview || ''}`).join('|');
+    const sig = list.map((t) => `${t.id}:${t.unread}:${t.last_message_at || ''}:${t.blocked ? 1 : 0}:${t.last_preview || ''}:${t.bond ? t.bond.days : 0}:${t.bond ? t.bond.color || '' : ''}`).join('|');
     if (sig === dm.threadsSig) return;
     dm.threadsSig = sig;
     if (dm.tab === 'threads') renderThreads(list);

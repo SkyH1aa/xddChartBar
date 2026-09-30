@@ -853,3 +853,99 @@ select.input { appearance: auto; }
 .nf-rep .rp-reason{font-size:12.5px;color:var(--muted);margin-top:5px;word-break:break-word;line-height:1.6}
 .nf-rep .rp-result{font-size:12.5px;color:var(--text);margin-top:5px;word-break:break-word;line-height:1.6}
 .nf-rep .rp-time{font-size:11.5px;color:var(--faint);margin-top:5px}
+
+/* ==================== 第二期：续缘（私信 / 帖子 / 个人主页） ====================
+   档位：结缘(3-10) / 牵缘(11-30) / 锁缘(31-60) / 定缘(61-99) / 金玉良缘(100+)
+   五档特效逐级升级：静态 → 流光 → 光环 → 光晕 → 出场动效 + 专属背景框。
+   --bond-c 为用户自定义颜色（牵缘及以上可改），未设置时回落到各档默认色。 */
+.dm-bond, .bond-tag{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:11.5px;font-weight:700;line-height:1;white-space:nowrap;
+  padding:3px 9px;border-radius:999px;
+  color:var(--bond-c,#9aa3ad);
+  border:1px solid color-mix(in srgb,var(--bond-c,#9aa3ad) 42%,transparent);
+  background:color-mix(in srgb,var(--bond-c,#9aa3ad) 12%,transparent);
+}
+.dm-bond.sm{font-size:10.5px;padding:2px 7px}
+.dm-peer-bond{margin-left:6px}
+.dm-th-top .dm-bond{margin-left:6px}
+/* 结缘：基础标识，静态 */
+.bond-jieyuan{--bond-c:#8fa3b8}
+/* 未形成续缘（互聊不足 3 天）：只做中性进度提示，不加动效 */
+.bond-pending{--bond-c:#8a93a0;opacity:.85}
+/* 牵缘：渐变 + 缓慢流光 */
+.bond-qianyuan{
+  --bond-c:#5fc9d8;
+  background:linear-gradient(100deg,
+    color-mix(in srgb,var(--bond-c) 10%,transparent) 20%,
+    color-mix(in srgb,var(--bond-c) 30%,transparent) 50%,
+    color-mix(in srgb,var(--bond-c) 10%,transparent) 80%);
+  background-size:220% 100%;
+  animation:bondShine 3.6s linear infinite;
+}
+@keyframes bondShine{0%{background-position:120% 0}100%{background-position:-120% 0}}
+/* 锁缘：光环特效 */
+.bond-suoyuan{
+  --bond-c:#a98bf0;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--bond-c) 30%,transparent),
+             0 0 10px color-mix(in srgb,var(--bond-c) 45%,transparent);
+  animation:bondHalo 3s ease-in-out infinite;
+}
+@keyframes bondHalo{
+  0%,100%{box-shadow:0 0 0 1px color-mix(in srgb,var(--bond-c) 26%,transparent),0 0 8px color-mix(in srgb,var(--bond-c) 32%,transparent)}
+  50%{box-shadow:0 0 0 2px color-mix(in srgb,var(--bond-c) 46%,transparent),0 0 18px color-mix(in srgb,var(--bond-c) 60%,transparent)}
+}
+/* 定缘：更高级的光晕特效 */
+.bond-dingyuan{
+  --bond-c:#e888c0;
+  animation:bondAura 3.4s ease-in-out infinite;
+}
+@keyframes bondAura{
+  0%,100%{filter:brightness(1);box-shadow:0 0 0 1px color-mix(in srgb,var(--bond-c) 34%,transparent),0 0 12px color-mix(in srgb,var(--bond-c) 42%,transparent),0 0 26px color-mix(in srgb,var(--bond-c) 20%,transparent)}
+  50%{filter:brightness(1.18);box-shadow:0 0 0 2px color-mix(in srgb,var(--bond-c) 55%,transparent),0 0 24px color-mix(in srgb,var(--bond-c) 68%,transparent),0 0 52px color-mix(in srgb,var(--bond-c) 36%,transparent)}
+}
+/* 金玉良缘：出场动态 + 专属背景框 + 流动高光 */
+.bond-jinyu{
+  --bond-c:#f0c34e;
+  position:relative;overflow:hidden;
+  color:#4a3300;
+  text-shadow:0 1px 0 rgba(255,255,255,.35);
+  background:linear-gradient(135deg,
+    color-mix(in srgb,var(--bond-c) 32%,#fff) 0%,
+    var(--bond-c) 48%,
+    color-mix(in srgb,var(--bond-c) 72%,#000) 100%);
+  border-color:rgba(255,236,168,.85);
+  box-shadow:0 0 0 1px rgba(255,226,150,.35),
+             0 0 14px rgba(240,196,80,.5),
+             0 0 30px rgba(240,196,80,.28);
+  animation:bondJinyuIn .6s cubic-bezier(.2,1.4,.4,1) both, bondJinyuPulse 3.6s ease-in-out .6s infinite;
+}
+.bond-jinyu::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:.45;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.9) 48%,transparent 62%);
+  background-size:260% 100%;animation:bondJinyuSweep 3.2s linear infinite;
+}
+@keyframes bondJinyuIn{0%{transform:scale(.6) rotate(-8deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes bondJinyuPulse{
+  0%,100%{box-shadow:0 0 0 1px rgba(255,226,150,.3),0 0 12px rgba(240,196,80,.42),0 0 26px rgba(240,196,80,.22)}
+  50%{box-shadow:0 0 0 2px rgba(255,236,168,.55),0 0 22px rgba(246,206,96,.62),0 0 48px rgba(246,206,96,.34)}
+}
+@keyframes bondJinyuSweep{0%{background-position:150% 0}100%{background-position:-150% 0}}
+/* 帖子卡片：开启续缘展示的作者，卡片额外罩一层暖金柔光（与校史留名的淡金边框区分开） */
+.post-card.bond-show-card{
+  position:relative;z-index:0;
+  border:1px solid rgba(240,196,80,.5);
+  box-shadow:0 0 0 1px rgba(240,196,80,.08),0 0 18px rgba(240,196,80,.16),0 0 40px rgba(240,196,80,.08);
+}
+/* 个人主页：我的续缘面板 */
+.prof-bond{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft)}
+.bond-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0;border-bottom:1px dashed var(--line-soft)}
+.bond-row:last-of-type{border-bottom:none}
+.bond-row-name{font-size:12px;color:var(--muted)}
+.bond-color{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--faint);margin-left:auto}
+.bond-note{font-size:11.5px;color:var(--faint);margin-left:auto}
+.bond-color input[type=color]{width:28px;height:22px;padding:0;border:1px solid var(--line);border-radius:6px;background:transparent;cursor:pointer}
+.bond-show-row{margin-top:10px}
+@media (prefers-reduced-motion: reduce){
+  .bond-qianyuan, .bond-suoyuan, .bond-dingyuan, .bond-jinyu, .bond-jinyu::after{animation:none !important}
+}

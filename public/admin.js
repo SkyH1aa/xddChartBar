@@ -1060,6 +1060,19 @@
           <div style="font-size:12px;color:var(--faint);margin-top:4px">
             最近消息 ${formatTime(t.last_message_at)} ｜ 未读 ${unread}${t.blocked && t.blocked_reason ? ' ｜ 封禁原因：' + escapeHtml(t.blocked_reason) : ''}
           </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px">
+            <span style="font-size:12px;color:var(--muted)">💞 续缘</span>
+            ${t.bond
+              ? (t.bond.tier
+                ? `<span class="dm-bond bond-${escapeHtml(t.bond.tier)}"${/^#[0-9a-f]{6}$/i.test(t.bond.color || '') ? ` style="--bond-c:${t.bond.color}"` : ''}>${escapeHtml(t.bond.name)} ${t.bond.days} 天</span>`
+                : `<span class="dm-bond bond-pending">未形成续缘</span><span style="font-size:12px;color:var(--faint)">已互聊 ${t.bond.days} 天 · 还差 ${t.bond.need} 天形成续缘</span>`)
+              : '<span style="font-size:12px;color:var(--faint)">还没有互聊记录</span>'}
+            <span style="display:inline-flex;gap:4px;align-items:center">
+              <input class="input" data-bondnum="${t.id}" type="number" min="1" max="100000" step="1" value="30" title="要增加 / 减少的天数" style="width:76px">
+              <button class="btn sm ghost" data-bondbump="${t.id}" data-sign="-1">− 减少</button>
+              <button class="btn sm ghost" data-bondbump="${t.id}" data-sign="1">+ 增加</button>
+            </span>
+          </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <button class="btn sm" data-viewdm="${t.id}">👁 查看全文</button>
@@ -1094,33 +1107,88 @@
         catch (e) { alert(e.message); b.disabled = false; }
       });
     });
+    // 续缘一键增减：先填天数再点「增加 / 减少」，留档会写明「给谁和谁加/减了多少天」
+    const bondNum = c.querySelector('[data-bondnum]');
+    c.querySelectorAll('[data-bondbump]').forEach((b) => {
+      b.addEventListener('click', async () => {
+        const n = Number(bondNum ? bondNum.value : 0);
+        if (!Number.isInteger(n) || n <= 0 || n > 100000) {
+          alert('请先填写要增加 / 减少的天数（1～100000 之间的整数）');
+          if (bondNum) bondNum.focus();
+          return;
+        }
+        const delta = (Number(b.dataset.sign) || 0) * n;
+        const label = !t.bond
+          ? '还没有互聊记录'
+          : (t.bond.tier ? `${t.bond.name} ${t.bond.days} 天` : `未形成续缘（已互聊 ${t.bond.days} 天，还差 ${t.bond.need} 天）`);
+        if (!confirm(`确认${delta > 0 ? '增加' : '减少'}这对用户的续缘 ${n} 天？\n\n当前：${label}\n减少到 0 天会退回到「未形成续缘」。`)) return;
+        b.disabled = true;
+        try { await callEdge('bond_admin_bump', { thread_id: b.dataset.bondbump, delta }); loadDmAdmin(); }
+        catch (e) { alert(e.message); b.disabled = false; }
+      });
+    });
     return c;
   }
 
   // 会话全文（含已撤回消息的原文，仅管理员可见）
-  async function openDmThread(threadId) {
-    const modal = $('dmThreadModal');
+  // 默认载入最新一页，可「加载更早」一直翻到最早一条；每条消息都能单独删除
+  let dmThreadState = { id: '', msgs: [], hasMore: false, oldest: '', users: null, loading: false };
+  function dmThreadNameOf(u) { return (u && (u.nickname || u.username)) || '已注销用户'; }
+  function renderDmThread() {
     const body = $('dmThreadBody');
-    $('dmThreadTitle').textContent = '会话全文';
-    body.innerHTML = '<div class="empty">加载中…</div>';
-    modal.classList.remove('hidden');
-    let d;
-    try { d = await callEdge('dm_admin_messages', { thread_id: threadId }); }
-    catch (e) { body.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; return; }
-    const nameOf = (u) => (u && (u.nickname || u.username)) || '已注销用户';
-    $('dmThreadTitle').textContent = `${nameOf(d.users.a)} ↔ ${nameOf(d.users.b)}（${d.messages.length} 条）`;
-    if (!d.messages.length) { body.innerHTML = '<div class="empty">该会话还没有消息</div>'; return; }
-    body.innerHTML = d.messages.map((m) => `
+    const st = dmThreadState;
+    $('dmThreadTitle').textContent = `${dmThreadNameOf(st.users && st.users.a)} ↔ ${dmThreadNameOf(st.users && st.users.b)}（已载入 ${st.msgs.length} 条）`;
+    if (!st.msgs.length) { body.innerHTML = '<div class="empty">该会话还没有消息</div>'; return; }
+    const head = st.hasMore
+      ? '<button class="btn sm ghost" data-dmmore style="margin:4px auto 10px;display:block">↑ 加载更早的消息</button>'
+      : '<div style="text-align:center;color:var(--faint);font-size:12px;margin:4px 0 10px">已到最早一条</div>';
+    body.innerHTML = head + st.msgs.map((m) => `
       <div style="padding:8px 0;border-bottom:1px dashed var(--line)">
         <div style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap">
           <strong style="color:var(--text)">${escapeHtml(m.sender_nickname || '已注销用户')}</strong>
           ${m.recalled ? '<span class="badge" style="color:#fff;background:var(--warn)">已撤回</span>' : ''}
           ${m.blocked ? '<span class="badge" style="color:#fff;background:var(--danger)">已屏蔽</span>' : ''}
           <span style="margin-left:auto">${formatTime(m.created_at)}</span>
+          <button class="btn sm ghost" data-dmdel="${m.id}" style="color:var(--danger)" title="删除这条私信">🗑 删除</button>
         </div>
         <div style="font-size:13.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word;margin-top:3px;color:${m.recalled ? 'var(--faint)' : 'var(--text)'}">${escapeHtml(m.body || '（无正文）')}</div>
         ${m.recalled ? '<div style="font-size:11px;color:var(--faint);margin-top:2px">上方为撤回前原文，仅管理员可见</div>' : ''}
       </div>`).join('');
+    const mb = body.querySelector('[data-dmmore]');
+    if (mb) mb.addEventListener('click', () => loadDmThreadPage(true));
+    body.querySelectorAll('[data-dmdel]').forEach((b) => b.addEventListener('click', () => delDmMessage(b.dataset.dmdel, b)));
+  }
+  async function loadDmThreadPage(older) {
+    const st = dmThreadState;
+    if (st.loading) return;
+    st.loading = true;
+    const mb = $('dmThreadBody').querySelector('[data-dmmore]');
+    if (mb) { mb.disabled = true; mb.textContent = '加载中…'; }
+    let d;
+    try { d = await callEdge('dm_admin_messages', { thread_id: st.id, before: older ? st.oldest : '' }); }
+    catch (e) { alert('加载失败：' + e.message); st.loading = false; renderDmThread(); return; }
+    st.users = d.users || st.users;
+    st.msgs = older ? [...(d.messages || []), ...st.msgs] : (d.messages || []);
+    st.hasMore = !!d.has_more;
+    st.oldest = d.oldest_at || st.oldest;
+    st.loading = false;
+    renderDmThread();
+  }
+  async function delDmMessage(id, btn) {
+    if (!confirm('确认删除这条私信？\n\n删除后不可恢复，会话双方都看不到；留档会记录删除人与被删内容。')) return;
+    btn.disabled = true;
+    try { await callEdge('dm_admin_delete_message', { message_id: id }); }
+    catch (e) { alert(e.message); btn.disabled = false; return; }
+    dmThreadState.msgs = dmThreadState.msgs.filter((m) => m.id !== id);
+    renderDmThread();
+    loadDmAdmin();
+  }
+  async function openDmThread(threadId) {
+    dmThreadState = { id: threadId, msgs: [], hasMore: false, oldest: '', users: null, loading: false };
+    $('dmThreadTitle').textContent = '会话全文';
+    $('dmThreadBody').innerHTML = '<div class="empty">加载中…</div>';
+    $('dmThreadModal').classList.remove('hidden');
+    await loadDmThreadPage(false);
   }
 
   $('dmSearchBtn').addEventListener('click', () => { dmKeyword = $('dmSearchQ').value.trim(); loadDmThreads(); });
@@ -1839,6 +1907,61 @@
 
   // ---------- 每日运营 ----------
   let dailyQuestEditingId = null;
+  // 补发面板的用户选择：输入即匹配，点选后精确绑定用户 id（重名也能选对人）
+  let dailyGrantUserId = '';
+  function attachUserPicker(input, onPick) {
+    if (!input || input.__xddPickerBound) return;
+    input.__xddPickerBound = true;
+    let drop = null, items = [], idx = -1, timer = null;
+    const close = () => { if (drop) { drop.remove(); drop = null; } items = []; idx = -1; };
+    const paint = () => { if (drop) drop.querySelectorAll('.mn-item').forEach((n, i) => n.classList.toggle('active', i === idx)); };
+    const pick = (u) => {
+      if (!u) return;
+      input.value = u.nickname;
+      close();
+      onPick(u);
+    };
+    const open = () => {
+      close();
+      drop = document.createElement('div');
+      drop.className = 'mention-drop';
+      drop.innerHTML = items.map((u, i) => `<div class="mn-item${i === 0 ? ' active' : ''}" data-i="${i}"><span class="mn-nick">${escapeHtml(u.nickname)}</span><span class="mn-lv">Lv.${Number(u.level) || 0}</span></div>`).join('');
+      document.body.appendChild(drop);
+      const r = input.getBoundingClientRect();
+      const h = drop.offsetHeight;
+      drop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - drop.offsetWidth - 8)) + 'px';
+      drop.style.top = (window.innerHeight - r.bottom < h + 12 && r.top > h + 12 ? r.top - h - 4 : r.bottom + 4) + 'px';
+      drop.addEventListener('mousedown', (e) => {
+        const it = e.target.closest('.mn-item');
+        if (!it) return;
+        e.preventDefault();                 // 保住输入框焦点
+        pick(items[Number(it.dataset.i)]);
+      });
+    };
+    input.addEventListener('input', () => {
+      onPick(null);                          // 手改过就作废上一次的选中，避免用错人
+      const kw = input.value.trim();
+      if (timer) { clearTimeout(timer); timer = null; }
+      if (!kw) { close(); return; }
+      timer = setTimeout(async () => {
+        timer = null;
+        if (input.value.trim() !== kw) return;
+        try { items = await callEdge('admin_daily_user_search', { keyword: kw }); }
+        catch (_e) { items = []; }
+        idx = items.length ? 0 : -1;
+        if (!items.length) { close(); return; }
+        open();
+      }, 200);
+    });
+    input.addEventListener('keydown', (e) => {
+      if (!drop || !items.length) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); idx = (idx + 1) % items.length; paint(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); idx = (idx - 1 + items.length) % items.length; paint(); }
+      else if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); pick(items[idx]); }
+      else if (e.key === 'Escape') { e.preventDefault(); close(); }
+    });
+    input.addEventListener('blur', () => setTimeout(close, 120));
+  }
   async function loadDailyOps() {
     const cfg = await callEdge('daily_config_get', {});
     $('dailyCoinCap').value = cfg.coinCap; $('dailyXpCap').value = cfg.xpCap; $('comebackXp').value = cfg.comebackXp; $('comebackCoins').value = cfg.comebackCoins;
@@ -1857,8 +1980,9 @@
     tbox.querySelectorAll('[data-tdelete]').forEach((b) => b.addEventListener('click', async () => { if (!confirm('确认删除每日话题？')) return; try { await callEdge('admin_daily_topic_delete', { id: b.dataset.tdelete }); loadDailyOps(); } catch (e) { alert(e.message); } }));
   }
   $('dailyRefresh')?.addEventListener('click', loadDailyOps);
+  attachUserPicker($('dailyGrantUser'), (u) => { dailyGrantUserId = u ? u.id : ''; });
   $('dailyStatsLoad')?.addEventListener('click', async () => { try { const rows = await callEdge('admin_quest_stats', { day: $('dailyStatsDay').value }); $('dailyStatsList').innerHTML = rows.length ? rows.map((r) => `<div class="pc-row">${escapeHtml(r.title)} · 参与 ${r.users} · 完成 ${r.completed} · 已领取 ${r.claimed}</div>`).join('') : '<div class="empty">该日暂无任务进度</div>'; } catch (e) { alert(e.message); } });
-  $('dailyGrantSave')?.addEventListener('click', async () => { if (!confirm('确认补发一次任务奖励？相同用户、任务、日期不可重复补发。')) return; try { const r = await callEdge('admin_quest_grant', { user_query: $('dailyGrantUser').value.trim(), quest_id: $('dailyGrantQuest').value, day: $('dailyStatsDay').value, coin_reward: Number($('dailyGrantCoins').value), xp_reward: Number($('dailyGrantXp').value) }); alert(r.duplicate ? '该任务奖励已补发过' : `补发成功：+${r.coins} 积分、+${r.xp} 经验`); } catch (e) { alert(e.message); } });
+  $('dailyGrantSave')?.addEventListener('click', async () => { if (!confirm('确认补发一次任务奖励？相同用户、任务、日期不可重复补发。')) return; try { const r = await callEdge('admin_quest_grant', { user_id: dailyGrantUserId || undefined, user_query: $('dailyGrantUser').value.trim(), quest_id: $('dailyGrantQuest').value, day: $('dailyStatsDay').value, coin_reward: Number($('dailyGrantCoins').value), xp_reward: Number($('dailyGrantXp').value) }); alert(r.duplicate ? '该任务奖励已补发过' : `补发成功：+${r.coins} 积分、+${r.xp} 经验`); } catch (e) { alert(e.message); } });
   $('dailyConfigSave')?.addEventListener('click', async () => { try { await callEdge('daily_config_set', { daily_coin_cap: Number($('dailyCoinCap').value), daily_xp_cap: Number($('dailyXpCap').value), comeback_xp: Number($('comebackXp').value), comeback_coins: Number($('comebackCoins').value) }); $('dailyConfigMsg').textContent = '已保存'; } catch (e) { $('dailyConfigMsg').textContent = e.message; } });
   $('dailyQuestSave')?.addEventListener('click', async () => { const qkey = $('dailyQuestKey').value; if (!qkey) { alert('请先选择任务标识'); return; } try { await callEdge(dailyQuestEditingId ? 'admin_quest_defs_update' : 'admin_quest_defs_create', { id: dailyQuestEditingId || undefined, qkey, title: $('dailyQuestTitle').value, description: $('dailyQuestDesc').value, target: Number($('dailyQuestTarget').value), coin_reward: Number($('dailyQuestCoins').value), xp_reward: Number($('dailyQuestXp').value), enabled: $('dailyQuestEnabled').checked }); dailyQuestEditingId = null; $('dailyQuestFormTitle').textContent = '新建任务'; ['dailyQuestKey','dailyQuestTitle','dailyQuestDesc','dailyQuestTarget','dailyQuestCoins','dailyQuestXp'].forEach((id) => $(id).value = ''); loadDailyOps(); } catch (e) { alert(e.message); } });
   $('dailyTopicSave')?.addEventListener('click', async () => { try { await callEdge('admin_daily_topic_save', { topic_date: $('dailyTopicDate').value, title: $('dailyTopicTitle').value, intro: $('dailyTopicIntro').value, coin_reward: Number($('dailyTopicCoins').value), xp_reward: Number($('dailyTopicXp').value), enabled: $('dailyTopicEnabled').checked }); alert('每日话题已保存'); loadDailyOps(); } catch (e) { alert(e.message); } });
