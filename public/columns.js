@@ -296,6 +296,7 @@
         el.addEventListener('click', () => { location.hash = '#/col/' + encodeURIComponent(el.dataset.id); });
       });
       wirePostHandlers();
+      revealCards($('colFeed'));
     } catch (e) { viewEl.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
   }
 
@@ -395,7 +396,7 @@
         ${col.intro ? `<div class="col-detail-intro">${escapeHtml(col.intro)}</div>` : ''}
         <div class="col-detail-meta">
           <span>创始人 <b>${escapeHtml(col.founder_name || '匿名')}</b></span>
-          <span>${formatCount(col.post_count)} 帖 · ${formatCount(col.comment_count)} 评论</span>
+          <span id="colMetaStat">${formatCount(col.post_count)} 帖 · ${formatCount(col.comment_count)} 评论</span>
           <span>成立于 ${formatShort(col.created_at)}</span>
         </div>
       </div>
@@ -429,7 +430,7 @@
     }
     if (colIsOpen()) wireComposer();
     $('colPrev').addEventListener('click', () => { if (colState.page > 1) { colState.page--; loadColFeed(); } });
-    $('colNext').addEventListener('click', () => { if (colState.page < Math.ceil(colState.total / PAGE_SIZE) || (colState.total > PAGE_SIZE * (colState.page - 1) && colState.posts.length === PAGE_SIZE)) { colState.page++; loadColFeed(); } });
+    $('colNext').addEventListener('click', () => { if (colState.page < Math.max(1, Math.ceil(colState.total / PAGE_SIZE))) { colState.page++; loadColFeed(); } });
   }
 
   function wireComposer() {
@@ -480,7 +481,13 @@
     try {
       const posts = await callEdge('col_feed', { column_id: activeCol.id, page: colState.page, page_size: PAGE_SIZE });
       colState.posts = posts;
-      $('colCount').textContent = formatCount(activeCol.post_count);
+      // activeCol.post_count 是进入专栏时取的快照，发帖后不会自增；分页与计数统一以
+      // 「快照值」和「本页实际取到的条数」的较大者为准，避免刚发完帖仍显示 0 帖。
+      colState.total = Math.max(Number(activeCol.post_count) || 0, (colState.page - 1) * PAGE_SIZE + posts.length);
+      activeCol.post_count = colState.total;
+      $('colCount').textContent = formatCount(colState.total);
+      const metaStat = $('colMetaStat');
+      if (metaStat) metaStat.textContent = `${formatCount(colState.total)} 帖 · ${formatCount(activeCol.comment_count)} 评论`;
       const emptyEl = $('colEmptyFeed'); const pager = $('colPager');
       if (!posts.length) {
         feed.innerHTML = ''; emptyEl.classList.remove('hidden');
@@ -488,13 +495,37 @@
       } else {
         emptyEl.classList.add('hidden');
         feed.innerHTML = posts.map(renderColPost).join('');
-        const totalPages = Math.max(1, Math.ceil(activeCol.post_count / PAGE_SIZE));
+        revealCards(feed);
+        const totalPages = Math.max(1, Math.ceil(colState.total / PAGE_SIZE));
         $('colPageNum').textContent = `第 ${colState.page} / ${totalPages} 页`;
         pager.classList.remove('hidden');
         $('colPrev').disabled = colState.page <= 1;
+        $('colNext').disabled = colState.page >= totalPages;
         wirePostHandlers();
       }
     } catch (e) { feed.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
+  }
+
+  // 卡片入场：theme.css 里 .post-card 默认 opacity:0 + translateY(26px)，
+  // 必须补上 .in 才显形。主论坛由 app.js 的 observeReveal 负责，专栏页此前没有任何触发点，
+  // 导致帖子虽然渲染进了 DOM 却始终透明——表现为「发布成功但看不到帖子，分页却显示第 1/1 页」。
+  function revealCards(root) {
+    if (!root) return;
+    const cards = root.querySelectorAll('.post-card:not(.in)');
+    if (!cards.length) return;
+    if (!('IntersectionObserver' in window)) {
+      cards.forEach((c, i) => {
+        c.style.transitionDelay = Math.min(i * 45, 300) + 'ms';
+        setTimeout(() => c.classList.add('in'), 20);
+      });
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.06 });
+    cards.forEach((c) => io.observe(c));
   }
 
   function renderColPost(p) {
