@@ -193,6 +193,9 @@
     .prof-elite .pf-vis-title{color:var(--accent,#e07a5f)}
     .prof-sessions{margin-top:14px;border-top:1px solid var(--line,#2a3747);padding-top:10px;display:flex;flex-direction:column;gap:4px}
     .prof-sessions .pf-vis-title{color:var(--muted);font-weight:700}
+    .prof-dmpref{margin-top:14px;border-top:1px solid var(--line,#2a3747);padding-top:10px;display:flex;flex-direction:column;gap:4px}
+    .prof-dmpref .pf-vis-title{color:var(--muted);font-weight:700}
+    .prof-dmpref-row{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text);cursor:pointer}
     /* 风云学长+：帖子/评论动态光效背景 */
     .lightfx{position:relative;overflow:hidden;border-radius:8px}
     .lightfx::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 20%,rgba(224,122,95,.16) 45%,rgba(122,162,247,.2) 60%,transparent 85%);background-size:220% 100%;animation:lxShift 3.4s linear infinite;pointer-events:none}
@@ -270,6 +273,7 @@
 
   <!-- ================= 主内容 ================= -->
   <main class="wrap">
+    <section id="dailyTopicCard" class="panel hidden" style="margin-bottom:16px"></section>
     <!-- 发布框 -->
     <section class="panel composer">
       <textarea id="contentInput" placeholder="说点什么吧…"></textarea>
@@ -369,6 +373,7 @@
       </div>
 
       <aside class="side-col">
+        <div id="dailyQuestPanel" class="panel hidden" style="margin-bottom:16px"></div>
         <div class="panel">
           <h3 class="side-title">🔥 热帖榜</h3>
           <div id="weekHot"></div>
@@ -581,6 +586,8 @@
     </div>
   </div>
 
+  <script src="public/mentions.js"></script>
+  <script src="public/xdd-live.js"></script>
   <script src="public/app.js"></script>
 </body>
 </html>

@@ -26,6 +26,16 @@
     .nf-empty{text-align:center;color:var(--faint);padding:60px 0;font-size:14px}
     .nf-empty .emoji{font-size:44px;margin-bottom:10px}
     .nfb{display:flex;gap:10px}
+    /* 我的举报卡片 */
+    .rp-card{border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin-bottom:10px;background:var(--card-bg)}
+    .rp-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--text)}
+    .rp-type{font-weight:700}
+    .rp-st{font-size:11px;border-radius:999px;padding:1px 8px;border:1px solid var(--line);color:var(--muted)}
+    .rp-st.open{color:var(--warn);border-color:var(--warn)}
+    .rp-st.done{color:var(--ok);border-color:var(--ok)}
+    .rp-time{margin-left:auto;color:var(--faint);font-size:11px}
+    .rp-reason{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6;word-break:break-word}
+    .rp-result{margin-top:6px;font-size:12.5px;color:var(--accent);line-height:1.6;word-break:break-word}
   </style>
 </head>
 <body>
@@ -33,6 +43,7 @@
     <div class="topbar-inner">
       <div class="brand"><span class="dot"></span>XDD吧 · 通知中心</div>
       <div class="spacer"></div>
+      <button class="icon-btn" id="dmBtn" title="私信">✉️<span class="dot-badge" id="dmBadge"></span></button>
       <a href="index.html" class="btn ghost sm">返回主页</a>
       <div id="themeSwitcherHost" style="display:inline-flex"></div>
     </div>
@@ -43,6 +54,15 @@
       <h2>通知中心</h2>
       <span class="nf-count" id="countLabel"></span>
     </div>
+    <div class="nf-tabs" id="nfTabs">
+      <button class="nf-tab on" data-tab="all">全部</button>
+      <button class="nf-tab" data-tab="interact">互动</button>
+      <button class="nf-tab" data-tab="mention">@提及</button>
+      <button class="nf-tab" data-tab="dm">私信</button>
+      <button class="nf-tab" data-tab="report">举报反馈</button>
+      <button class="nf-tab" data-tab="system">系统</button>
+      <button class="nf-tab" data-tab="mine">我的举报</button>
+    </div>
     <div class="nfb" style="margin-bottom:14px">
       <button id="markReadBtn" class="btn ghost sm">全部标记为已读</button>
     </div>
@@ -51,6 +71,7 @@
 
   <script src="public/theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="public/xdd-live.js"></script>
   <script>
     (function () {
       'use strict';
@@ -58,38 +79,137 @@
       const SUPABASE_KEY = 'sb_publishable_B29ClgwZagW32Ow5x6VdKQ_IL65F7dl';
       const EDGE_URL = `${SUPABASE_URL}/functions/v1/newtheba`;
       const TOKEN_KEY = 'nzb_user_token';
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
       const $ = (id) => document.getElementById(id);
       const listEl = $('notifList');
       const labelEl = $('countLabel');
+
+      let allNotifs = [];     // notifications_list 原始列表
+      let tab = 'all';
+      let markedRead = false; // 只在本页首次加载后标记一次
 
       function escapeHtml(s) {
         return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
       }
       function formatTime(iso) {
+        if (!iso) return '';
         const d = new Date(iso); const p = (n) => String(n).padStart(2, '0');
-        return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+        return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
       }
       function readToken() { try { return localStorage.getItem(TOKEN_KEY); } catch (_e) { return null; } }
       async function callEdge(action, payload) {
         const res = await fetch(EDGE_URL, {
           method: 'POST', headers: { 'content-type': 'application/json', apikey: SUPABASE_KEY },
-          body: JSON.stringify({ action, token: readToken(), ...payload })
+          body: JSON.stringify({ action, token: readToken(), ...(payload || {}) })
         });
         let data = {};
         try { data = await res.json(); } catch (_e) {}
         if (!res.ok || data.ok === false) throw new Error(data.error || ('请求失败 ' + res.status));
         return data.data;
       }
+
+      // 通知类型 → 图标 / 颜色分类
       function icoOf(t) {
         const type = String(t || '');
-        if (type.includes('reply') || type.includes('comment')) return { c: 'reply', ic: '💬' };
-        if (type.includes('like')) return { c: 'like', ic: '❤️' };
-        if (type.includes('follow') || type.includes('system')) return { c: 'system', ic: '📢' };
-        if (type.includes('mention')) return { c: 'mention', ic: '📣' };
-        return { c: '', ic: '🔔' };
+        if (type === 'dm') return { c: 'dm', ic: '✉️' };
+        if (type === 'mention') return { c: 'mention', ic: '📣' };
+        if (type === 'like') return { c: 'like', ic: '❤️' };
+        if (type === 'comment' || type === 'reply') return { c: 'reply', ic: '💬' };
+        if (type === 'report_result') return { c: 'report', ic: '📮' };
+        if (type === 'report_handled') return { c: 'report', ic: '⚠️' };
+        if (type === 'col_post') return { c: 'col', ic: '📚' };
+        return { c: 'system', ic: '🔔' };
       }
+      // 分类归属
+      const TAB_OF = {
+        like: 'interact', comment: 'interact', reply: 'interact', col_post: 'interact',
+        mention: 'mention', dm: 'dm',
+        report_result: 'report', report_handled: 'report',
+        system: 'system'
+      };
+      function tabOf(n) { return TAB_OF[String(n.type || '')] || 'system'; }
+
+      function renderList() {
+        if (tab === 'mine') return;   // 我的举报走单独渲染
+        const list = tab === 'all' ? allNotifs : allNotifs.filter((n) => tabOf(n) === tab);
+        if (!allNotifs.length) {
+          listEl.innerHTML = '<div class="nf-empty"><div class="emoji">🔔</div>暂无通知</div>';
+          labelEl.textContent = '';
+          return;
+        }
+        labelEl.textContent = tab === 'all' ? `共 ${allNotifs.length} 条` : `${list.length} 条`;
+        if (!list.length) {
+          listEl.innerHTML = '<div class="nf-empty"><div class="emoji">🗂️</div>该分类下暂无通知</div>';
+          return;
+        }
+        listEl.innerHTML = list.map((n, i) => {
+          const ico = icoOf(n.type);
+          return `<div class="nf-item${n.read ? '' : ' unread'}" data-idx="${i}">
+            <div class="nf-ico ${ico.c}">${ico.ic}</div>
+            <div class="nf-body">
+              <div class="nf-msg">${n.read ? '' : '<span class="unread-dot"></span>'}${escapeHtml(n.message)}</div>
+              <div class="nf-time">${formatTime(n.created_at)}</div>
+            </div>
+            ${n.post_id || n.ref_type === 'dm_thread' ? '<div class="nf-arrow">›</div>' : ''}
+          </div>`;
+        }).join('');
+        listEl.querySelectorAll('.nf-item').forEach((el) => {
+          el.addEventListener('click', () => goto(list[Number(el.dataset.idx)]));
+        });
+      }
+
+      // 按类型跳转：私信进会话面板；有 post_id 的跳帖子；其余留在本页
+      function goto(n) {
+        if (!n) return;
+        if (n.ref_type === 'dm_thread' && n.ref_id) {
+          if (window.XddLive) XddLive.openDm({ threadId: n.ref_id });
+          return;
+        }
+        if (n.post_id) { location.href = 'index.html#post-' + encodeURIComponent(n.post_id); return; }
+      }
+
+      function verdictText(v) {
+        if (v === 'delete') return '删除';
+        if (v === 'block') return '屏蔽';
+        if (v === 'ignore') return '忽略（未认定违规）';
+        return '';
+      }
+      function typeText(t) {
+        if (t === 'post') return '帖子';
+        if (t === 'comment') return '评论';
+        if (t === 'dm') return '私信';
+        return t || '内容';
+      }
+      async function renderMine() {
+        labelEl.textContent = '';
+        listEl.innerHTML = '<div class="nf-empty">加载中…</div>';
+        try {
+          const list = await callEdge('report_my_reports', {}) || [];
+          labelEl.textContent = list.length ? `共 ${list.length} 条` : '';
+          if (!list.length) {
+            listEl.innerHTML = '<div class="nf-empty"><div class="emoji">📮</div>你还没有提交过举报</div>';
+            return;
+          }
+          listEl.innerHTML = list.map((r) => {
+            const done = r.status !== 'open';
+            const vt = verdictText(r.verdict);
+            const res = r.result || (r.resolved_at && done ? '已处理' : '');
+            return `<div class="rp-card">
+              <div class="rp-top">
+                <span class="rp-type">举报${escapeHtml(typeText(r.target_type))}</span>
+                <span class="rp-st ${done ? 'done' : 'open'}">${done ? '已处理' : '待处理'}</span>
+                ${vt ? `<span class="rp-st">结论：${escapeHtml(vt)}</span>` : ''}
+                <span class="rp-time">${formatTime(r.created_at)}</span>
+              </div>
+              <div class="rp-reason">举报理由：${escapeHtml(r.reason || '（未填写）')}</div>
+              ${res ? `<div class="rp-result">处理结果：${escapeHtml(res)}</div>` : ''}
+            </div>`;
+          }).join('');
+        } catch (e) {
+          listEl.innerHTML = `<div class="nf-empty">加载失败：${escapeHtml(e.message)}</div>`;
+        }
+      }
+
       async function load() {
         if (!readToken()) {
           listEl.innerHTML = `<div class="nf-empty"><div class="emoji">👤</div>你还未登录<br><a href="index.html" class="btn ghost sm" style="margin-top:12px">返回主页登录</a></div>`;
@@ -97,39 +217,38 @@
         }
         listEl.innerHTML = '<div class="nf-empty">加载中…</div>';
         try {
-          const list = await callEdge('notifications_list', {});
-          const unread = list.filter((n) => !n.read).length;
-          labelEl.textContent = list.length ? `共 ${list.length} 条` : '';
-          if (!list.length) {
-            listEl.innerHTML = '<div class="nf-empty"><div class="emoji">🔔</div>暂无通知</div>';
-          } else {
-            listEl.innerHTML = list.map((n) => {
-              const ico = icoOf(n.type);
-              return `<div class="nf-item${n.read ? '' : ' unread'}" data-pid="${n.post_id || ''}">
-                <div class="nf-ico ${ico.c}">${ico.ic}</div>
-                <div class="nf-body">
-                  <div class="nf-msg">${n.read ? '' : '<span class="unread-dot"></span>'}${escapeHtml(n.message)}</div>
-                  <div class="nf-time">${formatTime(n.created_at)}</div>
-                </div>
-                ${n.post_id ? '<div class="nf-arrow">›</div>' : ''}
-              </div>`;
-            }).join('');
-            listEl.querySelectorAll('.nf-item[data-pid]').forEach((el) => {
-              el.addEventListener('click', () => {
-                location.href = `index.html#post-${encodeURIComponent(el.dataset.pid)}`;
-              });
-            });
+          allNotifs = await callEdge('notifications_list', {}) || [];
+          const unread = allNotifs.filter((n) => !n.read).length;
+          if (tab === 'mine') await renderMine(); else renderList();
+          // 进入即全部标记已读（只做一次，保留本次未读高亮）
+          if (unread > 0 && !markedRead) {
+            markedRead = true;
+            try { await callEdge('notifications_mark_read', {}); } catch (_e) {}
           }
-          // 进入即全部标记已读
-          if (unread > 0) { try { await callEdge('notifications_mark_read', {}); } catch (_e) {} }
         } catch (e) {
           listEl.innerHTML = `<div class="nf-empty">加载失败：${escapeHtml(e.message)}</div>`;
         }
       }
+
+      $('nfTabs').addEventListener('click', (e) => {
+        const b = e.target.closest('.nf-tab');
+        if (!b) return;
+        tab = b.dataset.tab;
+        document.querySelectorAll('.nf-tab').forEach((x) => x.classList.toggle('on', x === b));
+        if (tab === 'mine') renderMine(); else renderList();
+      });
       $('markReadBtn').addEventListener('click', async (e) => {
         e.preventDefault();
-        try { await callEdge('notifications_mark_read', {}); load(); } catch (_e) {}
+        try {
+          await callEdge('notifications_mark_read', {});
+          allNotifs = allNotifs.map((n) => ({ ...n, read: true }));
+          if (tab === 'mine') renderMine(); else renderList();
+        } catch (_e) {}
       });
+      const db = $('dmBtn');
+      if (db) db.addEventListener('click', () => { if (window.XddLive) XddLive.openPanel(); });
+      window.__xddNotifReload = load;   // 底栏提示在本页点击时直接刷新列表
+      if (window.XddLive) XddLive.start();
       load();
     })();
   </script>

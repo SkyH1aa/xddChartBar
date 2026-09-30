@@ -78,6 +78,10 @@
     return `<span class="author-level badge-x ${['', 't-flat', 't-color', 't-glow', 't-metal', 't-crystal', 't-3d'][tier]}" data-tier="${tier}" title="Lv.${lv} · ${escapeHtml(name)}${no ? ` · No.${no}` : ''}">${escapeHtml(name)}${noHtml}</span>`;
   }
   function userDisplay(u) { return u && u.nickname ? u.nickname : (u && u.username ? u.username : '匿名'); }
+  // 提交时取本输入框真正 @ 绑定到的用户（与主论坛共用 mentions.js）
+  function mentionPick(el) {
+    try { return (el && window.XddMentions) ? XddMentions.collect(el) : []; } catch (_e) { return []; }
+  }
 
   function readSession() {
     try {
@@ -161,7 +165,8 @@
     const host = $('userBar');
     if (!host) return;
     if (me && me.profile) {
-      host.innerHTML = `<span class="u-chip" title="点击进入我的专栏">
+      host.innerHTML = `<button class="icon-btn" id="dmBtn" title="私信">✉️<span class="dot-badge" id="dmBadge"></span></button>
+      <span class="u-chip" title="点击进入我的专栏">
         <span class="avatar">${escapeHtml(String(userDisplay(me.profile)).slice(0, 1))}</span>
         <span class="u-name">${escapeHtml(userDisplay(me.profile))}</span>
         <span class="author-level">Lv.${myLevel()}</span>
@@ -169,8 +174,12 @@
       <button class="btn ghost sm" id="myColBtn">我的专栏</button>`;
       const mc = $('myColBtn');
       if (mc) mc.addEventListener('click', openMyColumns);
+      const db = $('dmBtn');
+      if (db) db.addEventListener('click', () => { if (window.XddLive) XddLive.openPanel(); });
+      if (window.XddLive) XddLive.start();
     } else {
       host.innerHTML = `<a href="index.html" class="btn ghost sm">登录 / 注册</a>`;
+      if (window.XddLive) XddLive.stop();
     }
   }
   function myLevel() {
@@ -222,6 +231,7 @@
           <div class="col-hero-sub">每个专栏是一方独立的校友小社区，由「校史留名」校友运营，独立发帖、评论、置顶。</div>
         </div>
         <div class="col-hero-acts">
+          <button class="btn ghost sm" id="openFollowingBtn">⭐ 我的关注</button>
           <button class="btn" id="applyColBtn">+ 申请开通专栏</button>
         </div>
       </div>
@@ -234,12 +244,59 @@
       <div id="colEmpty" class="empty hidden"><div class="emoji">🏛️</div>还没有已开通的专栏</div>`;
 
     $('applyColBtn').addEventListener('click', async (e) => { e.preventDefault(); await openApply(); });
+    $('openFollowingBtn').addEventListener('click', (e) => { e.preventDefault(); openFollowing(); });
     $('openMyFromList').addEventListener('click', openMyColumns);
     const kw = $('colKeyword');
     const go = async () => { kw.value = kw.value.trim(); await loadColList(); };
     $('colSearchBtn').addEventListener('click', go);
     kw.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
     await loadColList();
+  }
+
+  // 关注流：我关注的专栏 + 它们的最新帖子（复用专栏帖卡片渲染）
+  async function openFollowing() {
+    if (!requireLogin()) return;
+    activeCol = null;
+    activeColRole = { founder: false, admin: false, muted: false };
+    colState = { page: 1, total: 0, posts: [] };
+    openComments = {};
+    viewEl.innerHTML = '<div class="empty" style="padding:40px">加载中…</div>';
+    try {
+      const cols = await callEdge('col_follow_list', {}) || [];
+      const posts = await callEdge('col_following_feed', { page: 1, page_size: 30 }) || [];
+      colState.posts = posts;
+      viewEl.innerHTML = `
+        <div class="col-hero">
+          <div>
+            <div class="col-hero-title">⭐ 我的关注</div>
+            <div class="col-hero-sub">你关注的专栏，以及它们的最新动态</div>
+          </div>
+          <div class="col-hero-acts"><a href="#/" class="btn ghost sm">← 返回专栏列表</a></div>
+        </div>
+        <div class="col-legend"><span>共关注 ${cols.length} 个专栏</span></div>
+        <div class="col-grid">${cols.length ? cols.map((c) => `
+          <div class="col-card" data-id="${escapeHtml(c.id)}">
+            <div class="col-card-head">
+              <span class="col-card-name">${escapeHtml(c.name)}</span>
+              <span class="badge topic">${formatCount(c.post_count)} 帖</span>
+            </div>
+            <div class="col-card-intro">${escapeHtml(c.intro || '暂无简介')}</div>
+            <div class="col-card-foot">
+              <span>创始人 <b>${escapeHtml(c.founder_name || '匿名')}</b></span>
+              <span>${formatCount(c.follow_count)} 关注</span>
+            </div>
+            <button class="btn sm col-card-enter">进入 »</button>
+          </div>`).join('') : '<div class="empty" style="grid-column:1/-1">还没有关注任何专栏，去专栏详情页点「＋ 关注」吧</div>'}
+        </div>
+        <section class="panel" style="margin-top:16px">
+          <div class="sortbar"><div class="c-title">📌 关注流</div></div>
+          <div class="feed" id="colFeed">${posts.length ? posts.map(renderColPost).join('') : '<div class="empty" style="padding:26px"><div class="emoji">🍃</div>关注的专栏还没有新动态</div>'}</div>
+        </section>`;
+      viewEl.querySelectorAll('.col-card').forEach((el) => {
+        el.addEventListener('click', () => { location.hash = '#/col/' + encodeURIComponent(el.dataset.id); });
+      });
+      wirePostHandlers();
+    } catch (e) { viewEl.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
   }
 
   async function loadColList() {
@@ -277,6 +334,7 @@
     try {
       const r = await callEdge('column_get', { column_id: id });
       activeCol = r.column;
+      activeCol.followed = !!r.followed;
       activeColRole = { founder: r.is_founder, admin: r.is_admin, muted: r.muted };
       if (activeCol.status !== 'open' && !activeColRole.founder && !activeColRole.admin) {
         viewEl.innerHTML = `<div class="empty"><div class="emoji">🔒</div>该专栏未公开访问<br><a href="#/" class="btn ghost sm" style="margin-top:12px">返回专栏列表</a></div>`;
@@ -292,6 +350,25 @@
   function colIsOpen() { return activeCol && activeCol.status === 'open'; }
   function canManageCol() { return activeColRole.founder || activeColRole.admin; }
 
+  // 关注/取关当前专栏（服务端幂等，关注数由 RPC 原子增减）
+  async function toggleColFollow() {
+    if (!requireLogin()) return;
+    if (!activeCol) return;
+    const btn = $('colFollowBtn');
+    const want = !activeCol.followed;
+    if (btn) btn.disabled = true;
+    try {
+      const r = await callEdge(want ? 'col_follow' : 'col_unfollow', { column_id: activeCol.id });
+      activeCol.followed = !!r.followed;
+      activeCol.follow_count = Number(r.follow_count) || 0;
+      if (btn) {
+        btn.classList.toggle('on', activeCol.followed);
+        btn.innerHTML = `${activeCol.followed ? '已关注' : '＋ 关注'}<span class="col-follow-num">${formatCount(activeCol.follow_count)}</span>`;
+      }
+    } catch (e) { alert(e.message); }
+    if (btn) btn.disabled = false;
+  }
+
   function renderColShell() {
     const col = activeCol;
     const statusTag = col.status === 'open'
@@ -301,6 +378,9 @@
         : '<span class="badge" style="color:#fff;background:#888">已关闭</span>';
     const acts = [];
     acts.push(`<a href="#/" class="btn ghost sm">← 返回列表</a>`);
+    if (colIsOpen()) {
+      acts.push(`<button class="btn ghost sm col-follow-btn${col.followed ? ' on' : ''}" id="colFollowBtn">${col.followed ? '已关注' : '＋ 关注'}<span class="col-follow-num">${formatCount(col.follow_count)}</span></button>`);
+    }
     if (canManageCol()) {
       acts.push(`<button class="btn ghost sm" id="editColBtn">⚙ 管理专栏</button>`);
       acts.push(`<button class="btn ghost sm" id="muteColBtn">🔇 禁言管理</button>`);
@@ -343,6 +423,10 @@
       const eb = $('editColBtn'); if (eb) eb.addEventListener('click', (e) => { e.preventDefault(); openEditColumn(); });
       const mb = $('muteColBtn'); if (mb) mb.addEventListener('click', (e) => { e.preventDefault(); openMutePanel(); });
     }
+    if (colIsOpen()) {
+      const fb = $('colFollowBtn');
+      if (fb) fb.addEventListener('click', (e) => { e.preventDefault(); toggleColFollow(); });
+    }
     if (colIsOpen()) wireComposer();
     $('colPrev').addEventListener('click', () => { if (colState.page > 1) { colState.page--; loadColFeed(); } });
     $('colNext').addEventListener('click', () => { if (colState.page < Math.ceil(colState.total / PAGE_SIZE) || (colState.total > PAGE_SIZE * (colState.page - 1) && colState.posts.length === PAGE_SIZE)) { colState.page++; loadColFeed(); } });
@@ -350,6 +434,7 @@
 
   function wireComposer() {
     const ta = $('colContent'); if (!ta) return;
+    if (window.XddMentions) XddMentions.attach(ta, { getToken: () => (me && me.token) || '' });
     ta.addEventListener('input', () => {
       const n = ta.value.length;
       const cc = $('colChar'); if (cc) { cc.textContent = `${n} / 2000`; cc.classList.toggle('warn', n >= 1900); }
@@ -368,7 +453,7 @@
     const hits = sensitiveHits(content);
     if (hits.length) { $('colComposeHint').textContent = '⚠️ 发布内容存在敏感词（' + hits.map((x) => '“' + x + '”').join('、') + '），不得发布。'; return; }
     const btn = $('colPublish'); btn.disabled = true;
-    const payload = { column_id: activeCol.id, content };
+    const payload = { column_id: activeCol.id, content, mentions: mentionPick(ta) };
     try {
       await callEdge('col_post_create', payload);
       ta.value = ''; $('colChar').textContent = '0 / 2000'; $('colComposeHint').textContent = '✅ 已发布';
@@ -534,6 +619,8 @@
         <button class="btn sm" data-cmtsend="${postId}">发布评论</button>
       </div>`);
     let replyTo = null;
+    const cinput = box.querySelector(`[data-cmtinput="${postId}"]`);
+    if (window.XddMentions && cinput) XddMentions.attach(cinput, { getToken: () => (me && me.token) || '' });
     box.querySelectorAll('[data-reply]').forEach((b) => {
       b.addEventListener('click', () => {
         replyTo = b.dataset.reply;
@@ -554,7 +641,7 @@
         const hits = sensitiveHits(content);
         if (hits.length) { warn.textContent = '⚠️ 存在敏感词（' + hits.map((x) => '“' + x + '”').join('、') + '），不得发布。'; return; }
         b.disabled = true;
-        const payload = { post_id: postId, parent_id: replyTo || '', content };
+        const payload = { post_id: postId, parent_id: replyTo || '', content, mentions: mentionPick(inp) };
         try {
           await callEdge('col_comment_create', payload);
           inp.value = ''; warn.textContent = ''; replyTo = null;

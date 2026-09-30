@@ -13,7 +13,9 @@
   const TOPICS = ['闲聊', '社团活动', '食堂', '宿舍', '学习', '吃瓜', '失物招领'];
   // 用户自建话题（加载自后端 topics_list）：{display_name, is_permanent, ...}
   let customTopics = [];
+  let currentDailyTopic = null;
   const NEW_TOPIC = '__new_topic__';
+  const DAILY_TOPIC_OPTION = '__daily_topic__';
   let lbPeriod = 'week'; // 热榜档位：today | week | month
   const PAGE_SIZE = 25;
   const ADMIN_TOKEN_KEY = 'nzb_admin_token';
@@ -333,6 +335,7 @@
       localStorage.removeItem(USER_PROFILE_KEY);
     } catch (_e) {}
     if (tok) callEdge('logout', { token: tok }).catch(() => {});
+    if (window.XddLive) XddLive.stop();
     renderUserBar();
     applyLoginGate();
   }
@@ -341,7 +344,11 @@
   // user_whoami 会返回 401/403 → 清除本地会话，回到未登录态。
   const sessionMonitorReset = () => {
     state.user = { token: null, profile: null };
-    try { localStorage.removeItem(USER_TOKEN_KEY); localStorage.removeItem(USER_PROFILE_KEY); } catch (_e) {}
+    try {
+      localStorage.removeItem(USER_TOKEN_KEY);
+      localStorage.removeItem(USER_PROFILE_KEY);
+    } catch (_e) {}
+    if (window.XddLive) XddLive.stop();
     renderUserBar();
     loadAdminPerms();
     applyLoginGate();
@@ -419,13 +426,14 @@
     const initials = userDisplay(p).charAt(0).toUpperCase();
     host.innerHTML = `
       <div class="user-area">
+        <button class="icon-btn" id="dmBtn" title="私信">✉️<span class="dot-badge" id="dmBadge"></span></button>
         <button class="icon-btn" id="bellBtn" title="通知中心">🔔<span class="dot-badge notif-badge" id="notifBadge"></span></button>
         <button class="user-chip" id="userChip">
           <span class="avatar-wrap">
             <span class="avatar" style="background:${p.avatar_color || '#e07a5f'}">${escapeHtml(initials)}</span>
           </span>
           <span class="u-name">${escapeHtml(p.nickname || p.username)}</span>
-          <span class="u-level" title="经验 ${li.xp}">Lv.${lv}</span>
+          <span class="u-level" title="经验 ${li.xp}">Lv.${lv}</span><span class="u-level" title="积分余额">${Number(p.coins) || 0} 积分</span>
         </button>
         <div class="user-pop" id="userPop">
           <div class="pop-level" style="padding:12px 14px;border-bottom:1px solid var(--line,#e5e5e5);margin-bottom:6px">
@@ -444,12 +452,16 @@
           <button class="pop-item" data-act="history">🕘 浏览历史</button>
           <button class="pop-item" data-act="profile">👤 我的主页</button>
           <button class="pop-item" data-act="checkin">📅 每日签到 <span class="checkin-state" data-extra="checkin">…</span></button>
+          <button class="pop-item" data-act="makeup">↩️ 本月补签</button>
+          <button class="pop-item" data-act="quests">🎯 今日任务</button>
+          <button class="pop-item" data-act="topic">💬 每日话题</button>
           <button class="pop-item" data-act="notif">🔔 通知中心</button>
           <div class="pop-sep"></div>
           <button class="pop-item" data-act="logout">🚪 退出登录</button>
         </div>
       </div>`;
     host.querySelector('#bellBtn').addEventListener('click', (e) => { e.stopPropagation(); location.href = 'notifications.html'; });
+    host.querySelector('#dmBtn').addEventListener('click', (e) => { e.stopPropagation(); closePops(); if (window.XddLive) XddLive.openPanel(); });
     host.querySelector('#userChip').addEventListener('click', (e) => { e.stopPropagation(); toggleUserPop(); });
     host.querySelector('#userPop').addEventListener('click', async (e) => {
       const btn = e.target.closest('[data-act]');
@@ -460,6 +472,9 @@
       else if (act === 'history') showHistory();
       else if (act === 'profile') openProfile(myId());
       else if (act === 'checkin') { closePops(); await doCheckin(true); }
+      else if (act === 'makeup') { closePops(); await doCheckinMakeup(); }
+      else if (act === 'quests') { closePops(); await showDailyQuests(); }
+      else if (act === 'topic') { closePops(); await showDailyTopic(); }
       else if (act === 'notif') { closePops(); location.href = 'notifications.html'; }
       else if (act === 'logout') { logoutUser(); }
       closePops();
@@ -470,6 +485,7 @@
       if (!e.target.closest('.user-area') && !e.target.closest('.notif-panel')) closePops();
     }, { once: false });
     refreshUnread();
+    if (window.XddLive) XddLive.start();
     updateComposerIdentity();
     updateComposerPrivileges();
   }
@@ -486,10 +502,12 @@
     let s = null;
     try { s = await callEdge('checkin_status', { token: state.user.token }); } catch (_e) { s = null; }
     if (!el) return;
-    if (!s) { el.textContent = ''; return; }
+    if (!s) { el.textContent = ''; const b = document.querySelector('[data-act="makeup"]'); if (b) b.disabled = true; return; }
     el.textContent = s.checkedToday
       ? `已签到 · 连签 ${s.checkedStreak || s.streak || 0} 天`
       : (s.checkedStreak > 0 ? `签到 +${s.rewardToday}（连签中）` : `今日可签到 +1`);
+    const makeupBtn = document.querySelector('[data-act="makeup"]');
+    if (makeupBtn) { makeupBtn.disabled = !s.canMakeup; makeupBtn.title = s.canMakeup ? '补签昨日' : '每个自然月一次免费补签，需存在可补签日期'; }
   }
   async function doCheckin(showAlert) {
     if (!loggedIn()) { openUserModal(); return; }
@@ -501,9 +519,53 @@
     }
     try {
       const r = await callEdge('checkin', { token: state.user.token });
-      renderUserBar(); refreshUnread();
-      if (showAlert) window.alert(`签到成功！连续签到 ${r.streak} 天，获得 ${r.gained} 点经验。`);
+      refreshProfile(); refreshUnread();
+      if (showAlert) window.alert(`签到成功！连续签到 ${r.streak} 天，获得 ${r.gained} 点经验和 ${r.coins || 0} 积分${r.comeback && (r.comeback.xp || r.comeback.coins) ? `；回归礼包 +${r.comeback.xp || 0} 经验、+${r.comeback.coins || 0} 积分` : ''}。`);
     } catch (e) { if (showAlert) window.alert(e.message); }
+  }
+
+  async function doCheckinMakeup() {
+    if (!loggedIn()) { openUserModal(); return; }
+    if (!confirm('确认使用本月免费补签机会？')) return;
+    try { const r = await callEdge('checkin_makeup', { token: state.user.token }); alert(`补签成功：+${r.gained || 0} 经验、+${r.coins || 0} 积分`); refreshProfile(); } catch (e) { alert(e.message); }
+  }
+
+  let composingDailyTopicId = '';
+  let composingDailyTopicTitle = '';
+  // ---------------- 每日任务 / 每日话题 ----------------
+  function dailyOverlay(title, body) {
+    const mask = document.createElement('div');
+    mask.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(10,12,25,.58);display:flex;align-items:center;justify-content:center;padding:20px';
+    mask.innerHTML = `<div style="width:min(560px,96vw);max-height:84vh;overflow:auto;background:var(--card,#fff);border:1px solid var(--line);border-radius:14px;padding:18px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><h3 style="margin:0">${escapeHtml(title)}</h3><button class="btn ghost sm" data-close style="margin-left:auto">关闭</button></div><div data-body>${body}</div></div>`;
+    mask.addEventListener('click', (e) => { if (e.target === mask || e.target.closest('[data-close]')) mask.remove(); });
+    document.body.appendChild(mask); return mask;
+  }
+  async function renderDailyPanels() {
+    const questBox = $('dailyQuestPanel'), topicBox = $('dailyTopicCard');
+    if (!questBox || !topicBox) return;
+    questBox.classList.toggle('hidden', !loggedIn());
+    if (loggedIn()) {
+      try { const d = await callEdge('daily_quests', { token: state.user.token }); const quests = d?.quests || []; questBox.innerHTML = `<h3 class="side-title">今日任务</h3>${quests.slice(0, 6).map((q) => `<div style="padding:7px 0;border-bottom:1px dashed var(--line);font-size:12px"><b>${escapeHtml(q.title)}</b><span style="float:right;color:var(--faint)">${q.progress}/${q.target}</span></div>`).join('') || '<div class="empty">今日暂无任务</div>'}<button class="btn sm ghost" data-open-quests style="margin-top:10px">查看任务与奖励</button>`; questBox.querySelector('[data-open-quests]')?.addEventListener('click', showDailyQuests); } catch (_e) { questBox.innerHTML = '<div class="empty">今日任务暂不可用</div>'; }
+    }
+    try { const d = await callEdge('daily_topic', { token: state.user.token || '' }); const q = d?.topic; topicBox.classList.toggle('hidden', !q); if (q) { topicBox.innerHTML = `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>每日话题 · ${escapeHtml(q.title)}</b><span style="color:var(--muted);font-size:12px">${escapeHtml(q.intro || '')}</span><button class="btn sm ghost" data-open-topic style="margin-left:auto">查看并参与</button></div>`; topicBox.querySelector('[data-open-topic]')?.addEventListener('click', showDailyTopic); } } catch (_e) { topicBox.classList.add('hidden'); }
+  }
+  async function showDailyQuests() {
+    if (!loggedIn()) { openUserModal(); return; }
+    let data; try { data = await callEdge('daily_quests', { token: state.user.token }); } catch (e) { alert(e.message); return; }
+    const rows = data?.quests || [];
+    const body = rows.length ? rows.map((q) => `<div style="padding:12px 0;border-bottom:1px dashed var(--line)"><div style="display:flex;gap:8px;align-items:center"><b>${escapeHtml(q.title)}</b><span style="margin-left:auto;color:var(--faint);font-size:12px">${q.progress}/${q.target}</span></div><div style="color:var(--muted);font-size:12px;margin:4px 0 8px">${escapeHtml(q.description || '')} · +${q.coin_reward || 0} 积分 · +${q.xp_reward || 0} 经验</div><button class="btn sm ${q.claimed || !q.completed ? 'ghost' : ''}" data-quest-claim="${escapeHtml(q.id)}" ${q.claimed || !q.completed ? 'disabled' : ''}>${q.claimed ? '已领取' : (q.completed ? '领取奖励' : '进行中')}</button></div>`).join('') : '<div class="empty">今日暂无任务</div>';
+    const mask = dailyOverlay(`今日任务 · ${data?.day || ''}`, body);
+    mask.querySelectorAll('[data-quest-claim]').forEach((b) => b.addEventListener('click', async () => { b.disabled = true; try { const r = await callEdge('daily_quest_claim', { token: state.user.token, quest_id: b.dataset.questClaim }); alert(`已领取：+${r.coins || 0} 积分，+${r.xp || 0} 经验`); mask.remove(); showDailyQuests(); refreshProfile(); } catch (e) { alert(e.message); b.disabled = false; } }));
+  }
+  async function showDailyTopic() {
+    let data; try { data = await callEdge('daily_topic', { token: state.user.token || '' }); } catch (e) { alert(e.message); return; }
+    const q = data?.topic; if (!q) { dailyOverlay('每日话题', '<div class="empty">今日还没有发布话题</div>'); return; }
+    const claimDisabled = q.claimed || !q.participated;
+    const claimLabel = q.claimed ? '今日已领取' : (q.participated ? '领取话题奖励' : '完成发帖后领取');
+    const body = `<div style="padding:4px 0"><h4 style="margin:0 0 8px">${escapeHtml(q.title)}</h4><div style="white-space:pre-wrap;color:var(--muted);line-height:1.7">${escapeHtml(q.intro || '')}</div><div style="margin-top:12px;color:var(--faint);font-size:12px">奖励：+${q.coin_reward || 0} 积分 · +${q.xp_reward || 0} 经验</div><div style="margin-top:10px;color:${q.participated ? 'var(--ok)' : 'var(--faint)'};font-size:12px">${q.participated ? '已检测到今日参与帖子' : '尚未检测到今日已发布的参与帖子'}</div><button class="btn sm ghost" data-topic-compose="${escapeHtml(q.id)}" style="margin-top:12px;margin-right:8px">参与话题发帖</button><button class="btn sm" data-topic-claim="${escapeHtml(q.id)}" ${claimDisabled ? 'disabled' : ''} style="margin-top:12px">${claimLabel}</button></div>`;
+    const mask = dailyOverlay('每日话题', body);
+    mask.querySelector('[data-topic-compose]')?.addEventListener('click', () => { if (!loggedIn()) { mask.remove(); openUserModal(); return; } mask.remove(); els.topicSelect.value = DAILY_TOPIC_OPTION; els.topicSelect.dispatchEvent(new Event('change')); els.content.focus(); els.content.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+    const b = mask.querySelector('[data-topic-claim]'); if (b) b.addEventListener('click', async () => { b.disabled = true; try { const r = await callEdge('daily_topic_claim', { token: state.user.token, topic_id: b.dataset.topicClaim }); if (!r || r.claimed !== true) throw new Error('话题奖励未发放，请先完成今日话题发帖'); alert(`已领取：+${r.coins || 0} 积分，+${r.xp || 0} 经验`); mask.remove(); refreshProfile(); renderDailyPanels(); } catch (e) { alert(e.message); b.disabled = false; } });
   }
 
   // ---------------- 个人主页 ----------------
@@ -514,25 +576,37 @@
   ];
   async function openProfile(targetId) {
     if (!targetId) { if (loggedIn()) targetId = myId(); else { openUserModal(); return; } }
+    closeProfileModal();
     profileModalOpenId = targetId;
     const overlay = document.createElement('div');
     profileOverlay = overlay;
+    overlay.dataset.profileOverlay = '1';
     overlay.className = 'profile-mask';
     overlay.innerHTML = `<div class="profile-card" data-pid="pcard">
       <div class="profile-card-head"><span class="profile-loading">正在加载主页…</span><button class="profile-close">×</button></div>
       <div class="profile-card-body">加载中…</div>
     </div>`;
-    overlay.querySelector('.profile-close').addEventListener('click', () => closeProfileModal());
-    overlay.addEventListener('mousedown', (e) => { if (e.target === overlay) closeProfileModal(); });
+    overlay.querySelector('.profile-close').addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); closeProfileModal(overlay); });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeProfileModal(overlay); });
     document.body.appendChild(overlay);
     let data = null;
     try { data = await callEdge('profile_get', { token: state.user.token || '', user_id: targetId }); }
     catch (_e) { /* ignore */ }
+    if (!overlay.isConnected || profileOverlay !== overlay) return;
     const body = overlay.querySelector('.profile-card-body');
+    if (!body) return;
     if (!data) { body.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted)">主页加载失败</div>'; return; }
     body.innerHTML = renderProfile(data);
     body.querySelectorAll('[data-pact]').forEach((b) => b.addEventListener('click', () => { const ps = state.user.profile; renderProfileInto(body, data); }));
-    if (data.canEdit) { bindProfileEdit(body, data, overlay); renderPrivilegeCenter(body); }
+    if (data.canEdit) { bindProfileEdit(body, data, overlay); renderPrivilegeCenter(body); loadDmPref(body, data); bindDmPref(body, data); }
+    // 他人主页：发起私信（走第二期私信面板，服务端按「陌生人私信」开关裁定）
+    const dmBtn = body.querySelector('[data-dm-user]');
+    if (dmBtn) dmBtn.addEventListener('click', () => {
+      const uid = dmBtn.getAttribute('data-dm-user');
+      closeProfileModal(overlay);
+      if (window.XddLive && window.XddLive.openDm) window.XddLive.openDm({ peerId: uid });
+      else window.alert('私信功能尚未加载，请刷新页面后重试');
+    });
     const pcbox = body.querySelector('[data-pcoll-box]');
     if (pcbox && !data.canEdit && targetId) {
       (async () => {
@@ -548,7 +622,17 @@
   }
   let profileModalOpenId = null;
   let profileOverlay = null;
-  function closeProfileModal() { if (profileOverlay) { profileOverlay.remove(); profileOverlay = null; } }
+  function closeProfileModal(targetOverlay = profileOverlay) {
+    if (!targetOverlay) return;
+    targetOverlay.remove();
+    if (profileOverlay === targetOverlay) {
+      profileOverlay = null;
+      profileModalOpenId = null;
+    }
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && profileOverlay) closeProfileModal();
+  });
   function renderProfile(data) {
     if (data.locked) {
       return `<div style="padding:34px 24px;text-align:center">
@@ -577,7 +661,8 @@
         <div class="profile-nick">${escapeHtml(nick)}<span class="author-level" style="vertical-align:middle">${escapeHtml(title)} Lv.${u.level}</span></div>
         ${u.post_count != null ? `<div class="profile-stats">📄 ${u.post_count} 帖 · 💬 ${u.comment_count} 评论 · 👍 ${u.like_received} 赞</div>` : ''}
       </div>
-      ${data.canEdit ? `<button class="profile-editbtn" data-act="edit">✏️ 编辑主页</button>` : ''}
+      ${data.canEdit ? `<button class="profile-editbtn" data-act="edit">✏️ 编辑主页</button>`
+        : (u.id && loggedIn() ? `<button class="profile-editbtn" data-dm-user="${escapeHtml(String(u.id))}">✉️ 私信</button>` : '')}
       <div class="profile-tags">${tagChips}</div>
       <div class="profile-rows">${rows || '<div style="color:var(--faint);font-size:12px;padding:8px 0">TA 还没有填写可见的公开资料</div>'}</div>
       ${data.canEdit && myPriv().elite ? `<div class="prof-elite">
@@ -592,6 +677,15 @@
         <div data-devices><span style="color:var(--faint);font-size:12px">加载中…</span></div>
         <button class="profile-editbtn" data-logout-others style="font-size:11px">🚪 退出其他所有设备</button>
       </div>` : ''}
+      ${data.canEdit ? `<div class="prof-dmpref">
+        <div class="pf-vis-title">✉️ 私信设置</div>
+        <label class="prof-dmpref-row">
+          <input type="checkbox" data-dm-stranger ${dmPrefAllow(u.id) ? 'checked' : ''}>
+          <span>接收陌生人私信</span>
+        </label>
+        <div style="color:var(--faint);font-size:11px;margin-top:4px">关闭后，其他人无法主动向你发起新私信；你主动发起的私信、以及已经存在的会话都不受影响。</div>
+        <div data-dm-pref-msg style="font-size:11px;min-height:15px;margin-top:2px"></div>
+      </div>` : ''}
       ${data.canEdit ? `<div style="margin-top:8px;font-size:11px;color:var(--faint)">只能在个人中心（右上角头像 → 我的主页）编辑自己的信息。提示：敏感词会在提交前本地拦截。</div>` : ''}
       ${!data.canEdit && u.id ? `<div class="pcol-section" data-public-coll style="margin-top:14px;border-top:1px solid var(--line-soft);padding-top:12px">
         <div class="pf-vis-title">📁 公开帖子合集</div>
@@ -600,6 +694,48 @@
     </div>`;
   }
   function visibilityFor(p, label, val, data) { void p; void label; void val; void data; return ''; }
+  // 陌生人私信开关：缓存已加载的值，供 renderProfile 在重绘（编辑→返回）后仍显示正确状态
+  const dmPrefState = { uid: '', allow: true, loaded: false };
+  function dmPrefAllow(uid) {
+    if (!dmPrefState.loaded || dmPrefState.uid !== String(uid || '')) return true;   // 未加载时按默认「接收」渲染
+    return dmPrefState.allow;
+  }
+  async function loadDmPref(body, data) {
+    const cb = body.querySelector('[data-dm-stranger]');
+    if (!cb || !state.user.token) return;
+    try {
+      const r = await callEdge('dm_pref_get', { token: state.user.token });
+      dmPrefState.uid = String((data.user && data.user.id) || '');
+      dmPrefState.allow = r.allow_stranger !== false;
+      dmPrefState.loaded = true;
+      cb.checked = dmPrefState.allow;
+    } catch (_e) { /* 加载失败保持默认开启，不打扰用户 */ }
+  }
+  // 事件委托绑定在卡片容器上，编辑页返回重绘后依然有效
+  function bindDmPref(body, data) {
+    body.addEventListener('change', async (e) => {
+      const cb = e.target && e.target.closest ? e.target.closest('[data-dm-stranger]') : null;
+      if (!cb) return;
+      const msg = body.querySelector('[data-dm-pref-msg]');
+      const prev = dmPrefState.loaded ? dmPrefState.allow : true;
+      cb.disabled = true;
+      if (msg) { msg.style.color = 'var(--faint)'; msg.textContent = '保存中…'; }
+      try {
+        const r = await callEdge('dm_pref_save', { token: state.user.token, allow_stranger: cb.checked });
+        dmPrefState.uid = String((data.user && data.user.id) || '');
+        dmPrefState.allow = r.allow_stranger !== false;
+        dmPrefState.loaded = true;
+        cb.checked = dmPrefState.allow;
+        if (msg) {
+          msg.style.color = 'var(--ok)';
+          msg.textContent = dmPrefState.allow ? '✅ 已开启：任何人都可以给你发私信' : '✅ 已关闭：其他人无法主动向你发起新私信';
+        }
+      } catch (err) {
+        cb.checked = prev;
+        if (msg) { msg.style.color = '#e05e5e'; msg.textContent = (err && err.message) || '保存失败，请稍后重试'; }
+      } finally { cb.disabled = false; }
+    });
+  }
   function multiLine(s) { return String(s || '').replace(/\n/g, '<br>'); }
   function renderProfileInto(body, data) { body.innerHTML = renderProfile(data); }
   function profileFieldHtml(p) {
@@ -1019,8 +1155,13 @@
   }
 
   // ---------------- 举报 ----------------
+  // 第二期起举报必须登录：举报处理结果要能回投到举报者的通知中心
+  function mentionPick(el) {
+    try { return (el && window.XddMentions) ? XddMentions.collect(el) : []; } catch (_e) { return []; }
+  }
   let reportTarget = null;
   function openReport(type, id) {
+    if (!loggedIn()) { window.alert('请先登录后再举报'); openUserModal(); return; }
     reportTarget = { type, id };
     $('reportReason').value = '';
     $('reportError').textContent = '';
@@ -1908,7 +2049,7 @@
     if (!loggedIn()) return;
     try {
       const p = await callEdge('user_whoami', { token: state.user.token });
-      if (p && p.id) { state.user.profile = p; saveUserSession(); renderUserBar(); }
+      if (p && p.id) { state.user.profile = p; saveUserSession(); renderUserBar(); renderDailyPanels(); }
     } catch (_e) {}
   }
   // 登录后从服务端同步「已点赞」集合，保证一个账号对一帖只赞一次
@@ -1977,6 +2118,7 @@
     }
     const tinput = box.querySelector('.cmt-input');
     tinput.addEventListener('input', () => { box.querySelector('.cmt-count').textContent = tinput.value.length + '/250'; });
+    if (window.XddMentions) XddMentions.attach(tinput, { getToken: () => state.user.token || '' });
     if (loggedIn()) {
       box.querySelector('.cmt-nick').value = userDisplay(state.user.profile);
       box.querySelector('.cmt-nick').readOnly = true;
@@ -2101,7 +2243,9 @@
     if (!loggedIn()) { window.alert('请先登录后评论'); openUserModal(); return; }
     const w = box.querySelector('.cmt-warn');
     w.textContent = '';
-    const content = box.querySelector('.cmt-input').value.trim();
+    const cmtEl = box.querySelector('.cmt-input');
+    const content = cmtEl.value.trim();
+    const mentionList = mentionPick(cmtEl);
     const nickname = box.querySelector('.cmt-nick').value.trim().slice(0, 24);
     if (!content) { w.textContent = '评论内容不能为空'; return; }
     if (content.length > 250) { w.textContent = '评论最多 250 字'; return; }
@@ -2115,7 +2259,7 @@
     btn.disabled = true;
     try {
       await callEdge('comment_create', {
-        token: state.user.token || '', post_id: post.id, parent_id: box._replyTo || null, nickname, content
+        token: state.user.token || '', post_id: post.id, parent_id: box._replyTo || null, nickname, content, mentions: mentionList
       });
       box._replyTo = null;
       box.querySelector('.cmt-target').textContent = '';
@@ -2133,7 +2277,7 @@
         if (retryCap) {
           try {
             await callEdge('comment_create', {
-              token: state.user.token || '', post_id: post.id, parent_id: box._replyTo || null, nickname, content, ...retryCap
+              token: state.user.token || '', post_id: post.id, parent_id: box._replyTo || null, nickname, content, mentions: mentionList, ...retryCap
             });
             box._replyTo = null;
             box.querySelector('.cmt-target').textContent = '';
@@ -2473,6 +2617,7 @@
 
   // ---------------- 发布 ----------------
   function renderTopicSelect() {
+    const selected = els.topicSelect.value;
     els.topicSelect.innerHTML = '';
     [...TOPICS].forEach((t) => {
       const o = document.createElement('option');
@@ -2490,9 +2635,16 @@
       });
       els.topicSelect.appendChild(g);
     }
+    if (currentDailyTopic && loggedIn()) {
+      const daily = document.createElement('option');
+      daily.value = DAILY_TOPIC_OPTION;
+      daily.textContent = `每日话题：${currentDailyTopic.title}`;
+      els.topicSelect.insertBefore(daily, els.topicSelect.firstChild);
+    }
     const n = document.createElement('option');
     n.value = NEW_TOPIC; n.textContent = '＋ 新建自定义话题…';
     els.topicSelect.appendChild(n);
+    if (selected && [...els.topicSelect.options].some((o) => o.value === selected)) els.topicSelect.value = selected;
     updateCharCount();
   }
 
@@ -2502,6 +2654,10 @@
       const data = await callEdge('topics_list', {});
       customTopics = (data && data.custom) ? data.custom : [];
     } catch (_e) { customTopics = []; }
+    try {
+      const daily = await callEdge('daily_topic', { token: state.user.token || '' });
+      currentDailyTopic = daily?.topic || null;
+    } catch (_e) { currentDailyTopic = null; }
     renderTopicSelect();
     renderFilterBar();
   }
@@ -2539,7 +2695,14 @@
   }
   els.topicSelect.addEventListener('change', () => {
     if (els.topicSelect.value === NEW_TOPIC) handleNewTopic();
-    else updateCharCount();
+    else if (els.topicSelect.value === DAILY_TOPIC_OPTION) {
+      els.composeHint.textContent = currentDailyTopic ? `已选择每日话题：${currentDailyTopic.title}，发布成功后计入每日话题任务。` : '';
+      updateCharCount();
+    } else {
+      if (composingDailyTopicId) composingDailyTopicId = '';
+      els.composeHint.textContent = '';
+      updateCharCount();
+    }
   });
   function updateCharCount() {
     const limit = topicLimit(els.topicSelect.value);
@@ -3125,7 +3288,9 @@
   }
 
   async function publish() {
-    const topic = els.topicSelect.value;
+    const selectedTopic = els.topicSelect.value;
+    const dailyTopicSelection = selectedTopic === DAILY_TOPIC_OPTION ? currentDailyTopic : null;
+    const topic = dailyTopicSelection ? `每日话题：${dailyTopicSelection.title}` : selectedTopic;
     const content = els.content.value.trim();
     // 登录用户直接使用用户名（后端强制），不采用自定义昵称
     const nickname = loggedIn() ? '' : els.nickname.value.trim().slice(0, 24);
@@ -3147,6 +3312,8 @@
     const styleData = (myLevelNow() >= 55) ? cardStylePayload() : null;
     const basePayload = () => ({
       token: state.user.token || '', topic, nickname, content,
+      mentions: mentionPick(els.content),
+      ...(loggedIn() && (dailyTopicSelection?.id || composingDailyTopicId) ? { daily_topic_id: dailyTopicSelection?.id || composingDailyTopicId } : {}),
       ...(schedTs > 0 ? { schedule_at: new Date(schedTs).toISOString() } : {}),
       ...(loggedIn() && minView > 0 ? { min_view_level: minView } : {}),
       ...(loggedIn() && els.postAskMentor && els.postAskMentor.value ? { ask_mentor_id: els.postAskMentor.value } : {}),
@@ -3163,6 +3330,8 @@
       if (els.postAskMentor) els.postAskMentor.value = '';
       if (els.postResolve) els.postResolve.checked = false;
       clearComposerExtras();
+      composingDailyTopicId = '';
+      composingDailyTopicTitle = '';
       schedTs = 0;
       try { localStorage.removeItem(DRAFT_KEY); } catch (_e) {}
       updateCharCount();
@@ -3512,7 +3681,13 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
     readUserSession();
     state.likedSet = getLikedSet();
     renderUserBar();
+    renderDailyPanels();
+    window.addEventListener('focus', renderDailyPanels);
     applyLoginGate(); // 未登录用户被门禁拦截，无法查看/使用论坛内容
+    // 第二期：@提及补全挂在发帖框；底栏提示点击帖子通知时用 __xddScrollToPost 定位
+    window.__xddScrollToPost = scrollToPost;
+    if (window.XddMentions && els.content) XddMentions.attach(els.content, { getToken: () => state.user.token || '' });
+    if (window.XddLive) XddLive.start();
     refreshInviteState();
     loadSiteStatus();
     loadPopups();

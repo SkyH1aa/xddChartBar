@@ -285,6 +285,31 @@
       <div id="deviceBanList"></div>
     </section>
 
+    <!-- 每日运营管理（can_daily） -->
+    <section id="tab-daily" class="panel hidden">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px"><h3 style="margin:0">每日运营</h3><button id="dailyRefresh" class="btn ghost sm">刷新</button></div>
+      <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line);margin-bottom:14px">
+        <h4 style="margin:0 0 10px">签到与奖励配置</h4>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><label>每日积分上限 <input id="dailyCoinCap" class="input" type="number" min="0" style="width:110px"></label><label>每日经验上限 <input id="dailyXpCap" class="input" type="number" min="0" style="width:110px"></label><label>回归经验 <input id="comebackXp" class="input" type="number" min="0" style="width:110px"></label><label>回归积分 <input id="comebackCoins" class="input" type="number" min="0" style="width:110px"></label><button id="dailyConfigSave" class="btn sm">保存配置</button></div>
+        <div id="dailyConfigMsg" style="font-size:12px;color:var(--faint);margin-top:8px"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,390px);gap:14px;align-items:start;margin-bottom:14px">
+        <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line)">
+          <h4 id="dailyQuestFormTitle" style="margin:0 0 10px">新建任务</h4><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="dailyQuestKey" class="input" placeholder="任务标识，如 post" style="width:130px"><input id="dailyQuestTitle" class="input" placeholder="任务标题" style="width:180px"><input id="dailyQuestDesc" class="input" placeholder="任务说明" style="width:220px"><input id="dailyQuestTarget" class="input" type="number" min="1" placeholder="目标" style="width:90px"><input id="dailyQuestCoins" class="input" type="number" min="0" placeholder="积分奖励" style="width:100px"><input id="dailyQuestXp" class="input" type="number" min="0" placeholder="经验奖励" style="width:100px"><label style="display:flex;align-items:center;gap:4px"><input id="dailyQuestEnabled" type="checkbox" checked>启用</label><button id="dailyQuestSave" class="btn sm">保存任务</button></div>
+        </div>
+        <aside class="panel" style="box-shadow:none;background:var(--card-soft);border:1px solid var(--line);font-size:12px;line-height:1.65">
+          <h4 style="margin:0 0 8px">任务标识对照表</h4>
+          <div><b>post</b>：用户发帖；<b>comment</b>：发表评论；<b>reply</b>：回复评论；<b>like</b>：用户点赞；<b>favorite</b>：用户收藏；<b>history</b>：浏览帖子并加入历史；<b>checkin</b>：每日签到。</div>
+          <div style="margin-top:6px"><b>received_like</b>：自己的内容被点赞；<b>received_favorite</b>：自己的帖子被收藏；<b>received_comment</b>：自己的帖子被评论或回复。</div>
+          <div style="margin-top:8px;color:var(--muted)">创建指南：先选择标识，再填写易懂的任务标题和说明；目标是当天完成次数；积分/经验是完成任务后额外奖励。任务奖励不会替代原本站规经验，停用后不再展示、不再累计，修改只对修改后领取生效。</div>
+          <div style="margin-top:6px;color:var(--faint)">原有经验仍独立生效：发帖+3、评论/回复+1、被点赞+1、被收藏+2、精华+15、传说+20、金牌+20、有效举报+3；发帖和评论/回复经验每日合计最高50。</div>
+        </aside>
+      </div>
+      <div id="dailyQuestList"></div>
+      <div style="border-top:1px dashed var(--line);margin-top:14px;padding-top:14px"><h4 style="margin:0 0 10px">任务统计与补发</h4><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input id="dailyStatsDay" class="input" type="date"><button id="dailyStatsLoad" class="btn sm ghost">查询统计</button></div><div id="dailyStatsList" style="margin:10px 0"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="dailyGrantUser" class="input" placeholder="输入昵称或 UUID" style="min-width:220px"><select id="dailyGrantQuest" class="input"></select><input id="dailyGrantCoins" class="input" type="number" min="0" placeholder="积分" style="width:90px"><input id="dailyGrantXp" class="input" type="number" min="0" placeholder="经验" style="width:90px"><button id="dailyGrantSave" class="btn sm">手动补发</button></div></div>
+      <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line);margin-top:14px"><h4 style="margin:0 0 10px">每日话题</h4><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="dailyTopicDate" class="input" type="date"><input id="dailyTopicTitle" class="input" placeholder="话题标题" style="width:220px"><input id="dailyTopicIntro" class="input" placeholder="话题简介" style="width:260px"><input id="dailyTopicCoins" class="input" type="number" min="0" placeholder="积分" style="width:90px"><input id="dailyTopicXp" class="input" type="number" min="0" placeholder="经验" style="width:90px"><label style="display:flex;align-items:center;gap:4px"><input id="dailyTopicEnabled" type="checkbox" checked>启用</label><button id="dailyTopicSave" class="btn sm">保存话题</button></div><div id="dailyTopicList" style="margin-top:12px"></div></div>
+    </section>
+
     <!-- 顶置管理 -->
     <section id="tab-pinned" class="panel hidden">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
@@ -432,6 +457,23 @@
         <div id="faMsg" style="font-size:12px;color:var(--faint);margin-top:10px"></div>
       </div>
     </section>
+
+    <!-- 私信管理（can_dm） -->
+    <section id="tab-dm" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">✉️ 私信管理</h3>
+        <button id="dmRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div id="dmStats" style="margin-bottom:16px"></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+        <input id="dmSearchQ" class="input" placeholder="输入用户名 / 昵称 / 消息关键词" style="min-width:240px" maxlength="30" />
+        <button id="dmSearchBtn" class="btn sm">检索会话</button>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:12px">
+        默认展示最近 100 个会话；输入关键词可检索（同时匹配双方身份与消息正文）。可查看会话全文（含已撤回消息的原文）、封禁/解封会话，或禁用某个用户的私信接收功能。以上操作都会写入审计日志，封禁与禁用会通知相关用户。
+      </div>
+      <div id="dmThreadList"></div>
+    </section>
   </div>
 
   <!-- 邀请码管理（需 can_invite 权限；若创始人未开启邀请码注册则显示挡板） -->
@@ -469,6 +511,17 @@
         <span style="font-size:12px;color:var(--faint)">请由创始人先在「邀请码」页开启邀请码注册后，管理员方可创建与浏览邀请码。</span>
       </div>
     </section>
+  </div>
+
+  <!-- 私信会话全文弹窗（含撤回原文，仅管理员可见） -->
+  <div id="dmThreadModal" class="modal-overlay hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px">
+    <div class="panel" style="max-width:680px;width:100%;max-height:82vh;overflow:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+        <h3 id="dmThreadTitle" style="margin:0">会话全文</h3>
+        <button id="dmThreadClose" class="btn ghost sm">关闭</button>
+      </div>
+      <div id="dmThreadBody"></div>
+    </div>
   </div>
 
   <!-- 审计原文查看弹窗 -->

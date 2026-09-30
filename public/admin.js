@@ -32,6 +32,7 @@
     { key: 'audit', label: '审计日志', perm: 'can_view_audit' },
     { key: 'blacklist', label: '黑名单', perm: 'can_blacklist' },
     { key: 'userMgmt', label: '用户统一管理', perm: 'can_user_mgmt' },
+    { key: 'dm', label: '✉️ 私信管理', perm: 'can_dm' },
     { key: 'digests', label: '精华聚合', perm: 'can_digest' },
     { key: 'popups', label: '弹窗公告', perm: 'can_popup' },
     { key: 'announces', label: '公告栏', perm: 'can_notice' },
@@ -41,7 +42,8 @@
     { key: 'invite', label: '🔑 邀请码', perm: 'can_invite' },
     { key: 'udellog', label: '用户删除日志', perm: 'can_del_log' },
     { key: 'archive', label: '留档日志', perm: 'can_archive' },
-    { key: 'deviceban', label: '设备封禁', perm: 'can_deviceban' }
+    { key: 'deviceban', label: '设备封禁', perm: 'can_deviceban' },
+    { key: 'daily', label: '每日运营', perm: 'can_daily' }
   ];
   const FOUNDER_ONLY_TABS = ['admins', 'resetPwd', 'site', 'legends'];
 
@@ -256,6 +258,7 @@
     if (key === 'pinned') loadPinned();
     if (key === 'audit') loadAudit();
     if (key === 'userMgmt') loadUserMgmt();
+    if (key === 'dm') loadDmAdmin();
     if (key === 'digests') loadDigests();
     if (key === 'blacklist') {
       if (!hasPerm('can_blacklist') && !hasPerm('can_block') && hasPerm('can_ban')) {
@@ -276,6 +279,7 @@
     if (key === 'udellog') loadUdelLog();
     if (key === 'archive') loadArchive();
     if (key === 'deviceban') loadDeviceBan();
+    if (key === 'daily') loadDailyOps();
   }
 
   // ---------- 邀请码管理（can_invite） ----------
@@ -421,21 +425,39 @@
       const items = await callEdge('report_list', {});
       if (!items.length) { list.innerHTML = '<div class="empty">暂无待处理举报 ✅</div>'; return; }
       list.innerHTML = '';
-      items.forEach(({ report, content }) => {
+      items.forEach(({ report, content, need_can_dm }) => {
+        const isDm = report.target_type === 'dm';
         const card = document.createElement('div');
         card.className = 'panel fade-in-up';
         card.style.padding = '12px 14px';
         card.style.boxShadow = 'none';
         card.style.marginBottom = '10px';
-        const src = content ? `
+        const typeLabel = isDm ? '私信举报' : (report.target_type === 'post' ? '帖子举报' : '评论举报');
+        let src;
+        if (isDm) {
+          if (need_can_dm) src = '<div class="empty" style="padding:6px">需要「私信管理」权限才能查看被举报的私信内容</div>';
+          else if (!content) src = '<div class="empty" style="padding:6px">（被举报私信已不存在）</div>';
+          else src = `<div style="border-left:3px solid var(--line);padding-left:10px;margin:8px 0;font-size:13px">
+            ${(content.context || []).map((c) => {
+              const isTarget = c.id === content.id;
+              return `<div style="margin:3px 0;color:${isTarget ? 'var(--text)' : 'var(--faint)'}">
+                ${isTarget ? '<span class="badge" style="color:#fff;background:var(--danger)">被举报</span> ' : ''}
+                <strong>${escapeHtml(c.sender_name || '已注销用户')}</strong>：<span style="white-space:pre-wrap">${escapeHtml(truncate(c.body, 160))}</span>
+                ${c.recalled ? ' <span style="color:var(--warn)">[已撤回]</span>' : ''}
+              </div>`;
+            }).join('')}
+          </div>`;
+        } else {
+          src = content ? `
           <div style="border-left:3px solid var(--line);padding-left:10px;margin:8px 0;color:var(--text);font-size:13px;white-space:pre-wrap">
             ${content.blocked ? '<span class="badge" style="color:#fff;background:var(--danger)">已屏蔽</span> ' : ''}
             <strong>${escapeHtml(content.nickname || '匿名')}</strong> · ${escapeHtml(content.topic || '评论')} ：
             ${escapeHtml(truncate(content.content, 120))}
           </div>` : '<div class="empty" style="padding:6px">（目标内容已被删除）</div>';
+        }
         card.innerHTML = `
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <strong style="font-size:13px">${report.target_type === 'post' ? '帖子' : '评论'}举报</strong>
+            <strong style="font-size:13px">${typeLabel}</strong>
             <span class="badge topic">${escapeHtml(report.reason.slice(0, 20))}</span>
             <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(report.created_at)}</span>
           </div>
@@ -443,9 +465,13 @@
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn sm" data-verdict="ignore" data-rid="${report.id}">忽略</button>
             <button class="btn sm ghost" data-verdict="block" data-rid="${report.id}">屏蔽目标</button>
-            <button class="btn sm danger" data-verdict="delete" data-rid="${report.id}">删除目标</button>
+            <button class="btn sm danger" data-verdict="delete" data-rid="${report.id}">${isDm ? '屏蔽并保留原文' : '删除目标'}</button>
+            ${isDm && content && content.thread_id ? `<button class="btn sm ghost" data-dmctx="${content.thread_id}">👁 查看会话全文</button>` : ''}
             ${hasPerm('can_ban') ? `<button class="btn sm danger ghost" data-ban7="${report.id}">⛔ 快捷封号7天</button>` : ''}
           </div>`;
+        card.querySelectorAll('[data-dmctx]').forEach((b) => {
+          b.addEventListener('click', () => openDmThread(b.dataset.dmctx));
+        });
         card.querySelectorAll('[data-ban7]').forEach((b) => {
           b.addEventListener('click', async () => {
             if (!confirm('确定对本次被举报内容的作者封号 7 天吗？封禁期间其无法发帖、点赞、评论或创建话题。')) return;
@@ -456,9 +482,13 @@
         });
         card.querySelectorAll('[data-verdict]').forEach((b) => {
           b.addEventListener('click', async () => {
-            if (b.dataset.verdict === 'delete' && !confirm('确定删除该目标及其关联内容？')) return;
+            const v = b.dataset.verdict;
+            const tip = isDm
+              ? (v === 'delete' ? '确定屏蔽该私信并保留原文备查？' : v === 'block' ? '确定屏蔽该私信？' : '确定忽略该举报？')
+              : (v === 'delete' ? '确定删除该目标及其关联内容？' : null);
+            if (tip && !confirm(tip)) return;
             b.disabled = true;
-            try { await callEdge('report_resolve', { report_id: b.dataset.rid, verdict: b.dataset.verdict }); loadReports(); refreshQueueBadges(); }
+            try { await callEdge('report_resolve', { report_id: b.dataset.rid, verdict: v }); loadReports(); refreshQueueBadges(); }
             catch (err) { alert(err.message); b.disabled = false; }
           });
         });
@@ -936,6 +966,7 @@
             </div>
             <div style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.7">
               注册于 ${formatTime(u.created_at)} ｜ 帖子 ${u.post_count} ｜ 评论 ${u.comment_count} ｜ 获赞 ${u.like_received}<br>
+              UUID：<code style="user-select:all;word-break:break-all">${escapeHtml(u.id)}</code><br>
               经验 ${u.xp} ｜ 自动等级 Lv.${u.auto_level} ｜ 当前等级 <b style="color:var(--accent,#e07a5f)">Lv.${u.level}</b>${manual}
             </div>
             <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
@@ -962,6 +993,140 @@
   $('userMgmtSearch').addEventListener('click', () => { userMgmtQ = $('userMgmtQ').value.trim(); loadUserMgmt(); });
   $('userMgmtQ').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('userMgmtSearch').click(); });
   $('userMgmtRefresh').addEventListener('click', () => loadUserMgmt());
+
+  // ---------- 私信管理（can_dm） ----------
+  let dmKeyword = '';
+
+  async function loadDmAdmin() {
+    const statsEl = $('dmStats');
+    statsEl.innerHTML = '<div class="empty">加载中…</div>';
+    try {
+      const s = await callEdge('dm_admin_stats', {});
+      statsEl.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px">
+        ${dmStatCard('会话总数', s.threads)}
+        ${dmStatCard('已封禁会话', s.blocked, s.blocked > 0 ? 'var(--danger)' : '')}
+        ${dmStatCard('消息总数', s.messages)}
+        ${dmStatCard('近 24h 消息', s.messages_24h)}
+        ${dmStatCard('已关闭私信用户', s.dm_disabled_users, s.dm_disabled_users > 0 ? 'var(--warn)' : '')}
+      </div>`;
+    } catch (e) { statsEl.innerHTML = `<div class="empty">统计加载失败：${escapeHtml(e.message)}</div>`; }
+    loadDmThreads();
+  }
+  function dmStatCard(label, val, color) {
+    return `<div class="panel" style="padding:12px 14px;box-shadow:none;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:${color || 'var(--text)'}">${Number(val) || 0}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px">${label}</div></div>`;
+  }
+
+  async function loadDmThreads() {
+    const list = $('dmThreadList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    let data;
+    try { data = await callEdge('dm_admin_threads', { keyword: dmKeyword }); }
+    catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; return; }
+    if (!data.length) {
+      list.innerHTML = dmKeyword
+        ? '<div class="empty">没有匹配的私信会话</div>'
+        : '<div class="empty">暂无任何私信会话</div>';
+      return;
+    }
+    list.innerHTML = '';
+    data.forEach((t) => list.appendChild(dmThreadRow(t)));
+  }
+
+  function dmSideChip(u) {
+    const name = u.gone ? '已注销用户' : (u.nickname || u.username || '未知');
+    const dis = u.dm_disabled ? ' <span class="badge" style="color:#fff;background:var(--warn)">已禁私信</span>' : '';
+    const btn = (!u.gone && u.id)
+      ? `<button class="btn sm ghost" data-dmuser="${u.id}" data-disabled="${u.dm_disabled ? '1' : '0'}">${u.dm_disabled ? '✅ 恢复私信' : '🚫 禁用私信'}</button>`
+      : '';
+    return `<span style="display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <strong>${escapeHtml(name)}</strong>${u.gone ? '' : `<span style="color:var(--faint);font-size:12px">@${escapeHtml(u.username)}</span>`}${dis}${btn}</span>`;
+  }
+
+  function dmThreadRow(t) {
+    const c = document.createElement('div');
+    c.className = 'panel fade-in-up';
+    c.style.padding = '12px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '10px';
+    const unread = (Number(t.unread_a) || 0) + (Number(t.unread_b) || 0);
+    c.innerHTML = `
+      <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            ${dmSideChip(t.a)}<span style="color:var(--faint)">↔</span>${dmSideChip(t.b)}
+            ${t.blocked ? '<span class="badge" style="color:#fff;background:var(--danger)">已封禁</span>' : ''}
+          </div>
+          <div style="font-size:12.5px;color:var(--muted);margin-top:6px;word-break:break-word">${escapeHtml(truncate(t.last_preview || '（暂无消息）', 80))}</div>
+          <div style="font-size:12px;color:var(--faint);margin-top:4px">
+            最近消息 ${formatTime(t.last_message_at)} ｜ 未读 ${unread}${t.blocked && t.blocked_reason ? ' ｜ 封禁原因：' + escapeHtml(t.blocked_reason) : ''}
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="btn sm" data-viewdm="${t.id}">👁 查看全文</button>
+          ${t.blocked
+            ? `<button class="btn sm ghost" data-unblockdm="${t.id}">🔓 解除封禁</button>`
+            : `<button class="btn sm" style="background:var(--danger);border-color:var(--danger)" data-blockdm="${t.id}">🚫 封禁会话</button>`}
+        </div>
+      </div>`;
+    c.querySelector(`[data-viewdm="${t.id}"]`).addEventListener('click', () => openDmThread(t.id));
+    const bl = c.querySelector(`[data-blockdm="${t.id}"]`);
+    if (bl) bl.addEventListener('click', async () => {
+      const reason = prompt('请输入封禁原因（会展示给会话双方，必填）：', '');
+      if (reason === null) return;
+      if (!reason.trim()) { alert('封禁原因不能为空'); return; }
+      bl.disabled = true;
+      try { await callEdge('dm_admin_block', { thread_id: t.id, blocked: true, reason: reason.trim() }); loadDmAdmin(); }
+      catch (e) { alert(e.message); bl.disabled = false; }
+    });
+    const ub = c.querySelector(`[data-unblockdm="${t.id}"]`);
+    if (ub) ub.addEventListener('click', async () => {
+      if (!confirm('确认解除该会话的封禁？')) return;
+      ub.disabled = true;
+      try { await callEdge('dm_admin_block', { thread_id: t.id, blocked: false }); loadDmAdmin(); }
+      catch (e) { alert(e.message); ub.disabled = false; }
+    });
+    c.querySelectorAll('[data-dmuser]').forEach((b) => {
+      b.addEventListener('click', async () => {
+        const disabled = b.dataset.disabled === '1';
+        if (!confirm(`确认${disabled ? '恢复' : '禁用'}该用户的私信功能？\n\n禁用后该用户既不能收发新私信，也不能在已有会话里发送。`)) return;
+        b.disabled = true;
+        try { await callEdge('dm_admin_user_dm', { user_id: b.dataset.dmuser, disabled: !disabled }); loadDmAdmin(); }
+        catch (e) { alert(e.message); b.disabled = false; }
+      });
+    });
+    return c;
+  }
+
+  // 会话全文（含已撤回消息的原文，仅管理员可见）
+  async function openDmThread(threadId) {
+    const modal = $('dmThreadModal');
+    const body = $('dmThreadBody');
+    $('dmThreadTitle').textContent = '会话全文';
+    body.innerHTML = '<div class="empty">加载中…</div>';
+    modal.classList.remove('hidden');
+    let d;
+    try { d = await callEdge('dm_admin_messages', { thread_id: threadId }); }
+    catch (e) { body.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; return; }
+    const nameOf = (u) => (u && (u.nickname || u.username)) || '已注销用户';
+    $('dmThreadTitle').textContent = `${nameOf(d.users.a)} ↔ ${nameOf(d.users.b)}（${d.messages.length} 条）`;
+    if (!d.messages.length) { body.innerHTML = '<div class="empty">该会话还没有消息</div>'; return; }
+    body.innerHTML = d.messages.map((m) => `
+      <div style="padding:8px 0;border-bottom:1px dashed var(--line)">
+        <div style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap">
+          <strong style="color:var(--text)">${escapeHtml(m.sender_nickname || '已注销用户')}</strong>
+          ${m.recalled ? '<span class="badge" style="color:#fff;background:var(--warn)">已撤回</span>' : ''}
+          ${m.blocked ? '<span class="badge" style="color:#fff;background:var(--danger)">已屏蔽</span>' : ''}
+          <span style="margin-left:auto">${formatTime(m.created_at)}</span>
+        </div>
+        <div style="font-size:13.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word;margin-top:3px;color:${m.recalled ? 'var(--faint)' : 'var(--text)'}">${escapeHtml(m.body || '（无正文）')}</div>
+        ${m.recalled ? '<div style="font-size:11px;color:var(--faint);margin-top:2px">上方为撤回前原文，仅管理员可见</div>' : ''}
+      </div>`).join('');
+  }
+
+  $('dmSearchBtn').addEventListener('click', () => { dmKeyword = $('dmSearchQ').value.trim(); loadDmThreads(); });
+  $('dmSearchQ').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('dmSearchBtn').click(); });
+  $('dmRefresh').addEventListener('click', () => loadDmAdmin());
+  $('dmThreadClose').addEventListener('click', () => $('dmThreadModal').classList.add('hidden'));
 
   // ---------- 重置他人账号密码（仅创始人；忘记密码时使用） ----------
   let resetQ = '';
@@ -1119,7 +1284,7 @@
       ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
       ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志'], ['can_deviceban', '设备封禁']
+      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志'], ['can_deviceban', '设备封禁'], ['can_daily', '每日运营'], ['can_dm', '私信管理']
     ];
     tags.push(...m.filter(([k]) => hasPerm(k)).map(([, l]) => `<span class="badge">${l}</span>`));
     (profile?.isFounder ? m : m.filter(([k]) => profile?.perms?.[k])).forEach(([k, label]) => {
@@ -1672,6 +1837,32 @@
   }
   $('pinRefresh').addEventListener('click', loadPinned);
 
+  // ---------- 每日运营 ----------
+  let dailyQuestEditingId = null;
+  async function loadDailyOps() {
+    const cfg = await callEdge('daily_config_get', {});
+    $('dailyCoinCap').value = cfg.coinCap; $('dailyXpCap').value = cfg.xpCap; $('comebackXp').value = cfg.comebackXp; $('comebackCoins').value = cfg.comebackCoins;
+    const quests = await callEdge('admin_quest_defs_list', {}); const qbox = $('dailyQuestList');
+    $('dailyGrantQuest').innerHTML = (quests || []).map((q) => `<option value="${q.id}">${escapeHtml(q.title)}</option>`).join('');
+    qbox.innerHTML = (quests || []).map((q) => `<div class="panel" style="box-shadow:none;padding:10px 12px;margin-bottom:8px"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>${escapeHtml(q.title)}</b><span class="badge topic">${escapeHtml(q.qkey)}</span><span style="color:var(--faint);font-size:12px">目标 ${q.target} · +${q.coin_reward} 积分 · +${q.xp_reward} 经验</span><span style="margin-left:auto;color:${q.enabled ? 'var(--ok)' : 'var(--faint)'}">${q.enabled ? '启用' : '停用'}</span><button class="btn sm ghost" data-qedit="${q.id}">编辑</button>${q.enabled ? `<button class="btn sm ghost" data-qdisable="${q.id}">停用</button>` : `<button class="btn sm ghost" data-qenable="${q.id}">启用</button>`}<button class="btn sm danger" data-qdelete="${q.id}">删除</button></div><div style="color:var(--muted);font-size:12px;margin-top:5px">${escapeHtml(q.description || '')}</div></div>`).join('') || '<div class="empty">暂无任务定义</div>';
+    qbox.querySelectorAll('[data-qedit]').forEach((b) => b.addEventListener('click', () => { const q = quests.find((x) => x.id === b.dataset.qedit); if (!q) return; dailyQuestEditingId = q.id; $('dailyQuestKey').value = q.qkey; $('dailyQuestTitle').value = q.title; $('dailyQuestDesc').value = q.description || ''; $('dailyQuestTarget').value = q.target; $('dailyQuestCoins').value = q.coin_reward; $('dailyQuestXp').value = q.xp_reward; $('dailyQuestEnabled').checked = !!q.enabled; $('dailyQuestFormTitle').textContent = '编辑任务'; }));
+    qbox.querySelectorAll('[data-qdisable]').forEach((b) => b.addEventListener('click', async () => { try { await callEdge('admin_quest_defs_disable', { id: b.dataset.qdisable }); await loadDailyOps(); } catch (e) { alert(e.message); } }));
+    qbox.querySelectorAll('[data-qenable]').forEach((b) => b.addEventListener('click', async () => { try { await callEdge('admin_quest_defs_enable', { id: b.dataset.qenable }); await loadDailyOps(); } catch (e) { alert(e.message); } }));
+    qbox.querySelectorAll('[data-qdelete]').forEach((b) => b.addEventListener('click', async () => { if (!confirm('确认删除任务定义？')) return; try { await callEdge('admin_quest_defs_delete', { id: b.dataset.qdelete }); loadDailyOps(); } catch (e) { alert(e.message); } }));
+    const topics = await callEdge('admin_daily_topic_list', {}); const tbox = $('dailyTopicList');
+    tbox.innerHTML = (topics || []).map((t) => `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px dashed var(--line)"><b>${escapeHtml(t.topic_date)}</b><span>${escapeHtml(t.title)}</span><span style="color:var(--faint);font-size:12px">+${t.coin_reward} 积分 · +${t.xp_reward} 经验</span><span style="margin-left:auto;color:${t.enabled ? 'var(--ok)' : 'var(--faint)'}">${t.enabled ? '启用' : '停用'}</span><button class="btn sm ghost" data-tedit="${t.id}">编辑</button>${t.enabled ? `<button class="btn sm ghost" data-tdisable="${t.id}">停用</button>` : `<button class="btn sm ghost" data-tenable="${t.id}">启用</button>`}<button class="btn sm danger" data-tdelete="${t.id}">删除</button></div>`).join('') || '<div class="empty">暂无每日话题</div>';
+    tbox.querySelectorAll('[data-tedit]').forEach((b) => b.addEventListener('click', () => { const t = topics.find((x) => x.id === b.dataset.tedit); if (!t) return; $('dailyTopicDate').value = t.topic_date; $('dailyTopicTitle').value = t.title; $('dailyTopicIntro').value = t.intro || ''; $('dailyTopicCoins').value = t.coin_reward; $('dailyTopicXp').value = t.xp_reward; $('dailyTopicEnabled').checked = !!t.enabled; $('dailyTopicDate').scrollIntoView({ behavior: 'smooth', block: 'center' }); }));
+    tbox.querySelectorAll('[data-tdisable]').forEach((b) => b.addEventListener('click', async () => { try { await callEdge('admin_daily_topic_disable', { id: b.dataset.tdisable }); await loadDailyOps(); } catch (e) { alert(e.message); } }));
+    tbox.querySelectorAll('[data-tenable]').forEach((b) => b.addEventListener('click', async () => { try { await callEdge('admin_daily_topic_enable', { id: b.dataset.tenable }); await loadDailyOps(); } catch (e) { alert(e.message); } }));
+    tbox.querySelectorAll('[data-tdelete]').forEach((b) => b.addEventListener('click', async () => { if (!confirm('确认删除每日话题？')) return; try { await callEdge('admin_daily_topic_delete', { id: b.dataset.tdelete }); loadDailyOps(); } catch (e) { alert(e.message); } }));
+  }
+  $('dailyRefresh')?.addEventListener('click', loadDailyOps);
+  $('dailyStatsLoad')?.addEventListener('click', async () => { try { const rows = await callEdge('admin_quest_stats', { day: $('dailyStatsDay').value }); $('dailyStatsList').innerHTML = rows.length ? rows.map((r) => `<div class="pc-row">${escapeHtml(r.title)} · 参与 ${r.users} · 完成 ${r.completed} · 已领取 ${r.claimed}</div>`).join('') : '<div class="empty">该日暂无任务进度</div>'; } catch (e) { alert(e.message); } });
+  $('dailyGrantSave')?.addEventListener('click', async () => { if (!confirm('确认补发一次任务奖励？相同用户、任务、日期不可重复补发。')) return; try { const r = await callEdge('admin_quest_grant', { user_query: $('dailyGrantUser').value.trim(), quest_id: $('dailyGrantQuest').value, day: $('dailyStatsDay').value, coin_reward: Number($('dailyGrantCoins').value), xp_reward: Number($('dailyGrantXp').value) }); alert(r.duplicate ? '该任务奖励已补发过' : `补发成功：+${r.coins} 积分、+${r.xp} 经验`); } catch (e) { alert(e.message); } });
+  $('dailyConfigSave')?.addEventListener('click', async () => { try { await callEdge('daily_config_set', { daily_coin_cap: Number($('dailyCoinCap').value), daily_xp_cap: Number($('dailyXpCap').value), comeback_xp: Number($('comebackXp').value), comeback_coins: Number($('comebackCoins').value) }); $('dailyConfigMsg').textContent = '已保存'; } catch (e) { $('dailyConfigMsg').textContent = e.message; } });
+  $('dailyQuestSave')?.addEventListener('click', async () => { try { await callEdge(dailyQuestEditingId ? 'admin_quest_defs_update' : 'admin_quest_defs_create', { id: dailyQuestEditingId || undefined, qkey: $('dailyQuestKey').value, title: $('dailyQuestTitle').value, description: $('dailyQuestDesc').value, target: Number($('dailyQuestTarget').value), coin_reward: Number($('dailyQuestCoins').value), xp_reward: Number($('dailyQuestXp').value), enabled: $('dailyQuestEnabled').checked }); dailyQuestEditingId = null; $('dailyQuestFormTitle').textContent = '新建任务'; ['dailyQuestKey','dailyQuestTitle','dailyQuestDesc','dailyQuestTarget','dailyQuestCoins','dailyQuestXp'].forEach((id) => $(id).value = ''); loadDailyOps(); } catch (e) { alert(e.message); } });
+  $('dailyTopicSave')?.addEventListener('click', async () => { try { await callEdge('admin_daily_topic_save', { topic_date: $('dailyTopicDate').value, title: $('dailyTopicTitle').value, intro: $('dailyTopicIntro').value, coin_reward: Number($('dailyTopicCoins').value), xp_reward: Number($('dailyTopicXp').value), enabled: $('dailyTopicEnabled').checked }); alert('每日话题已保存'); loadDailyOps(); } catch (e) { alert(e.message); } });
+
   // ---------- 站点开关 ----------
   async function loadSite() {
     const data = await callEdge('site_get');
@@ -2027,7 +2218,7 @@
         ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
         ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志'], ['can_deviceban', '设备封禁']
+        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志'], ['can_deviceban', '设备封禁'], ['can_daily', '每日运营'], ['can_dm', '私信管理']
       ];
       const toggles = perms.map(([k, label]) => {
         const on = !!a[k];
