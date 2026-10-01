@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="XDD吧 · 徽章墙 · 查看全部成就徽章、达成条件与进度" />
+  <title>XDD吧 · 徽章墙</title>
+  <link rel="stylesheet" href="public/theme.css" />
+  <link rel="stylesheet" href="public/effects.css" />
+  <style>
+    .quicknav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:8px 14px 10px;background:var(--bg-soft);border-bottom:1px solid var(--line-soft);position:relative;z-index:20}
+    .qn-item{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--text);background:var(--card);border:1px solid var(--line);padding:7px 18px;border-radius:999px;text-decoration:none;transition:color .2s,border-color .2s;box-shadow:var(--shadow-soft)}
+    .qn-item:hover{color:var(--accent,#e07a5f);border-color:var(--accent,#e07a5f)}
+    .qn-item[data-active]{background:var(--accent,#e07a5f);color:#fff;border-color:var(--accent,#e07a5f)}
+    @media(max-width:560px){.quicknav{gap:6px;padding:8px 10px 10px}.qn-item{padding:7px 14px;font-size:12.5px}}
+    .bdg-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+    .bdg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:12px}
+    .bdg-card{display:flex;flex-direction:column;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow-soft);position:relative}
+    .bdg-card.locked{opacity:.62}
+    .bdg-ico{display:flex;align-items:center;justify-content:center;min-height:64px;font-size:34px}
+    .bdg-name{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .bdg-src{font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+    .bdg-desc{font-size:12.5px;color:var(--muted);line-height:1.5;min-height:18px}
+    .bdg-hint{font-size:12px;color:var(--faint);line-height:1.5}
+    .bdg-bar{height:7px;border-radius:999px;background:var(--line-soft,var(--line));overflow:hidden}
+    .bdg-bar > i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#7c3aed,#22d3ee)}
+    .bdg-bar-txt{font-size:11.5px;color:var(--muted)}
+    .bdg-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
+    .bdg-state{font-size:11.5px;color:var(--faint)}
+    .bdg-scope{margin-left:auto;font-size:11.5px;padding:3px 6px;border-radius:999px;max-width:132px;cursor:pointer}
+    .bdg-btn{margin-left:auto}
+    .bdg-sum{font-size:13px;color:var(--muted)}
+  </style>
+  <script src="public/sensitive-words.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="dot"></span>
+        XDD吧
+        <span class="tag">徽章墙</span>
+      </div>
+      <div class="spacer"></div>
+      <span id="userBar"></span>
+      <div id="themeSwitcherHost" style="display:inline-flex"></div>
+    </div>
+  </header>
+
+  <nav class="quicknav" aria-label="快捷导航">
+    <a class="qn-item" href="index.html">🏠 首页</a>
+    <a class="qn-item" href="study.html">📖 学习资料</a>
+    <a class="qn-item" href="columns.html">📚 专栏</a>
+    <a class="qn-item" href="badges.html" data-active>🏅 徽章墙</a>
+    <a class="qn-item" href="shop.html">🛒 积分商城</a>
+    <a class="qn-item" href="events.html">🎉 活动中心</a>
+    <a class="qn-item" href="rules.html">📜 站规</a>
+  </nav>
+
+  <main class="wrap" style="max-width:1000px">
+    <section class="p4-hero" style="margin-bottom:14px">
+      <div>
+        <div class="p4-hero-title">🏅 徽章墙</div>
+        <div class="p4-hero-sub">展示站内全部成就徽章、达成条件与你的当前进度。已获得的徽章可在此佩戴，帖子作者旁最多展示 3 枚。</div>
+      </div>
+      <div class="p4-balance">
+        <b id="bdgObtained">—</b>
+        <span id="bdgSummary">已获得 / 全部</span>
+      </div>
+    </section>
+
+    <div class="bdg-toolbar">
+      <select id="bdgFilter" class="input" style="max-width:170px">
+        <option value="">全部徽章</option>
+        <option value="obtained">已获得</option>
+        <option value="locked">未获得</option>
+        <option value="auto">自动授予</option>
+        <option value="manual">手动授予</option>
+      </select>
+      <input id="bdgKw" class="input" type="text" placeholder="搜索徽章名称…" autocomplete="off" style="min-width:180px" />
+      <button id="bdgRefresh" class="btn ghost sm">刷新</button>
+      <span id="bdgTip" class="bdg-sum"></span>
+    </div>
+
+    <div id="bdgList" class="bdg-grid"></div>
+  </main>
+
+  <script src="public/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="public/effects.js"></script>
+  <script src="public/badges.js"></script>
+</body>
+</html>
