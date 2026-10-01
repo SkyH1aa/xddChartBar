@@ -1,7 +1,7 @@
 /* ============================================================
    XDD吧 · 活动中心（events.html 专用）
    形态：活动列表（进行中 / 已结束）/ 详情 / 报名 / 参与发帖 / 排行 / 作品列表 / 抽奖 / 我的奖励。
-   权限：浏览无需登录；报名、抽奖、参与发帖、查看我的奖励需登录（服务端再次校验）。
+   权限：所有内容需登录；报名、抽奖、参与发帖、查看我的奖励需登录（服务端再次校验）。
    ============================================================ */
 (function () {
   'use strict';
@@ -313,6 +313,7 @@
   function init() {
     readSession();
     renderBar();
+    if (window.XddContentGate && !XddContentGate.allow()) return;
     document.querySelectorAll('.p4-tabs .chip').forEach((c) => c.addEventListener('click', () => switchTab(c.dataset.tab)));
     $('evSearch').addEventListener('click', () => { state.keyword = $('evKw').value.trim(); loadEvents(); });
     $('evKw').addEventListener('keydown', (e) => { if (e.key === 'Enter') { state.keyword = $('evKw').value.trim(); loadEvents(); } });

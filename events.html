@@ -27,6 +27,14 @@
     .ev-work-body{font-size:12.5px;color:var(--muted);line-height:1.7;white-space:pre-wrap;word-break:break-word;margin-top:3px}
     .ev-count{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
     .ev-count b{color:var(--text)}
+
+    /* ================= 移动端适配 ================= */
+    @media(max-width:720px){
+      .ev-toolbar{gap:8px}
+      .ev-toolbar input,.ev-toolbar select{flex:1 1 140px;min-width:0!important;max-width:100%!important;font-size:16px}
+      .ev-subtabs{gap:6px}
+      .ev-count{gap:10px}
+    }
   </style>
   <script src="public/sensitive-words.js"></script>
 </head>
@@ -94,6 +102,8 @@
   <script src="public/theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="public/effects.js"></script>
+  <script src="public/prestige-fx.js"></script>
+  <script src="public/content-gate.js"></script>
   <script src="public/events.js"></script>
 </body>
 </html>

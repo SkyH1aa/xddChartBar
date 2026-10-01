@@ -47,9 +47,16 @@
 
 /* ---------- 昵称样式 ---------- */
 .fx-nick {
+  display: inline-flex; align-items: center; position: relative;
   font-weight: var(--fx-wt, 600); font-style: var(--fx-it, normal);
   letter-spacing: var(--fx-sp, 0); border-radius: 6px; padding: 0 2px;
-  background-repeat: repeat; position: relative;
+  background-repeat: repeat; isolation: isolate; overflow: visible;
+}
+.fx-nick > .nick-txt {
+  position: relative; z-index: 1; display: inline-block;
+  font: inherit; letter-spacing: inherit; font-style: inherit;
+  color: inherit; -webkit-text-fill-color: currentColor;
+  background-repeat: no-repeat; background-position: 0 50%;
 }
 .fx-nick::before, .fx-nick::after { content: ''; }
 

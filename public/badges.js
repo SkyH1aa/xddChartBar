@@ -1,7 +1,7 @@
 /* ============================================================
    XDD吧 · 徽章墙（badges.html 专用）
    形态：展示全部在架徽章 + 我的达成进度 + 佩戴/卸下 + 隐藏/恢复展示。
-   权限：浏览无需登录；佩戴、隐藏需登录（服务端再次校验）。
+   权限：所有内容需登录；佩戴、隐藏需登录（服务端再次校验）。
    ============================================================ */
 (function () {
   'use strict';
@@ -151,6 +151,7 @@
   // ---------------- 启动 ----------------
   readSession();
   renderBar();
+  if (window.XddContentGate && !XddContentGate.allow()) return;
   $('bdgFilter').addEventListener('change', render);
   $('bdgKw').addEventListener('input', render);
   $('bdgRefresh').addEventListener('click', () => load().catch((e) => alert(e.message)));

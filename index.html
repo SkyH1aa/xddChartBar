@@ -258,6 +258,28 @@
     .qn-item:active{transform:scale(.97)}
     .qn-item[data-active]{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 10px var(--accent-soft)}
     @media(max-width:560px){.quicknav{gap:6px;padding:8px 10px 10px}.qn-item{padding:7px 14px;font-size:12.5px}}
+
+    /* ================= 移动端适配 =================
+       仅重排布局与收敛尺寸，桌面端不受影响（全部包在媒体查询内）。 */
+    @media(max-width:720px){
+      /* 顶栏：搜索框放开 320px 上限，铺满整行 */
+      .search-box{max-width:none}
+      /* 通知面板：340px 固定宽在手机上会溢出，改为左右贴边 */
+      .notif-panel{left:10px;right:10px;width:auto;top:54px;max-height:74vh}
+      /* 用户下拉菜单贴右边缘，避免超出屏幕 */
+      .user-pop{right:0;min-width:150px;max-width:min(240px,86vw)}
+      /* 个人主页弹层：全宽 */
+      .profile-mask{padding:12px}
+      .profile-card{width:100%!important;max-width:100%!important;max-height:90vh;max-height:90dvh;border-radius:16px}
+      .profile-card-body{padding:12px}
+      /* 首页「助力/加精」等卡片：取消 200px 硬下限，窄屏也能单列放下 */
+      .boost-cell{min-width:0;flex:1 1 100%}
+      /* 登录门禁卡片：收紧内边距 */
+      .login-gate-card{padding:26px 22px;max-width:100%}
+      /* 榜单/用户长名截断放宽，避免移动端只剩两三个字 */
+      .leader-title{max-width:46vw}
+      .u-name{max-width:34vw}
+    }
   </style>
   <script src="public/sensitive-words.js"></script>
 </head>
@@ -640,6 +662,7 @@
 
   <script src="public/mentions.js"></script>
   <script src="public/effects.js"></script>
+  <script src="public/prestige-fx.js"></script>
   <script src="public/xdd-live.js"></script>
   <script src="public/app.js"></script>
 </body>

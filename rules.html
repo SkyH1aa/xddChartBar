@@ -30,6 +30,19 @@
     .qn-item:hover{color:var(--accent,#e07a5f);border-color:var(--accent,#e07a5f)}
     .qn-item[data-active]{background:var(--accent,#e07a5f);color:#fff;border-color:var(--accent,#e07a5f)}
     @media(max-width:560px){.quicknav{gap:6px;padding:8px 10px 10px}.qn-item{padding:7px 14px;font-size:12.5px}}
+
+    /* ================= 移动端适配 ================= */
+    @media(max-width:720px){
+      .wrap-rules{padding:18px 12px 48px}
+      .rules-card{padding:18px 16px;border-radius:14px}
+      .rules-card h1{font-size:19px}
+      .rules-card h2{font-size:15px;margin:22px 0 8px}
+      .rules-card p,.rules-card li{font-size:13.5px;line-height:1.85}
+      /* 等级/权限表：手机屏放不下三列，改为整表横向滚动（保持表格对齐，不压字） */
+      .rules-table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;font-size:12.5px}
+      .rules-table th,.rules-table td{padding:7px 9px}
+      .rules-table .lvl{white-space:nowrap}
+    }
   </style>
 </head>
 <body>

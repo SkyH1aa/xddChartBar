@@ -30,6 +30,22 @@
     .bdg-scope{margin-left:auto;font-size:11.5px;padding:3px 6px;border-radius:999px;max-width:132px;cursor:pointer}
     .bdg-btn{margin-left:auto}
     .bdg-sum{font-size:13px;color:var(--muted)}
+
+    /* ================= 移动端适配 ================= */
+    @media(max-width:720px){
+      .bdg-toolbar{gap:8px}
+      .bdg-toolbar .input,.bdg-toolbar select{flex:1 1 140px;min-width:0!important;max-width:100%!important}
+      .bdg-card{padding:12px}
+      .bdg-ico{min-height:54px;font-size:30px}
+      .bdg-scope{max-width:100%}
+      .bdg-foot{gap:6px}
+    }
+    @media(max-width:560px){
+      /* 手机竖屏也能双列铺开，避免一屏只放得下一张卡 */
+      .bdg-grid{grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:10px}
+      .bdg-name{font-size:13px}
+      .bdg-desc,.bdg-hint{font-size:12px}
+    }
   </style>
   <script src="public/sensitive-words.js"></script>
 </head>
@@ -88,6 +104,8 @@
   <script src="public/theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="public/effects.js"></script>
+  <script src="public/prestige-fx.js"></script>
+  <script src="public/content-gate.js"></script>
   <script src="public/badges.js"></script>
 </body>
 </html>

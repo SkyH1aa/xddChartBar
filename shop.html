@@ -25,6 +25,14 @@
     .ent-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0;border-bottom:1px dashed var(--line)}
     .ent-row:last-child{border-bottom:none}
     .ent-name{font-size:13px;color:var(--text);font-weight:600}
+
+    /* ================= 移动端适配 ================= */
+    @media(max-width:720px){
+      .shop-toolbar{gap:8px}
+      /* 工具条输入/下拉：放开 180px 硬下限并铺满整行，避免横向溢出 */
+      .shop-toolbar input,.shop-toolbar select{flex:1 1 140px;min-width:0!important;max-width:100%!important;font-size:16px}
+      .ent-row{gap:6px}
+    }
   </style>
   <script src="public/sensitive-words.js"></script>
 </head>
@@ -101,6 +109,8 @@
   <script src="public/theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="public/effects.js"></script>
+  <script src="public/prestige-fx.js"></script>
+  <script src="public/content-gate.js"></script>
   <script src="public/shop.js"></script>
 </body>
 </html>

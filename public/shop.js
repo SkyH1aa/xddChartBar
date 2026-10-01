@@ -1,7 +1,7 @@
 /* ============================================================
    XDD吧 · 积分商城（shop.html 专用）
    形态：商品浏览 / 详情 / 兑换 / 我的订单与退款 / 我的权益装备切换。
-   权限：浏览无需登录；兑换、退款、装备需登录（服务端再次校验，前端不作为最终判断依据）。
+   权限：所有内容需登录；兑换、退款、装备需登录（服务端再次校验，前端不作为最终判断依据）。
    ============================================================ */
 (function () {
   'use strict';
@@ -59,7 +59,7 @@
       const c = F.normalize(category, cfg);
       if (category === 'title') return F.titleHtml(c);
       if (category === 'nickname_style') {
-        return `<span class="${F.classes('nickname_style', c).join(' ')}" style="${escapeHtml(F.styleAttr('nickname_style', c))}">同学昵称</span>`;
+        return `<span class="${F.classes('nickname_style', c).join(' ')}" style="${escapeHtml(F.styleAttr('nickname_style', c))}"><span class="nick-txt">同学昵称</span></span>`;
       }
       // 帖子背景：详情页额外带上正文样例，否则「文字特效」看不到效果
       const inner = F.bgLayers() + (withText ? '<span class="post-content">帖子正文示例：背景与文字特效的实际效果。</span>' : '');
@@ -321,6 +321,7 @@
   function init() {
     readSession();
     renderBar();
+    if (window.XddContentGate && !XddContentGate.allow()) return;
     document.querySelectorAll('.p4-tabs .chip').forEach((c) => c.addEventListener('click', () => switchTab(c.dataset.tab)));
     $('catFilter').addEventListener('change', () => { state.category = $('catFilter').value; loadItems(); });
     $('itemSearch').addEventListener('click', () => { state.keyword = $('itemKw').value.trim(); loadItems(); });

@@ -3,7 +3,7 @@
    形态：按学科聚合资料帖，支持「最新 / 精选」切换与分页；
         卡片内直接点赞、展开评论，样式与主论坛保持一致。
    可见性：服务端只返回已审核未屏蔽的资料帖；作者本人额外看到自己的待审帖（带「待审核」标识）。
-   权限：浏览无需登录；点赞与评论需登录（复用主论坛 set_like / comment_create）。
+   权限：所有内容需登录；点赞与评论需登录（复用主论坛 set_like / comment_create）。
    ============================================================ */
 (function () {
   'use strict';
@@ -413,6 +413,7 @@
   async function boot() {
     readSession();
     renderBar();
+    if (window.XddContentGate && !XddContentGate.allow()) return;
     bindEvents();
     await syncLiked();
     await loadSubjects();

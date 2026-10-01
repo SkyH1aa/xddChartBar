@@ -969,7 +969,7 @@
       if (type === 'title') return F.titleHtml(payload);
       if (type === 'nickname_style') {
         const c = F.normalize('nickname_style', payload);
-        return `<span class="${F.classes('nickname_style', c).join(' ')}" style="${escapeHtml(F.styleAttr('nickname_style', c))}">同学昵称</span>`;
+        return `<span class="${F.classes('nickname_style', c).join(' ')}" style="${escapeHtml(F.styleAttr('nickname_style', c))}"><span class="nick-txt">同学昵称</span></span>`;
       }
       const c = F.normalize('background', payload);
       return `<span class="wear-bg ${F.classes('background', c).join(' ')}" style="${escapeHtml(F.styleAttr('background', c))}">${F.bgLayers()}</span>`;

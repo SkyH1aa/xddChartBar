@@ -1054,3 +1054,147 @@ select.input { appearance: auto; }
   .p4-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
   .bwall{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
 }
+
+/* ============================================================================
+   移动端适配（≤720px 主断点 / ≤560px 小屏 / ≤420px 窄屏）
+   ----------------------------------------------------------------------------
+   约定：
+     · 全部规则包在媒体查询内 —— 桌面端渲染完全不变。
+     · 只做「重排 / 尺寸收敛 / 触控友好」，不改配色与视觉风格。
+     · 管理后台（body.page-admin）正文大量使用内联样式（固定 width/min-width、
+       display:flex、grid-template-columns），必须用 !important 覆盖才能生效；
+       该作用域仅后台页面存在，不会影响用户端。
+   ========================================================================== */
+
+/* ---------- 通用：顶栏 / 容器 / 卡片 / 触控尺寸 ---------- */
+@media (max-width: 720px) {
+  .topbar-inner { padding: 10px 12px; column-gap: 8px; row-gap: 6px; }
+  .brand { font-size: 17px; }
+  .brand .tag { display: none; }
+  .theme-switcher button[data-theme-mode] { padding: 5px 9px; font-size: 11.5px; }
+
+  .wrap { padding: 16px 12px 48px; }
+  .panel { padding: 14px; border-radius: 14px; }
+  .panel + .panel { margin-top: 12px; }
+
+  .btn { min-height: 34px; }
+  .btn.sm { min-height: 30px; }
+  .chip { font-size: 12.5px; padding: 6px 12px; }
+  .filter-bar { gap: 6px; }
+
+  /* iOS：字号 <16px 的输入框在聚焦时会自动放大整页，这里统一提到 16px */
+  .input, select.input, .composer textarea, .dm-input, .dm-search-input,
+  .poll-builder-row select, .poll-builder-row input { font-size: 16px; }
+
+  /* 通用弹层：留白收敛，卡片不超出视口。
+     商城/活动弹窗原为 width:min(520px,96vw)，在手机上「96vw + 遮罩 40px 内边距」
+     会横向溢出，这里统一改为占满遮罩内容区。 */
+  .modal-backdrop, .profile-mask, .shop-mask, .ev-mask { padding: 12px; }
+  .modal-card, .shop-modal, .ev-modal {
+    width: 100% !important; max-width: 100% !important;
+    max-height: 90vh; max-height: 90dvh;
+  }
+  .shop-modal, .ev-modal { padding: 16px; border-radius: 16px; }
+
+  /* 商城 / 活动 */
+  .p4-hero { padding: 14px 16px; gap: 10px; }
+  .p4-hero-title { font-size: 18px; }
+  .p4-hero-sub { font-size: 12.5px; }
+  .p4-balance { align-items: flex-start; }
+  .p4-balance b { font-size: 21px; }
+  .p4-detail-title { font-size: 17px; }
+  .p4-card-media { height: 104px; }
+  .p4-ev-cover { height: 116px; }
+  .p4-lottery-box { padding: 14px 10px; }
+
+  /* 徽章墙 / 徽章列表：按钮足够大，长名称不撑破卡片 */
+  .bwall-item { padding: 8px 4px; }
+  .bwall-act { min-height: 26px; padding: 3px 10px; }
+
+  /* 通知中心 */
+  .nf-tab { padding: 6px 12px; font-size: 12px; }
+  .nf-rep { padding: 10px 12px; }
+}
+
+/* ---------- 私信面板（整屏单栏 + 气泡/输入区收敛） ---------- */
+@media (max-width: 680px) {
+  /* 整屏化与「列表 ⇄ 会话」单栏切换见上方「第二期 · 私信面板」段落 */
+  .dm-card { height: 100vh; height: 100dvh; }
+  .dm-head { flex-wrap: wrap; row-gap: 6px; padding: 10px 12px; }
+  .dm-tabs { margin-left: 0; }
+  .dm-search { padding: 8px 10px; }
+  .dm-search-res { left: 10px; right: 10px; }
+  .dm-threads { padding: 4px; }
+  .dm-th-top b { max-width: 46vw; }
+  .dm-peer { flex-wrap: wrap; row-gap: 4px; padding: 10px 12px; }
+  .dm-peer-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dm-msgs { padding: 10px 12px; gap: 8px; }
+  .dm-bubble { max-width: 86%; }
+  .dm-compose { padding: 8px 10px; gap: 6px; }
+  .dm-compose .dm-send { flex: 0 0 auto; min-height: 38px; }
+  .dm-input { max-height: 96px; resize: none; }
+}
+
+@media (max-width: 420px) {
+  .dm-tabs .dm-tab { padding: 4px 9px; font-size: 11.5px; }
+  .dm-th-avatar { width: 26px; height: 26px; font-size: 12px; }
+  .dm-bubble { max-width: 92%; }
+  .dm-peer-lv, .dm-peer-bond { font-size: 10.5px; }
+}
+
+/* ============================================================================
+   管理后台（body.page-admin）移动端适配
+   ========================================================================== */
+@media (max-width: 860px) {
+  /* 「新建任务 | 任务列表」双栏 → 单栏堆叠 */
+  .page-admin .adm-grid-2 { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 720px) {
+  .page-admin .wrap { padding: 12px 10px 48px; }
+  .page-admin .panel { padding: 12px; }
+
+  /* 顶栏：品牌独占一行，操作按钮换到下一行，避免挤出视口 */
+  .page-admin .topbar-inner { padding: 10px 12px; column-gap: 8px; row-gap: 6px; }
+  .page-admin .topbar-inner .brand { flex: 1 1 100%; font-size: 16px; }
+  .page-admin .topbar-inner .btn { flex: 0 0 auto; }
+
+  /* 标签栏：20+ 个标签改为横向滚动条，不再堆成一大块 */
+  .page-admin #tabs {
+    display: flex !important; flex-wrap: nowrap !important;
+    gap: 6px !important; max-width: 100%;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px; scrollbar-width: none;
+  }
+  .page-admin #tabs::-webkit-scrollbar { display: none; }
+  .page-admin #tabs .chip { flex: 0 0 auto; white-space: nowrap; }
+
+  /* 表单控件：解除内联固定 width / min-width，允许收缩换行并占满可用宽度。
+     只放开收缩与上限，不强制 width —— 避免破坏 .form-field .input{width:100%}。 */
+  .page-admin .input,
+  .page-admin select.input,
+  .page-admin input[type="text"],
+  .page-admin input[type="number"],
+  .page-admin input[type="date"],
+  .page-admin input[type="password"],
+  .page-admin textarea {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex-grow: 1;
+  }
+  .page-admin .btn { flex: 0 0 auto; }
+  .page-admin label { max-width: 100%; }
+
+  /* 弹窗（会话全文 / 审计原文等）：全宽 + 可滚动 */
+  .page-admin .modal-overlay { padding: 10px !important; align-items: center !important; }
+  .page-admin .modal-overlay > .panel {
+    max-width: 100% !important; width: 100%;
+    max-height: 88vh; max-height: 88dvh;
+  }
+}
+
+@media (max-width: 420px) {
+  .page-admin .wrap { padding: 10px 8px 44px; }
+  .page-admin .panel { padding: 10px; border-radius: 12px; }
+  .page-admin #tabs .chip { font-size: 12px; padding: 5px 10px; }
+}

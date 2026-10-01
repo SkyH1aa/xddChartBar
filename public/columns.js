@@ -1,7 +1,7 @@
 /* ============================================================
    XDD吧 · 校友专栏模块（columns.html 专用）
    形态：每个专栏即一个独立小论坛（发帖/评论楼层回复/点赞/顶置/删改/禁言/公告）
-   权限：管理员(可全局管理审批) / 创始人(管理自己专栏) / 作者(编辑删除自帖)
+   权限：所有内容需登录；管理员(可全局管理审批) / 创始人(管理自己专栏) / 作者(编辑删除自帖)
    经验：专栏发帖/评论/获赞计入主论坛总经验
    ============================================================ */
 (function () {
@@ -278,6 +278,7 @@
   function boot() {
     readSession();
     renderBar();
+    if (window.XddContentGate && !XddContentGate.allow()) return;
     startClientEpochPoll();
     const r = parseHash();
     if (r.view === 'col' && r.id) loadColumn(r.id);

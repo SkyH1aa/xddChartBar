@@ -68,7 +68,9 @@
     '@keyframes fxTypeIn{0%{clip-path:inset(0 100% 0 0)}100%{clip-path:inset(0 0 0 0)}}',
     '@keyframes fxMarquee{0%{transform:translateX(-5%)}50%{transform:translateX(5%)}100%{transform:translateX(-5%)}}',
     '@keyframes fxRise{0%{opacity:.3;transform:translateY(7px)}100%{opacity:1;transform:translateY(0)}}',
-    '@keyframes fxShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-2px)}40%{transform:translateX(2px)}60%{transform:translateX(-1.5px)}80%{transform:translateX(1.5px)}}'
+    '@keyframes fxShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-2px)}40%{transform:translateX(2px)}60%{transform:translateX(-1.5px)}80%{transform:translateX(1.5px)}}',
+    '@keyframes fxGlitch{0%,100%{transform:translate(0);filter:none}20%{transform:translate(-1px,1px);filter:hue-rotate(18deg)}22%{transform:translate(1px,-1px)}42%{transform:translate(0);filter:none}70%{transform:translate(1px,0);filter:hue-rotate(-18deg)}}',
+    '@keyframes fxRainbowFlow{0%{background-position:0% 50%}100%{background-position:300% 50%}}'
   ].join('');
 
   var SPEC = {
@@ -129,7 +131,12 @@
             { v: 'stars', label: '星点', css: 'background-image:radial-gradient(var(--fx-c2) 1px,transparent 1.4px),radial-gradient(var(--fx-c2) .8px,transparent 1.2px)' },
             { v: 'bubbles', label: '气泡', css: 'background-image:radial-gradient(circle,var(--fx-c2) 22%,transparent 24%),radial-gradient(circle,var(--fx-c2) 14%,transparent 16%)' },
             { v: 'scales', label: '鳞片', css: 'background-image:radial-gradient(circle at 50% 100%,transparent 60%,var(--fx-c2) 62%,transparent 68%)' },
-            { v: 'confetti', label: '彩屑', css: 'background-image:conic-gradient(var(--fx-c2) 0 25%,transparent 0 50%,var(--fx-c2) 0 75%,transparent 0)' }
+            { v: 'confetti', label: '彩屑', css: 'background-image:conic-gradient(var(--fx-c2) 0 25%,transparent 0 50%,var(--fx-c2) 0 75%,transparent 0)' },
+            { v: 'prism', label: '棱镜', css: 'background-image:linear-gradient(120deg,transparent 0 35%,color-mix(in srgb,var(--fx-c2) 65%,transparent) 50%,transparent 65%)' },
+            { v: 'crystal', label: '水晶', css: 'background-image:linear-gradient(135deg,rgba(255,255,255,.45) 0 8%,transparent 8% 46%,rgba(255,255,255,.22) 46% 54%,transparent 54% 92%,rgba(255,255,255,.3) 92%)' },
+            { v: 'topography', label: '等高线', css: 'background-image:repeating-radial-gradient(ellipse at 30% 40%,transparent 0 8px,color-mix(in srgb,var(--fx-c2) 36%,transparent) 9px 10px)' },
+            { v: 'auroraMesh', label: '极光网格', css: 'background-image:linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 22%,transparent) 1px,transparent 1px),linear-gradient(color-mix(in srgb,var(--fx-c1) 18%,transparent) 1px,transparent 1px),radial-gradient(circle at 18% 24%,var(--fx-c2),transparent 42%)' },
+            { v: 'rippleLines', label: '涟漪线', css: 'background-image:repeating-radial-gradient(ellipse at 50% 50%,transparent 0 10px,color-mix(in srgb,var(--fx-c2) 42%,transparent) 11px 12px)' }
           ]
         },
         {
@@ -156,7 +163,12 @@
             { v: 'breathe', label: '缩放呼吸', css: 'background-image:radial-gradient(circle at 50% 50%,var(--fx-c2) 0,transparent 60%);animation:fxBreathe var(--fx-dur,7s) ease-in-out infinite' },
             { v: 'slide', label: '斜向推移', css: 'background-image:repeating-linear-gradient(45deg,var(--fx-c2) 0 3px,transparent 3px 18px);background-size:200% 200%;animation:fxSlide var(--fx-dur,9s) linear infinite' },
             { v: 'spin', label: '旋转光轮', css: 'background-image:conic-gradient(from 0deg,transparent,var(--fx-c2),transparent 55%);animation:fxSpin var(--fx-dur,14s) linear infinite' },
-            { v: 'glow', label: '色彩律动', css: 'background-image:linear-gradient(var(--fx-dir,135deg),var(--fx-c1),var(--fx-c2));opacity:.5;animation:fxGlowPulse var(--fx-dur,6s) ease-in-out infinite' }
+            { v: 'glow', label: '色彩律动', css: 'background-image:linear-gradient(var(--fx-dir,135deg),var(--fx-c1),var(--fx-c2));opacity:.5;animation:fxGlowPulse var(--fx-dur,6s) ease-in-out infinite' },
+            { v: 'warp', label: '空间扭曲', css: 'background-image:radial-gradient(ellipse at 50% 50%,var(--fx-c2),transparent 58%);background-size:180% 140%;animation:fxDrift var(--fx-dur,9s) ease-in-out infinite' },
+            { v: 'nebula', label: '星云', css: 'background-image:radial-gradient(at 18% 28%,var(--fx-c2),transparent 42%),radial-gradient(at 78% 72%,var(--fx-c1),transparent 48%);background-size:220% 220%;animation:fxAurora var(--fx-dur,12s) ease-in-out infinite' },
+            { v: 'scan', label: '扫描线', css: 'background-image:repeating-linear-gradient(0deg,transparent 0 8px,color-mix(in srgb,var(--fx-c2) 40%,transparent) 9px 10px);animation:fxSlide var(--fx-dur,6s) linear infinite' },
+            { v: 'matrix', label: '矩阵雨', css: 'background-image:repeating-linear-gradient(90deg,transparent 0 7px,color-mix(in srgb,var(--fx-c2) 46%,transparent) 8px 9px);background-size:180% 100%;animation:fxFlow var(--fx-dur,5s) linear infinite' },
+            { v: 'prism', label: '棱镜漂移', css: 'background-image:linear-gradient(120deg,transparent 0 30%,color-mix(in srgb,var(--fx-c2) 70%,transparent) 50%,transparent 70%);background-size:240% 100%;animation:fxShine var(--fx-dur,4s) linear infinite' }
           ]
         },
         {
@@ -200,7 +212,7 @@
           ]
         },
         {
-          k: 'bd', label: '外框', def: 'none', target: '',
+          k: 'bd', label: '外框 / 辉光', def: 'none', target: '',
           opts: [
             { v: 'none', label: '无外框', css: 'border-color:transparent;box-shadow:none' },
             { v: 'line', label: '细描边', css: 'border:1px solid var(--fx-c2)' },
@@ -349,7 +361,12 @@
             { v: 'ice', label: '寒冰', css: 'background-image:linear-gradient(180deg,#e0f2fe,var(--fx-c2));-webkit-background-clip:text;background-clip:text;color:transparent' },
             { v: 'rainbow', label: '彩虹', css: 'background-image:linear-gradient(90deg,#f87171,#fbbf24,#4ade80,#38bdf8,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent' },
             { v: 'gold', label: '鎏金', css: 'background-image:linear-gradient(100deg,#fde68a,#f59e0b 40%,#fff7cc 55%,#d97706);-webkit-background-clip:text;background-clip:text;color:transparent' },
-            { v: 'sticker', label: '贴纸', css: 'color:var(--fx-c2);background-color:var(--fx-c1);-webkit-text-stroke:.6px rgba(0,0,0,.25)' }
+            { v: 'sticker', label: '贴纸', css: 'color:var(--fx-c2);background-color:var(--fx-c1);-webkit-text-stroke:.6px rgba(0,0,0,.25)' },
+            { v: 'metalgrid', label: '金属格', css: 'background-image:linear-gradient(180deg,#fff,var(--fx-c1) 44%,#fff 52%,var(--fx-c2)),linear-gradient(90deg,rgba(255,255,255,.2) 1px,transparent 1px);background-size:100% 100%,6px 6px;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'aurora', label: '极光字', css: 'background-image:linear-gradient(100deg,#22d3ee,#a78bfa,#f472b6,#34d399);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'hologram', label: '全息字', css: 'background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.9) 0 1px,transparent 1px 4px),linear-gradient(90deg,#67e8f9,#c4b5fd,#f0abfc);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'glass', label: '玻璃字', css: 'color:rgba(255,255,255,.88);text-shadow:0 1px 0 rgba(255,255,255,.7),0 0 12px var(--fx-c1);-webkit-text-stroke:.35px var(--fx-c2)' },
+            { v: 'velvet', label: '丝绒字', css: 'background-image:linear-gradient(135deg,var(--fx-c1),#7c2d12 48%,var(--fx-c2));text-shadow:0 1px 2px rgba(0,0,0,.45);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' }
           ]
         },
         {
@@ -370,7 +387,7 @@
           ]
         },
         {
-          k: 'deco', label: '装饰符号', def: 'none', target: '::before',
+          k: 'deco', label: '装饰符号 / 铭文', def: 'none', target: '::before', target2: '::after',
           opts: [
             { v: 'none', label: '无', css: 'content:""' },
             { v: 'sparkle', label: '✦ 星芒', css: 'content:"✦";color:var(--fx-c2)' },
@@ -428,7 +445,7 @@
           ]
         },
         {
-          k: 'fill', label: '底色填充', def: 'solid', target: '',
+          k: 'fill', label: '底色填充 / 铭牌', def: 'solid', target: '',
           opts: [
             { v: 'solid', label: '实底', css: 'background-color:color-mix(in srgb,var(--fx-c1) 22%,transparent)' },
             { v: 'fade', label: '渐隐', css: 'background-image:linear-gradient(90deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent)' },
@@ -467,22 +484,30 @@
           ]
         },
         {
-          k: 'style', label: '文字样式', def: 'gradient', target: '',
+          k: 'style', label: '文字样式', def: 'gradient', target: ' .nick-txt',
           opts: [
-            { v: 'plain', label: '纯色', css: 'color:var(--fx-c1)' },
-            { v: 'gradient', label: '渐变字', css: 'background-image:linear-gradient(92deg,var(--fx-c1),var(--fx-c2));-webkit-background-clip:text;background-clip:text;color:transparent' },
-            { v: 'outline', label: '描边字', css: 'color:transparent;-webkit-text-stroke:1px var(--fx-c1)' },
-            { v: 'neon', label: '霓虹', css: 'color:var(--fx-c2);text-shadow:0 0 6px var(--fx-c1),0 0 13px var(--fx-c1)' },
-            { v: 'emboss', label: '浮雕', css: 'color:var(--fx-c1);text-shadow:0 1px 0 rgba(255,255,255,.5),0 -1px 1px rgba(0,0,0,.5)' },
-            { v: 'shadow', label: '投影', css: 'color:var(--fx-c1);text-shadow:0 2px 5px rgba(0,0,0,.55)' },
-            { v: 'chrome', label: '金属铬', css: 'background-image:linear-gradient(180deg,#fff,var(--fx-c1) 48%,#fff 56%,var(--fx-c2));-webkit-background-clip:text;background-clip:text;color:transparent' },
-            { v: 'fire', label: '烈焰', css: 'background-image:linear-gradient(0deg,#fbbf24,var(--fx-c1) 60%,#fff);-webkit-background-clip:text;background-clip:text;color:transparent' },
-            { v: 'ice', label: '寒冰', css: 'background-image:linear-gradient(180deg,#e0f2fe,var(--fx-c2));-webkit-background-clip:text;background-clip:text;color:transparent' },
-            { v: 'rainbow', label: '彩虹', css: 'background-image:linear-gradient(90deg,#f87171,#fbbf24,#4ade80,#38bdf8,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent' }
+            { v: 'plain', label: '纯色', css: 'color:var(--fx-c1);-webkit-text-fill-color:var(--fx-c1)' },
+            { v: 'gradient', label: '渐变字', css: 'background-image:linear-gradient(92deg,var(--fx-c1),var(--fx-c2));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'outline', label: '描边字', css: 'color:transparent;-webkit-text-fill-color:transparent;-webkit-text-stroke:1px var(--fx-c1)' },
+            { v: 'neon', label: '霓虹', css: 'color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);text-shadow:0 0 6px var(--fx-c1),0 0 13px var(--fx-c1)' },
+            { v: 'emboss', label: '浮雕', css: 'color:var(--fx-c1);-webkit-text-fill-color:var(--fx-c1);text-shadow:0 1px 0 rgba(255,255,255,.5),0 -1px 1px rgba(0,0,0,.5)' },
+            { v: 'shadow', label: '投影', css: 'color:var(--fx-c1);-webkit-text-fill-color:var(--fx-c1);text-shadow:0 2px 5px rgba(0,0,0,.55)' },
+            { v: 'chrome', label: '金属铬', css: 'background-image:linear-gradient(180deg,#fff,var(--fx-c1) 48%,#fff 56%,var(--fx-c2));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'metalgrid', label: '金属格', css: 'background-image:linear-gradient(180deg,#fff,var(--fx-c1) 44%,#fff 52%,var(--fx-c2)),linear-gradient(90deg,rgba(255,255,255,.2) 1px,transparent 1px);background-size:100% 100%,6px 6px;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'fire', label: '烈焰', css: 'background-image:linear-gradient(0deg,#fbbf24,var(--fx-c1) 60%,#fff);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'ice', label: '寒冰', css: 'background-image:linear-gradient(180deg,#e0f2fe,var(--fx-c2));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'rainbow', label: '彩虹', css: 'background-image:linear-gradient(90deg,#f87171,#fbbf24,#4ade80,#38bdf8,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'aurora', label: '极光字', css: 'background-image:linear-gradient(100deg,#22d3ee,#a78bfa,#f472b6,#34d399);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'hologram', label: '全息字', css: 'background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.9) 0 1px,transparent 1px 4px),linear-gradient(90deg,#67e8f9,#c4b5fd,#f0abfc);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'spectrum', label: '光谱字', css: 'background-image:linear-gradient(90deg,#ef4444,#f59e0b,#eab308,#22c55e,#06b6d4,#3b82f6,#8b5cf6,#ec4899);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'plasma', label: '等离子字', css: 'background-image:radial-gradient(circle at 20% 20%,#fff 0 3%,transparent 18%),linear-gradient(110deg,#7c3aed,#ec4899,#06b6d4);background-size:180% 180%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'carbon', label: '碳纤维字', css: 'background-image:repeating-linear-gradient(45deg,#111827 0 2px,#374151 2px 4px);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent' },
+            { v: 'glass', label: '玻璃字', css: 'color:rgba(255,255,255,.9);-webkit-text-fill-color:rgba(255,255,255,.9);text-shadow:0 1px 0 rgba(255,255,255,.7),0 0 10px var(--fx-c1);-webkit-text-stroke:.35px var(--fx-c2)' },
+            { v: 'velvet', label: '丝绒字', css: 'background-image:linear-gradient(135deg,var(--fx-c1),#7c2d12 48%,var(--fx-c2));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 1px 2px rgba(0,0,0,.45)' }
           ]
         },
         {
-          k: 'anim', label: '动效', def: 'none', target: '',
+          k: 'anim', label: '动效', def: 'none', target: ' .nick-txt',
           opts: [
             { v: 'none', label: '静止', css: 'animation:none' },
             { v: 'shine', label: '流光扫过', css: 'background-size:220% 100%;animation:fxShine var(--fx-dur,4s) linear infinite' },
@@ -493,7 +518,12 @@
             { v: 'wave', label: '摇摆', css: 'animation:fxWave var(--fx-dur,4s) ease-in-out infinite' },
             { v: 'flicker', label: '霓虹抖动', css: 'animation:fxFlicker var(--fx-dur,3s) linear infinite' },
             { v: 'tilt', label: '轻晃', css: 'animation:fxTilt var(--fx-dur,5s) ease-in-out infinite' },
-            { v: 'scale', label: '脉冲', css: 'animation:fxScale var(--fx-dur,3s) ease-in-out infinite' }
+            { v: 'scale', label: '脉冲', css: 'animation:fxScale var(--fx-dur,3s) ease-in-out infinite' },
+            { v: 'glitch', label: '故障闪烁', css: 'animation:fxGlitch var(--fx-dur,3s) steps(2,end) infinite' },
+            { v: 'rainbow', label: '彩虹流动', css: 'background-size:300% 100%;animation:fxRainbowFlow var(--fx-dur,6s) linear infinite' },
+            { v: 'elastic', label: '弹性摆动', css: 'animation:fxSwing var(--fx-dur,3s) cubic-bezier(.34,1.56,.64,1) infinite' },
+            { v: 'orbit', label: '环绕摆动', css: 'animation:fxOrbit var(--fx-dur,7s) linear infinite' },
+            { v: 'rise', label: '上浮渐显', css: 'animation:fxRise var(--fx-dur,4s) ease-out infinite' }
           ]
         },
         {
@@ -544,7 +574,7 @@
           ]
         },
         {
-          k: 'bg', label: '昵称底纹', def: 'none', target: '',
+          k: 'bg', label: '昵称底纹 / 铭牌', def: 'none', target: '',
           opts: [
             { v: 'none', label: '无', css: 'background-image:none;background-color:transparent' },
             { v: 'pill', label: '胶囊底', css: 'background-color:color-mix(in srgb,var(--fx-c1) 20%,transparent);border-radius:999px;padding:0 7px' },
@@ -591,7 +621,11 @@
             { v: 'shield', label: '盾形', css: '--fx-rad:12%', css2: 'clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)' },
             { v: 'star', label: '星形', css: '--fx-rad:0', css2: 'clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)' },
             { v: 'leaf', label: '叶形', css: '--fx-rad:0 50% 0 50%' },
-            { v: 'ring', label: '环形', css: '--fx-rad:50%', css2: 'box-shadow:inset 0 0 0 3px var(--fx-c2)' }
+            { v: 'ring', label: '环形', css: '--fx-rad:50%', css2: 'box-shadow:inset 0 0 0 3px var(--fx-c2)' },
+            { v: 'octagon', label: '八边形', css: '--fx-rad:14%', css2: 'clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)' },
+            { v: 'burst', label: '爆裂星', css: '--fx-rad:0', css2: 'clip-path:polygon(50% 0,61% 25%,86% 14%,75% 39%,100% 50%,75% 61%,86% 86%,61% 75%,50% 100%,39% 75%,14% 86%,25% 61%,0 50%,25% 39%,14% 14%,39% 25%)' },
+            { v: 'ticket', label: '票券形', css: '--fx-rad:12%', css2: 'clip-path:polygon(0 12%,12% 12%,12% 0,88% 0,88% 12%,100% 12%,100% 88%,88% 88%,88% 100%,12% 100%,12% 88%,0 88%)' },
+            { v: 'ribbon', label: '绶带形', css: '--fx-rad:18%', css2: 'clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%)' }
           ]
         },
         {
@@ -637,7 +671,11 @@
             { v: 'star', label: '星点', css: 'background-image:radial-gradient(circle at 22% 24%,var(--fx-c2) 0 1.1px,transparent 1.7px),radial-gradient(circle at 76% 78%,var(--fx-c2) 0 1px,transparent 1.6px);animation:fxSparkle var(--fx-dur,2.6s) ease-in-out infinite' },
             { v: 'dust', label: '星尘', css: 'background-image:radial-gradient(var(--fx-c2) .7px,transparent 1px);background-size:6px 6px;animation:fxTwinkle var(--fx-dur,3.4s) ease-in-out infinite' },
             { v: 'bolt', label: '电弧', css: 'background-image:linear-gradient(120deg,transparent 44%,var(--fx-c2) 50%,transparent 56%);animation:fxFlicker var(--fx-dur,2.4s) linear infinite' },
-            { v: 'bubble', label: '光泡', css: 'background-image:radial-gradient(circle at 30% 30%,rgba(255,255,255,.8),transparent 45%);animation:fxFloat var(--fx-dur,3.6s) ease-in-out infinite' }
+            { v: 'bubble', label: '光泡', css: 'background-image:radial-gradient(circle at 30% 30%,rgba(255,255,255,.8),transparent 45%);animation:fxFloat var(--fx-dur,3.6s) ease-in-out infinite' },
+            { v: 'comet', label: '彗星', css: 'background-image:linear-gradient(120deg,transparent 35%,var(--fx-c2) 50%,transparent 65%);background-size:260% 100%;animation:fxShine var(--fx-dur,3s) linear infinite' },
+            { v: 'cross', label: '十字星', css: 'background-image:radial-gradient(circle at 50% 50%,var(--fx-c2) 0 1px,transparent 2px),linear-gradient(90deg,transparent 46%,var(--fx-c2) 50%,transparent 54%),linear-gradient(0deg,transparent 46%,var(--fx-c2) 50%,transparent 54%);animation:fxSparkle var(--fx-dur,2.4s) ease-in-out infinite' },
+            { v: 'halo', label: '环形闪光', css: 'background-image:radial-gradient(circle at 50% 50%,transparent 48%,var(--fx-c2) 49% 51%,transparent 53%);animation:fxRipple var(--fx-dur,4s) ease-out infinite' },
+            { v: 'flare', label: '镜头耀斑', css: 'background-image:radial-gradient(circle at 50% 50%,var(--fx-c2) 0 2px,transparent 3px),linear-gradient(90deg,transparent 44%,var(--fx-c2) 50%,transparent 56%),linear-gradient(0deg,transparent 44%,var(--fx-c2) 50%,transparent 56%);animation:fxGlowPulse var(--fx-dur,2.8s) ease-in-out infinite' }
           ]
         },
         {
@@ -823,8 +861,15 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  /* 图层顺序（DOM 顺序即绘制顺序，同 z-index 下后者在上）：
+     pat 底纹 → ovl 叠加纹理 → anim 动效 → mo 进阶动效 → cor 角饰 → halo 光环 → vig 暗角
+     融合层（prestige-fx.js）新增的槽位把声明写到 .fx-l-ovl / .fx-l-mo / .fx-l-cor /
+     .fx-l-halo 上，这里必须保证这些载体存在，否则后台能选、页面却渲染不出来。 */
   function bgLayers() {
-    return '<span class="fx-l fx-l-pat"></span><span class="fx-l fx-l-anim"></span><span class="fx-l fx-l-vig"></span>';
+    return '<span class="fx-l fx-l-pat"></span><span class="fx-l fx-l-ovl"></span>'
+      + '<span class="fx-l fx-l-anim"></span><span class="fx-l fx-l-mo"></span>'
+      + '<span class="fx-l fx-l-cor"></span><span class="fx-l fx-l-halo"></span>'
+      + '<span class="fx-l fx-l-vig"></span>';
   }
 
   function applyBg(el, cfg) {
@@ -888,7 +933,7 @@
     }
     if (kind === 'title') return titleHtml(c);
     if (kind === 'nickname_style') {
-      return '<span style="font-size:14px"><span class="' + classes('nickname_style', c).join(' ') + '" style="' + esc(styleAttr('nickname_style', c)) + '">同学昵称</span></span>';
+      return '<span style="font-size:14px"><span class="' + classes('nickname_style', c).join(' ') + '" style="' + esc(styleAttr('nickname_style', c)) + '"><span class="nick-txt">同学昵称</span></span></span>';
     }
     return badgeHtml(c, 'lg');
   }
@@ -1030,6 +1075,8 @@
     styleAttr: styleAttr,
     summary: summary,
     ensureStyle: ensureStyle,
+    /* 外部（prestige-fx.js）合并进 SPEC 后调用，强制重建整张样式表 */
+    rebuild: function () { cssBuilt = false; ensureStyle(); },
     bgLayers: bgLayers,
     applyBg: applyBg,
     titleHtml: titleHtml,
