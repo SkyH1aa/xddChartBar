@@ -159,5 +159,126 @@
 
   function reset(el) { pickedMap.set(el, []); closeDrop(el); }
 
-  window.XddMentions = { attach, collect, reset, MAX_PICK };
+  /* ============================================================
+     正文 @提及 → 可点击直达个人主页
+     正文里存的是纯文本「@昵称」，没有用户 id。这里按昵称批量反查 id
+     （重名不猜：后端只回唯一昵称），命中后把 @昵称 换成可点击元素。
+     ============================================================ */
+  const AT_RE = /@([^\s@<>#，。！？、,.!?：:；;]{1,24})/g;
+  const AT_SKIP = 'a,button,textarea,input,select,option,script,style,noscript,'
+    + '[contenteditable],.at-user,.mention-drop,.mn-item,.own-acts';
+  const idOfNick = new Map();   // 昵称 → 用户 id（只放解析成功的）
+  const atMiss = new Set();     // 重名 / 不存在 / 已注销 → 不再重复请求
+  const atPending = new Set();
+  let atTimer = null;
+
+  function atEl(nick, id) {
+    const s = document.createElement('span');
+    s.className = 'at-user';
+    s.dataset.openProfile = id;
+    s.dataset.nick = nick;
+    s.title = '查看 ' + nick + ' 的个人主页';
+    s.textContent = '@' + nick;
+    return s;
+  }
+
+  async function atFlush() {
+    atTimer = null;
+    const names = Array.from(atPending);
+    atPending.clear();
+    if (!names.length) return;
+    let map = {};
+    try {
+      const res = await fetch(EDGE_URL, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', apikey: SUPABASE_KEY },
+        body: JSON.stringify({ action: 'mention_resolve', nicknames: names })
+      });
+      const d = await res.json().catch(() => ({}));
+      if (res.ok && d.ok !== false && d.data) map = d.data;
+    } catch (_e) { /* 网络异常：本轮保持纯文本，不打扰阅读 */ }
+    names.forEach((n) => { if (map[n]) idOfNick.set(n, map[n]); else atMiss.add(n); });
+    if (Object.keys(map).length) decorate(document.body);
+  }
+
+  function atQueue(nick) {
+    if (idOfNick.has(nick) || atMiss.has(nick) || atPending.has(nick)) return;
+    atPending.add(nick);
+    if (!atTimer) atTimer = setTimeout(atFlush, 120);
+  }
+
+  // 把 root 子树文本节点里的 @昵称 换成可点击元素；已解析的立刻换，未解析的入队等回包
+  function decorate(root) {
+    const scope = !root ? document.body : (root.nodeType === 1 ? root : root.parentElement);
+    if (!scope || !scope.isConnected) return;
+    const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT, null);
+    const nodes = [];
+    let n;
+    while ((n = walker.nextNode())) {
+      if (!n.nodeValue || n.nodeValue.indexOf('@') < 0) continue;
+      const p = n.parentElement;
+      if (!p || p.closest(AT_SKIP)) continue;
+      nodes.push(n);
+    }
+    nodes.forEach((node) => {
+      const text = node.nodeValue;
+      AT_RE.lastIndex = 0;
+      let m, last = 0, frag = null;
+      while ((m = AT_RE.exec(text))) {
+        const nick = m[1];
+        const id = idOfNick.get(nick);
+        if (!id) { atQueue(nick); continue; }
+        if (!frag) frag = document.createDocumentFragment();
+        frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        frag.appendChild(atEl(nick, id));
+        last = m.index + m[0].length;
+      }
+      if (frag) {
+        frag.appendChild(document.createTextNode(text.slice(last)));
+        node.parentNode.replaceChild(frag, node);
+      }
+    });
+  }
+
+  // 页面动态渲染（翻页 / 展开评论 / 专栏列表…）后自动补齐，无需各页手动调用
+  let atMoTimer = null;
+  const atDirty = new Set();
+  function scheduleDecorate(node) {
+    if (node.nodeType === 3) {
+      if (!node.parentElement) return;
+      atDirty.add(node.parentElement);
+    } else if (node.nodeType === 1) {
+      atDirty.add(node);
+    } else return;
+    if (atMoTimer) return;
+    atMoTimer = setTimeout(() => {
+      atMoTimer = null;
+      const roots = Array.from(atDirty);
+      atDirty.clear();
+      roots.forEach((r) => decorate(r));
+    }, 60);
+  }
+  function startObserver() {
+    if (!document.body) return;
+    new MutationObserver((muts) => {
+      muts.forEach((m) => m.addedNodes.forEach(scheduleDecorate));
+    }).observe(document.documentElement, { childList: true, subtree: true });
+    decorate(document.body);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startObserver, { once: true });
+  else startObserver();
+
+  // 点击 @提及：主论坛交给页面自己的 openProfile（页内弹层），其余页面直接跳个人主页
+  document.addEventListener('click', (e) => {
+    const at = e.target && e.target.closest ? e.target.closest('.at-user') : null;
+    if (!at) return;
+    const id = at.dataset.openProfile;
+    if (!id) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof window.__xddOpenProfile === 'function') { window.__xddOpenProfile(id); return; }
+    try { location.href = 'index.html#profile-' + encodeURIComponent(id); } catch (_e) {}
+  });
+
+  window.XddMentions = { attach, collect, reset, decorate, MAX_PICK };
 })();

@@ -562,6 +562,8 @@
       icon: '🏅',
       base: 'fx-badge',
       hint: '徽章全部由内置图形与动效渲染（不使用图片）；用户可在个人主页选择佩戴（最多 3 枚）。',
+      /* 输出顺序：底纹先、动效后 —— 两者都可能写 animation，用户选的动效必须赢 */
+      cssOrder: ['ico', 'shape', 'bgf', 'spd', 'anim', 'ring', 'glow', 'spk'],
       icons: [
         '🏅', '🥇', '🥈', '🥉', '🏆', '🎖', '👑', '💎', '⭐', '🌟',
         '✨', '🔥', '⚡', '❄', '🌈', '🍀', '🌱', '🌿', '🌸', '🌺',
@@ -574,31 +576,33 @@
       ],
       slots: [
         {
-          k: 'ico', label: '内置图标', def: '🏅', target: '', iconSlot: true,
+          k: 'ico', label: '内置图标', def: '🏅', target: ' .fx-badge-ico', iconSlot: true,
           opts: [] /* 由 icons 自动展开 */
         },
         {
-          k: 'shape', label: '外形', def: 'circle', target: '',
+          /* 外形：圆角写在外层（外环 border-radius:inherit 才能跟着走），
+             clip-path 写到内层 .fx-badge-body —— 否则会把自己元素上的「外发光」一并裁掉 */
+          k: 'shape', label: '外形', def: 'circle', target: '', target2: ' .fx-badge-body',
           opts: [
-            { v: 'circle', label: '圆形', css: 'border-radius:50%' },
-            { v: 'squircle', label: '圆角方', css: 'border-radius:34%' },
-            { v: 'hex', label: '六边形', css: 'border-radius:14%;clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)' },
-            { v: 'diamond', label: '菱形', css: 'border-radius:16%;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)' },
-            { v: 'shield', label: '盾形', css: 'border-radius:12%;clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)' },
-            { v: 'star', label: '星形', css: 'border-radius:0;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)' },
-            { v: 'leaf', label: '叶形', css: 'border-radius:0 50% 0 50%' },
-            { v: 'ring', label: '环形', css: 'border-radius:50%;box-shadow:inset 0 0 0 3px var(--fx-c2)' }
+            { v: 'circle', label: '圆形', css: '--fx-rad:50%' },
+            { v: 'squircle', label: '圆角方', css: '--fx-rad:34%' },
+            { v: 'hex', label: '六边形', css: '--fx-rad:14%', css2: 'clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)' },
+            { v: 'diamond', label: '菱形', css: '--fx-rad:16%', css2: 'clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)' },
+            { v: 'shield', label: '盾形', css: '--fx-rad:12%', css2: 'clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)' },
+            { v: 'star', label: '星形', css: '--fx-rad:0', css2: 'clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)' },
+            { v: 'leaf', label: '叶形', css: '--fx-rad:0 50% 0 50%' },
+            { v: 'ring', label: '环形', css: '--fx-rad:50%', css2: 'box-shadow:inset 0 0 0 3px var(--fx-c2)' }
           ]
         },
         {
-          k: 'anim', label: '动效', def: 'none', target: '',
+          k: 'anim', label: '动效', def: 'none', target: '', target2: ' .fx-badge-body',
           opts: [
-            { v: 'none', label: '静止', css: 'animation:none' },
+            { v: 'none', label: '静止', css: 'animation:none', css2: 'animation:none' },
             { v: 'spin', label: '旋转', css: 'animation:fxSpin var(--fx-dur,8s) linear infinite' },
             { v: 'pulse', label: '脉冲', css: 'animation:fxScale var(--fx-dur,3s) ease-in-out infinite' },
             { v: 'breathe', label: '呼吸', css: 'animation:fxBreathe var(--fx-dur,5s) ease-in-out infinite' },
             { v: 'bounce', label: '弹跳', css: 'animation:fxBounce var(--fx-dur,2.4s) ease-in-out infinite' },
-            { v: 'shine', label: '流光', css: 'background-size:220% 100%;animation:fxShine var(--fx-dur,4s) linear infinite' },
+            { v: 'shine', label: '流光', target: ' .fx-badge-body', css: 'background-size:220% 100%;animation:fxShine var(--fx-dur,4s) linear infinite' },
             { v: 'swing', label: '摇摆', css: 'animation:fxSwing var(--fx-dur,3s) ease-in-out infinite;transform-origin:top center' },
             { v: 'float', label: '轻浮', css: 'animation:fxFloat var(--fx-dur,4s) ease-in-out infinite' },
             { v: 'flicker', label: '闪烁', css: 'animation:fxFlicker var(--fx-dur,3s) linear infinite' },
@@ -637,7 +641,7 @@
           ]
         },
         {
-          k: 'bgf', label: '底纹', def: 'gradient', target: '',
+          k: 'bgf', label: '底纹', def: 'gradient', target: ' .fx-badge-body',
           opts: [
             { v: 'solid', label: '纯色', css: 'background-image:none;background-color:var(--fx-c1)' },
             { v: 'gradient', label: '渐变', css: 'background-image:linear-gradient(140deg,var(--fx-c1),var(--fx-c2))' },
@@ -685,17 +689,27 @@
       return '_u' + c.codePointAt(0).toString(16);
     });
   }
+  /* 槽位输出顺序：默认沿用 SPEC 顺序；spec.cssOrder 可指定「后者覆盖前者」的优先级。
+     徽章用它让「用户选的动效」压过「底纹自带的动效」（如 极光底纹 vs 流光动效）。 */
+  function orderedSlots(spec) {
+    var order = spec.cssOrder;
+    if (!order || !order.length) return spec.slots;
+    var rank = function (k) { var i = order.indexOf(k); return i < 0 ? order.length : i; };
+    return spec.slots.slice().sort(function (a, b) { return rank(a.k) - rank(b.k); });
+  }
   function buildCss() {
     var out = [KEYFRAMES];
     KIND_LIST.forEach(function (kind) {
       var spec = SPEC[kind];
       var base = spec.base;
-      spec.slots.forEach(function (slot) {
+      orderedSlots(spec).forEach(function (slot) {
         if (slot.iconSlot) return;
         slot.opts.forEach(function (opt) {
-          if (!opt.css) return;
-          var sel = '.' + base + '.' + optClass(kind, slot, opt.v) + (slot.target || '');
-          out.push(sel + '{' + opt.css + '}');
+          if (!opt.css && !opt.css2) return;
+          var head = '.' + base + '.' + optClass(kind, slot, opt.v);
+          if (opt.css) out.push(head + (opt.target != null ? opt.target : (slot.target || '')) + '{' + opt.css + '}');
+          // css2：同一选项需要作用到「另一个子层」时使用（徽章外形：圆角给外层、clip-path 给内层）
+          if (opt.css2) out.push(head + (opt.target2 || slot.target2 || slot.target || '') + '{' + opt.css2 + '}');
         });
       });
     });
@@ -836,11 +850,15 @@
 
   function badgeHtml(cfg, size) {
     ensureStyle();
+    var nm = (cfg && cfg.name) || '';
     var c = normalize('badge', cfg);
     var cls = classes('badge', c).join(' ') + (size === 'lg' ? ' fx-badge-lg' : '');
     var ico = esc(c.opts.ico || '🏅');
-    return '<span class="' + cls + '" style="' + esc(styleAttr('badge', c)) + '" title="' + esc(c.name || '') + '">'
-      + '<span class="fx-badge-ring"></span><span class="fx-badge-ico">' + ico + '</span><span class="fx-badge-spk"></span>'
+    /* 分层：外层承载 外发光 / 动效 / 外环 / 闪光点；内层 .fx-badge-body 承载 外形裁切 与 底纹。
+       这样外形 clip-path 不会再把自己元素上的外发光裁掉，底纹自带的动效也不会顶掉用户选的动效。 */
+    return '<span class="' + cls + '" style="' + esc(styleAttr('badge', c)) + '" title="' + esc(nm) + '">'
+      + '<span class="fx-badge-body"><span class="fx-badge-ico">' + ico + '</span></span>'
+      + '<span class="fx-badge-ring"></span><span class="fx-badge-spk"></span>'
       + '</span>';
   }
 

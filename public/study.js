@@ -286,7 +286,7 @@
     const lvFx = lv >= 55 ? ' legend-gold-card' : (lv >= 36 ? ' lightfx-card' : '');
     card.className = 'post-card' + (post.digest ? ' lightfx-card' : '') + (hasBg ? '' : lvFx);
     card.dataset.id = post.id;
-    const nickHtml = isAnon ? '<span class="anonymous">匿名</span>' : escapeHtml(post.nickname);
+    const nickHtml = isAnon ? '<span class="anonymous">匿名</span>' : '<span class="nick-txt">' + escapeHtml(post.nickname) + '</span>';
     // 昵称样式：作用于昵称文字本身
     const nickRendered = (!isAnon && wear && wear.nickname_style) ? fxNickInner(wear.nickname_style, nickHtml) : nickHtml;
     const lvTag = lv ? `<span class="author-level">Lv.${lv}</span>` : '';

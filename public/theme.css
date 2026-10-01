@@ -229,6 +229,13 @@ a { color: var(--accent); text-decoration: none; }
 /* 作者信息簇（昵称 + 等级 + 称号 + 徽章）：紧凑单行排布，超长才换行，不撑破卡片 */
 .nickname-link{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;min-width:0;max-width:100%}
 .nickname-link > .fx-title{max-width:118px}
+/* 可点开个人主页的用户名：作者昵称文字（.nick-txt）与正文 @提及（.at-user）用同款下划线。
+   只包住「昵称文字」，称号/徽章/等级不受影响。 */
+.nick-txt,.at-user{cursor:pointer;text-decoration:underline;text-underline-offset:2px;
+  text-decoration-thickness:1px;text-decoration-color:color-mix(in srgb,currentColor 42%,transparent)}
+.at-user{white-space:nowrap}
+.nickname-link:hover .nick-txt,.nickname:hover .nick-txt,.at-user:hover{text-decoration-color:currentColor}
+.at-user:hover{filter:brightness(1.15)}
 .chip-more{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;
   min-width:18px;height:18px;padding:0 5px;border-radius:999px;font-size:11px;font-weight:700;
   color:var(--muted);background:var(--chip-bg);border:1px solid var(--line);cursor:default}

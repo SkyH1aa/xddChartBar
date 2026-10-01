@@ -1732,8 +1732,10 @@
       ? `<span class="chip-more" title="${escapeHtml('另有称号：' + restTitles.join('、'))}">+${restTitles.length}</span>`
       : '';
     const titleChips = titleShown + titleMore;
-    // 昵称样式：作者佩戴的昵称特效（作用于昵称文字本身）
-    const nickRendered = (!isAnon && wear && wear.nickname_style) ? fxNickInner(wear.nickname_style, nickHtml) : nickHtml;
+    // 昵称样式：作者佩戴的昵称特效（作用于昵称文字本身）；昵称文字单独包一层 .nick-txt，
+    // 便于只给「文字」加下划线（与 @提及 同款），不会连累后面的称号/徽章
+    const nickTxt = isAnon ? nickHtml : '<span class="nick-txt">' + nickHtml + '</span>';
+    const nickRendered = (!isAnon && wear && wear.nickname_style) ? fxNickInner(wear.nickname_style, nickTxt) : nickTxt;
     // 续缘展示（金玉良缘）：作者在个人主页开启后，帖子额外展示续缘标识与特效
     const authorBond = (post.author_id && ctx.authorMap && ctx.authorMap[post.author_id])
       ? ctx.authorMap[post.author_id].bond : null;
@@ -2528,7 +2530,7 @@
     const parent = c.parent_id ? map[c.parent_id] : null;
     const wear = wearOf(authorMap, c.author_id);
     const cHasBg = !!(wear && wear.background);
-    const nickTxt = c.nickname ? escapeHtml(c.nickname) : '匿名';
+    const nickTxt = c.nickname ? '<span class="nick-txt">' + escapeHtml(c.nickname) + '</span>' : '匿名';
     const nickStyled = (c.nickname && wear && wear.nickname_style) ? fxNickInner(wear.nickname_style, nickTxt) : nickTxt;
     const name = c.nickname
       ? (c.author_id ? `<span class="nickname-link" data-open-profile="${c.author_id}">${nickStyled}</span>` : nickStyled)
@@ -4239,6 +4241,8 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
     applyLoginGate(); // 未登录用户被门禁拦截，无法查看/使用论坛内容
     // 第二期：@提及补全挂在发帖框；底栏提示点击帖子通知时用 __xddScrollToPost 定位
     window.__xddScrollToPost = scrollToPost;
+    // 正文 @提及（mentions.js 渲染）点击后统一走这里的页内个人主页弹层
+    window.__xddOpenProfile = openProfile;
     if (window.XddMentions && els.content) XddMentions.attach(els.content, { getToken: () => state.user.token || '' });
     if (window.XddLive) XddLive.start();
     refreshInviteState();

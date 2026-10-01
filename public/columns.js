@@ -601,7 +601,7 @@
     const light = !hasBg && (Number(p.author_level) || 0) >= 45 ? ' lightfx-card' : '';
     const bg = hasBg ? fxBgParts(fx.background) : { cls: '', style: '', layers: '' };
     const isAnon = !p.nickname;
-    const nickHtml = escapeHtml(p.nickname || '匿名');
+    const nickHtml = isAnon ? escapeHtml(p.nickname || '匿名') : '<span class="nick-txt">' + escapeHtml(p.nickname || '匿名') + '</span>';
     const nickRendered = (!isAnon && fx && fx.nickname_style) ? fxNickInner(fx.nickname_style, nickHtml) : nickHtml;
     const titleChips = (!isAnon && fx) ? (fx.titles || []).slice(0, 3).map((t) => fxTitleHtml(t)).join('') : '';
     const badgeChips = isAnon ? '' : fxChips(fx && fx.badges);
@@ -704,7 +704,7 @@
         const own = c.is_owner;
         const cfx = fxOf(c.author_id);
         const cAnon = !c.nickname;
-        const cnHtml = escapeHtml(c.nickname || '匿名');
+        const cnHtml = cAnon ? escapeHtml(c.nickname || '匿名') : '<span class="nick-txt">' + escapeHtml(c.nickname || '匿名') + '</span>';
         const cnRendered = (!cAnon && cfx && cfx.nickname_style) ? fxNickInner(cfx.nickname_style, cnHtml) : cnHtml;
         const cTitles = (!cAnon && cfx) ? (cfx.titles || []).slice(0, 3).map((t) => fxTitleHtml(t)).join('') : '';
         const cBadges = cAnon ? '' : fxChips(cfx && cfx.badges);
@@ -826,6 +826,8 @@
     try { localStorage.setItem('nzb_view_profile', id); location.href = 'index.html#profile-' + encodeURIComponent(id); }
     catch (_e) {}
   }
+  // 正文 @提及（mentions.js 渲染）点击后统一走这里
+  window.__xddOpenProfile = openProfile;
 
   // ---------------- 我的专栏 / 申请 ----------------
   function requireLogin() {

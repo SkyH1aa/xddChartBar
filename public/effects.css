@@ -53,11 +53,20 @@
 }
 .fx-nick::before, .fx-nick::after { content: ''; }
 
-/* ---------- 徽章 ---------- */
+/* ---------- 徽章 ----------
+   两层结构：外层 .fx-badge 承载「外发光(filter) / 动效(transform) / 外环 / 闪光点」，
+   内层 .fx-badge-body 承载「外形裁切(clip-path) + 底纹」。
+   解耦原因：clip-path 会连同元素自身的外发光一起裁掉 —— 六边形/菱形/盾形/星形等
+   非圆形徽章的外发光会整块消失；底纹自带的 animation 也会覆盖用户选择的动效。 */
 .fx-badge {
   position: relative; display: inline-flex; align-items: center; justify-content: center;
   width: 18px; height: 18px; flex: 0 0 auto; overflow: visible;
-  background: var(--fx-c1, #7c3aed); color: #fff;
+  color: #fff; background: none; border-radius: var(--fx-rad, 50%);
+}
+.fx-badge > .fx-badge-body {
+  position: absolute; inset: 0; border-radius: inherit; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--fx-c1, #7c3aed);
 }
 .fx-badge.fx-badge-lg { width: 38px; height: 38px; }
 .fx-badge .fx-badge-ico {
