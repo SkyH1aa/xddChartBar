@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>XDD吧 · 管理后台</title>
   <link rel="stylesheet" href="public/theme.css" />
+  <link rel="stylesheet" href="public/effects.css" />
 </head>
 <body>
   <header class="topbar">
@@ -100,13 +101,69 @@
       <div id="colAdminDetail" class="hidden" style="margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:14px"></div>
     </section>
 
-    <!-- 吃瓜审核 -->
+    <!-- 内容审核（吃瓜 + 学习资料；需 can_review 权限） -->
     <section id="tab-review" class="panel hidden">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <h3 style="margin:0">吃瓜审核（待审核）</h3>
+        <h3 style="margin:0">内容审核（吃瓜 + 学习资料 · 待审核）</h3>
         <button id="reviewRefresh" class="btn ghost sm">刷新</button>
       </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:10px">同一入口同时审核「吃瓜」与「学习资料」的待审帖；通过后对外可见，学习资料帖通过后即可在「学习资料区」展示。</div>
       <div id="reviewList"></div>
+    </section>
+
+    <!-- 问答管理（需 can_qa 权限） -->
+    <section id="tab-qa" class="panel hidden">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+        <h3 style="margin:0">❓ 问答管理</h3>
+        <select id="qaScope" class="input" style="min-width:130px">
+          <option value="unresolved">仅求助中</option>
+          <option value="">全部求助帖</option>
+          <option value="resolved">仅已解决</option>
+        </select>
+        <select id="qaTopic" class="input" style="min-width:120px"><option value="">全部话题</option></select>
+        <input id="qaFrom" class="input" type="date" title="发布时间起" />
+        <input id="qaTo" class="input" type="date" title="发布时间止" />
+        <input id="qaKeyword" class="input" placeholder="搜索内容 / 昵称" style="width:220px" />
+        <button id="qaRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:10px">管理员可强制结贴（代设最佳答案）或撤销最佳答案；撤销会扣回答主 15 经验，全部操作写入审计。</div>
+      <div id="qaList"></div>
+    </section>
+
+    <!-- 学习资料管理（学科维护；需 can_digest 权限） -->
+    <section id="tab-study" class="panel hidden">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+        <h3 style="margin:0">📖 学习资料 · 学科管理</h3>
+        <button id="studyRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:12px">发帖必须选择学科；仍有在用资料帖的学科只能「停用」，不能删除。资料帖的审核在「内容审核」入口，精选维护在「精华聚合」入口。</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px">
+        <input id="subjName" class="input" placeholder="学科名称（如 高等数学）" style="width:220px" />
+        <input id="subjDisplay" class="input" placeholder="显示名（留空同名称）" style="width:180px" />
+        <input id="subjSort" class="input" type="number" value="0" style="width:90px" title="排序（越小越靠前）" />
+        <label style="display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--muted)"><input type="checkbox" id="subjEnabled" checked /> 启用</label>
+        <button id="subjCreateBtn" class="btn sm">➕ 新增学科</button>
+      </div>
+      <div id="subjList"></div>
+    </section>
+
+    <!-- 失物招领管理（需 can_trade 权限） -->
+    <section id="tab-trade" class="panel hidden">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+        <h3 style="margin:0">🔎 失物招领管理</h3>
+        <select id="tradeStatusFilter" class="input" style="min-width:120px">
+          <option value="">全部状态</option>
+          <option value="ongoing">进行中</option>
+          <option value="found">已找到</option>
+          <option value="lost">已失效</option>
+        </select>
+        <input id="tradeKeyword" class="input" placeholder="搜索内容 / 昵称" style="width:200px" />
+        <input id="tradeFrom" class="input" type="date" title="发布时间起" />
+        <input id="tradeTo" class="input" type="date" title="发布时间止" />
+        <button id="tradeRefresh" class="btn ghost sm">刷新</button>
+        <button id="tradeArchiveBtn" class="btn sm danger" title="把发布满 60 天且仍为「进行中」的失物招领帖移入回收站（可恢复）">🗄 归档过期（60天）</button>
+      </div>
+      <div id="tradeList"></div>
     </section>
 
     <!-- 举报队列 -->
@@ -475,6 +532,193 @@
       </div>
       <div id="dmThreadList"></div>
     </section>
+
+    <!-- 成就徽章管理（can_badge） -->
+    <section id="tab-badge" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <h3 style="margin:0">🏅 成就徽章管理</h3>
+        <button id="badgeRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line);margin-bottom:14px">
+        <h4 id="badgeFormTitle" style="margin:0 0 10px">新建徽章</h4>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px">
+          <label style="font-size:13px;color:var(--muted)">徽章名称<input id="badgeName" class="input" maxlength="40" style="width:100%" /></label>
+          <label style="font-size:13px;color:var(--muted)">授予来源<select id="badgeSource" class="input" style="width:100%"><option value="auto">自动</option><option value="manual">手动</option></select></label>
+          <label style="font-size:13px;color:var(--muted)">有效期<select id="badgeDurType" class="input" style="width:100%"><option value="forever">永久</option><option value="day">天</option><option value="week">周</option><option value="month">月</option><option value="year">年</option></select></label>
+          <label style="font-size:13px;color:var(--muted)">有效天数（永久可留 0）<input id="badgeDurDays" class="input" type="number" min="0" value="0" style="width:100%" /></label>
+          <label id="badgeRuleTypeWrap" style="font-size:13px;color:var(--muted)">自动条件<select id="badgeRuleType" class="input" style="width:100%"><option value="post">发帖数</option><option value="comment">评论数</option><option value="like_received">获赞数</option><option value="digest">精华数</option><option value="legend">校史编号</option><option value="best_answer">最佳答案数</option><option value="checkin_streak">连续签到天数</option><option value="event_win">活动获奖次数</option></select></label>
+          <label id="badgeRuleCountWrap" style="font-size:13px;color:var(--muted)">条件数量<input id="badgeRuleCount" class="input" type="number" min="1" value="1" style="width:100%" /></label>
+          <label style="font-size:13px;color:var(--muted)">排序（数字越小越靠前）<input id="badgeSort" class="input" type="number" min="0" value="0" style="width:100%" /></label>
+          <label style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:18px"><input id="badgeEnabled" type="checkbox" checked /> 启用</label>
+        </div>
+        <div class="form-field">
+          <label>徽章外观（内置网页特效 · 下拉选择 + 取色器，无需写代码）</label>
+          <div id="badgeFxHost"></div>
+        </div>
+        <div class="form-field"><label>徽章说明</label><textarea id="badgeDesc" class="input" maxlength="500" style="width:100%;min-height:60px;resize:vertical;background:var(--input-bg);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px"></textarea></div>
+        <div class="form-field"><label>获取提示（展示在徽章墙）</label><input id="badgeHint" class="input" maxlength="300" /></div>
+        <div style="display:flex;gap:8px"><button id="badgeSave" class="btn sm">保存徽章</button><button id="badgeCancel" class="btn sm ghost hidden">取消编辑</button></div>
+      </div>
+      <div id="badgeList"></div>
+      <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line);margin-top:14px">
+        <h4 style="margin:0 0 10px">手动授予 / 撤销</h4>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input id="badgeGrantUser" class="input" placeholder="搜索昵称或账号（下拉点选）" autocomplete="off" style="min-width:220px" />
+          <select id="badgeGrantBadge" class="input" style="min-width:180px"></select>
+          <button id="badgeGrantBtn" class="btn sm">授予</button>
+          <button id="badgeRevokeBtn" class="btn sm ghost">撤销</button>
+        </div>
+        <div style="font-size:11px;color:var(--faint);margin-top:6px">手动徽章按定义中的有效期计算到期时间；撤销后徽章墙不再展示，历史记录保留。下方为最近 300 条授予记录。</div>
+        <div id="badgeGrantList" style="margin-top:12px"></div>
+      </div>
+    </section>
+
+    <!-- 积分商城管理（can_shop） -->
+    <section id="tab-shop" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <h3 style="margin:0">🛒 积分商城管理</h3>
+        <button id="shopRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <button class="btn sm shop-sub" data-shopsub="items">商品管理</button>
+        <button class="btn sm ghost shop-sub" data-shopsub="orders">兑换记录</button>
+        <button class="btn sm ghost shop-sub" data-shopsub="logs">积分流水</button>
+        <button class="btn sm ghost shop-sub" data-shopsub="adjust">积分调整</button>
+        <button class="btn sm ghost shop-sub" data-shopsub="grant">手动分发</button>
+      </div>
+
+      <div id="shopPane-items">
+        <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line);margin-bottom:14px">
+          <h4 id="shopFormTitle" style="margin:0 0 10px">新建商品</h4>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px">
+            <label style="font-size:13px;color:var(--muted)">商品名称<input id="shopTitle" class="input" maxlength="60" style="width:100%" /></label>
+            <label style="font-size:13px;color:var(--muted)">图片 URL<input id="shopImage" class="input" placeholder="https://…" style="width:100%" /></label>
+            <label style="font-size:13px;color:var(--muted)">分类<select id="shopCategory" class="input" style="width:100%"><option value="background">帖子背景</option><option value="title">称号</option><option value="nickname_style">昵称样式</option><option value="makeup_card">补签卡</option><option value="custom">自定义</option></select></label>
+            <label style="font-size:13px;color:var(--muted)">价格（积分）<input id="shopPrice" class="input" type="number" min="0" value="0" style="width:100%" /></label>
+            <label style="font-size:13px;color:var(--muted)">库存（-1 不限量）<input id="shopStock" class="input" type="number" min="-1" value="-1" style="width:100%" /></label>
+            <label style="font-size:13px;color:var(--muted)">有效期<select id="shopDurType" class="input" style="width:100%"><option value="forever">永久</option><option value="day">天</option><option value="week">周</option><option value="month">月</option><option value="year">年</option></select></label>
+            <label style="font-size:13px;color:var(--muted)">有效天数<input id="shopDurDays" class="input" type="number" min="0" value="0" style="width:100%" /></label>
+            <label style="font-size:13px;color:var(--muted)">排序<input id="shopSort" class="input" type="number" min="0" value="0" style="width:100%" /></label>
+            <label style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:18px"><input id="shopEnabled" type="checkbox" checked /> 上架</label>
+            <label style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:18px"><input id="shopIsCustom" type="checkbox" /> 自定义（用户可填内容）</label>
+          </div>
+          <div class="form-field"><label>商品说明</label><textarea id="shopDesc" class="input" maxlength="1000" style="width:100%;min-height:60px;resize:vertical;background:var(--input-bg);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px"></textarea></div>
+          <div class="form-field">
+            <label>商品外观（内置网页特效 · 下拉选择 + 取色器，无需写代码）</label>
+            <div id="shopFxHint" style="font-size:12px;color:var(--faint);margin-bottom:6px">仅「帖子背景 / 称号 / 昵称样式」分类需要配置外观；补签卡与自定义商品无需配置。</div>
+            <div id="shopFxHost"></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button id="shopSave" class="btn sm">保存商品</button>
+            <button id="shopCancel" class="btn sm ghost hidden">取消编辑</button>
+            <span style="color:var(--faint);font-size:12px">一键添加模板：</span>
+            <button class="btn sm ghost" data-shoptpl="background">帖子背景</button>
+            <button class="btn sm ghost" data-shoptpl="title">称号</button>
+            <button class="btn sm ghost" data-shoptpl="nickname_style">昵称样式</button>
+            <button class="btn sm ghost" data-shoptpl="makeup_card">补签卡</button>
+          </div>
+        </div>
+        <div id="shopItemList"></div>
+      </div>
+
+      <div id="shopPane-orders" class="hidden">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+          <input id="shopOrderFrom" class="input" type="date" /><span style="color:var(--faint)">至</span><input id="shopOrderTo" class="input" type="date" />
+          <select id="shopOrderStatus" class="input"><option value="">全部状态</option><option value="paid">已支付</option><option value="refunding">待处理退款</option><option value="refunded">已退款</option><option value="refund_rejected">退款被拒</option></select>
+          <input id="shopOrderKw" class="input" placeholder="昵称/账号" style="min-width:150px" />
+          <button id="shopOrderLoad" class="btn sm">查询</button>
+        </div>
+        <div style="font-size:12px;color:var(--faint);margin-bottom:10px">默认展示最近 30 天兑换记录；退款按原价 80% 返还并收回相应权益。</div>
+        <div id="shopOrderList"></div>
+      </div>
+
+      <div id="shopPane-logs" class="hidden">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+          <input id="shopLogKw" class="input" placeholder="昵称/账号" style="min-width:150px" />
+          <select id="shopLogReason" class="input"><option value="">全部来源</option><option value="admin_adjust">管理员调整</option><option value="shop_buy">商城兑换</option><option value="shop_refund">退款返还</option><option value="checkin">签到</option><option value="quest">每日任务</option><option value="event">活动奖励</option></select>
+          <input id="shopLogFrom" class="input" type="date" /><span style="color:var(--faint)">至</span><input id="shopLogTo" class="input" type="date" />
+          <button id="shopLogLoad" class="btn sm">查询</button>
+        </div>
+        <div id="shopLogList"></div>
+      </div>
+
+      <div id="shopPane-adjust" class="hidden">
+        <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line)">
+          <h4 style="margin:0 0 10px">手动补发 / 扣减积分</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <input id="shopAdjustUser" class="input" placeholder="搜索昵称或账号（下拉点选）" autocomplete="off" style="min-width:220px" />
+            <input id="shopAdjustDelta" class="input" type="number" placeholder="正数补发 / 负数扣减" style="width:170px" />
+            <input id="shopAdjustReason" class="input" placeholder="调整原因（必填）" style="min-width:220px" maxlength="100" />
+            <button id="shopAdjustSave" class="btn sm">确认调整</button>
+          </div>
+          <div style="font-size:11px;color:var(--faint);margin-top:6px">调整会写入积分流水并通知用户；扣减时余额不足会失败。</div>
+        </div>
+      </div>
+
+      <div id="shopPane-grant" class="hidden">
+        <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line)">
+          <h4 style="margin:0 0 10px">🎁 手动分发装扮（帖子背景 / 称号 / 昵称样式）</h4>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">
+            <label style="font-size:13px;color:var(--muted)">目标用户<input id="shopGrantUser" class="input" placeholder="搜索昵称或账号（下拉点选）" autocomplete="off" style="width:100%" /></label>
+            <label style="font-size:13px;color:var(--muted)">装扮类型<select id="shopGrantType" class="input" style="width:100%"><option value="background">帖子背景</option><option value="title">称号</option><option value="nickname_style">昵称样式</option></select></label>
+            <label style="font-size:13px;color:var(--muted)">外观来源<select id="shopGrantSource" class="input" style="width:100%"><option value="custom">现场配置特效</option><option value="item">复用商城商品</option></select></label>
+            <label id="shopGrantItemWrap" class="hidden" style="font-size:13px;color:var(--muted)">选择商品<select id="shopGrantItem" class="input" style="width:100%"></select></label>
+            <label style="font-size:13px;color:var(--muted)">有效期<select id="shopGrantDurType" class="input" style="width:100%"><option value="forever">永久</option><option value="day">天</option><option value="week">周</option><option value="month">月</option><option value="year">年</option></select></label>
+            <label style="font-size:13px;color:var(--muted)">有效天数<input id="shopGrantDurDays" class="input" type="number" min="0" value="0" style="width:100%" /></label>
+            <label style="font-size:13px;color:var(--muted)">名称备注<input id="shopGrantLabel" class="input" placeholder="自定义名称（可选）" maxlength="60" style="width:100%" /></label>
+          </div>
+          <div class="form-field">
+            <label>装扮外观（内置网页特效 · 下拉选择 + 取色器，无需写代码）</label>
+            <div id="shopGrantFxHint" style="font-size:12px;color:var(--faint);margin-bottom:6px">选择「复用商城商品」时，外观直接取自所选商品，此处无需配置。</div>
+            <div id="shopGrantFxHost"></div>
+          </div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:4px 0 10px">
+            <label style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px"><input id="shopGrantEquip" type="checkbox" /> 分发后立即为该用户装备</label>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button id="shopGrantSave" class="btn sm">确认分发</button>
+            <span style="color:var(--faint);font-size:12px">分发会写入站内通知与审计日志；同类型可重复分发，用户可自行切换佩戴。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 活动中心管理（can_event） -->
+    <section id="tab-event" class="panel hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <h3 style="margin:0">🎉 活动中心管理</h3>
+        <button id="eventRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line);margin-bottom:14px">
+        <h4 id="eventFormTitle" style="margin:0 0 10px">新建活动</h4>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px">
+          <label style="font-size:13px;color:var(--muted)">活动标题<input id="eventTitle" class="input" maxlength="120" style="width:100%" /></label>
+          <label style="font-size:13px;color:var(--muted)">封面 URL<input id="eventCover" class="input" placeholder="https://…" style="width:100%" /></label>
+          <label style="font-size:13px;color:var(--muted)">玩法<select id="eventMode" class="input" style="width:100%"><option value="lottery">抽奖</option><option value="likes">点赞排行</option><option value="favorites">收藏排行</option><option value="comments">评论排行</option></select></label>
+          <label style="font-size:13px;color:var(--muted)">开始时间<input id="eventStart" class="input" type="datetime-local" style="width:100%" /></label>
+          <label style="font-size:13px;color:var(--muted)">结束时间<input id="eventEnd" class="input" type="datetime-local" style="width:100%" /></label>
+          <label style="font-size:13px;color:var(--muted)">状态<select id="eventStatus" class="input" style="width:100%"><option value="draft">草稿</option><option value="ongoing">进行中</option><option value="ended">已结束</option></select></label>
+        </div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;margin:10px 0">
+          <label style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px"><input id="eventRequireSignup" type="checkbox" /> 需报名</label>
+          <label style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px"><input id="eventAnon" type="checkbox" /> 允许匿名参与</label>
+          <label style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px"><input id="eventAutoSettle" type="checkbox" /> 到期自动结算</label>
+          <label style="font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px"><input id="eventRuleCfgEnabled" type="checkbox" /> 启用玩法细则</label>
+        </div>
+        <div class="form-field"><label>活动简介</label><textarea id="eventIntro" class="input" maxlength="2000" style="width:100%;min-height:60px;resize:vertical;background:var(--input-bg);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px"></textarea></div>
+        <div class="form-field"><label>活动规则</label><textarea id="eventRules" class="input" maxlength="4000" style="width:100%;min-height:60px;resize:vertical;background:var(--input-bg);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px"></textarea></div>
+        <div class="form-field">
+          <label>玩法细则（可视化配置 · 勾选上方「启用玩法细则」后展示在活动详情页）</label>
+          <div id="eventRuleCfgHost"></div>
+        </div>
+        <div class="form-field">
+          <label>奖励配置（可视化配置 · 随「玩法」自动切换：抽奖→奖品与权重，排行→名次奖励）</label>
+          <div id="eventRewardCfgHost"></div>
+        </div>
+        <div style="display:flex;gap:8px"><button id="eventSave" class="btn sm">保存活动</button><button id="eventCancel" class="btn sm ghost hidden">取消编辑</button></div>
+      </div>
+      <div id="eventList"></div>
+    </section>
   </div>
 
   <!-- 邀请码管理（需 can_invite 权限；若创始人未开启邀请码注册则显示挡板） -->
@@ -538,6 +782,8 @@
 
   <script src="public/sensitive-words.js"></script>
   <script src="public/theme.js"></script>
+  <script src="public/effects.js"></script>
+  <script src="public/event-cfg.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="public/admin.js"></script>
 </body>

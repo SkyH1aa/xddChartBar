@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="XDD吧 · 积分商城 · 用积分兑换帖子背景、称号与昵称样式" />
+  <title>XDD吧 · 积分商城</title>
+  <link rel="stylesheet" href="public/theme.css" />
+  <link rel="stylesheet" href="public/effects.css" />
+  <style>
+    .quicknav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:8px 14px 10px;background:var(--bg-soft);border-bottom:1px solid var(--line-soft);position:relative;z-index:20}
+    .qn-item{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--text);background:var(--card);border:1px solid var(--line);padding:7px 18px;border-radius:999px;text-decoration:none;transition:color .2s,border-color .2s;box-shadow:var(--shadow-soft)}
+    .qn-item:hover{color:var(--accent,#e07a5f);border-color:var(--accent,#e07a5f)}
+    .qn-item[data-active]{background:var(--accent,#e07a5f);color:#fff;border-color:var(--accent,#e07a5f)}
+    @media(max-width:560px){.quicknav{gap:6px;padding:8px 10px 10px}.qn-item{padding:7px 14px;font-size:12.5px}}
+    .shop-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+    .shop-toolbar input,.shop-toolbar select{background:var(--input-bg);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:7px 14px;font-size:13px;font-family:inherit}
+    .shop-mask{position:fixed;inset:0;z-index:200;background:rgba(15,15,25,.55);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+    .shop-modal{width:min(520px,96vw);max-height:88vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);padding:18px}
+    .shop-modal-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .shop-modal-head h3{margin:0;font-size:17px}
+    .shop-modal-close{margin-left:auto;background:none;border:none;color:var(--muted);font-size:22px;line-height:1;cursor:pointer}
+    .ent-group{margin-bottom:12px}
+    .ent-group-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
+    .ent-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0;border-bottom:1px dashed var(--line)}
+    .ent-row:last-child{border-bottom:none}
+    .ent-name{font-size:13px;color:var(--text);font-weight:600}
+  </style>
+  <script src="public/sensitive-words.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="dot"></span>
+        XDD吧
+        <span class="tag">积分商城</span>
+      </div>
+      <div class="spacer"></div>
+      <span id="userBar"></span>
+      <div id="themeSwitcherHost" style="display:inline-flex"></div>
+    </div>
+  </header>
+
+  <nav class="quicknav" aria-label="快捷导航">
+    <a class="qn-item" href="index.html">🏠 首页</a>
+    <a class="qn-item" href="study.html">📖 学习资料</a>
+    <a class="qn-item" href="columns.html">📚 专栏</a>
+    <a class="qn-item" href="badges.html">🏅 徽章墙</a>
+    <a class="qn-item" href="shop.html" data-active>🛒 积分商城</a>
+    <a class="qn-item" href="events.html">🎉 活动中心</a>
+    <a class="qn-item" href="rules.html">📜 站规</a>
+  </nav>
+
+  <main class="wrap" style="max-width:1000px">
+    <section class="p4-hero shop">
+      <div>
+        <div class="p4-hero-title">🛒 积分商城</div>
+        <div class="p4-hero-sub">用积分兑换帖子背景、称号、昵称样式与补签卡。系统类商品支持自助退款（按原价 80% 返还并收回权益），自定义类商品退款需管理员确认。</div>
+      </div>
+      <div class="p4-balance">
+        <b id="coinBalance">—</b>
+        <span id="coinHint">积分余额</span>
+      </div>
+    </section>
+
+    <div class="p4-tabs">
+      <button class="chip active" data-tab="items">🎁 商品</button>
+      <button class="chip" data-tab="orders">🧾 我的订单</button>
+      <button class="chip" data-tab="ents">✨ 我的权益</button>
+    </div>
+
+    <section id="paneItems">
+      <div class="shop-toolbar">
+        <select id="catFilter">
+          <option value="">全部分类</option>
+          <option value="background">帖子背景</option>
+          <option value="title">称号</option>
+          <option value="nickname_style">昵称样式</option>
+          <option value="makeup_card">补签卡</option>
+          <option value="custom">自定义</option>
+        </select>
+        <input id="itemKw" type="text" placeholder="搜索商品…" autocomplete="off" style="min-width:180px" />
+        <button id="itemSearch" class="btn sm">搜索</button>
+        <button id="itemRefresh" class="btn ghost sm">刷新</button>
+      </div>
+      <div id="itemList" class="p4-grid"></div>
+    </section>
+
+    <section id="paneOrders" class="hidden">
+      <div style="font-size:12px;color:var(--faint);margin-bottom:10px">展示最近 200 条兑换记录；退款按原价 80% 返还。</div>
+      <div id="orderList"></div>
+    </section>
+
+    <section id="paneEnts" class="hidden">
+      <div style="font-size:12px;color:var(--faint);margin-bottom:10px">同一类型同时只能装备一件；过期或已收回的权益不可装备。</div>
+      <div id="entList"></div>
+    </section>
+  </main>
+
+  <script src="public/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="public/effects.js"></script>
+  <script src="public/shop.js"></script>
+</body>
+</html>

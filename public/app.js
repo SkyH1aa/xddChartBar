@@ -10,7 +10,10 @@
   const SUPABASE_KEY = 'sb_publishable_B29ClgwZagW32Ow5x6VdKQ_IL65F7dl';
   const EDGE_URL = `${SUPABASE_URL}/functions/v1/newtheba`;
 
-  const TOPICS = ['闲聊', '社团活动', '食堂', '宿舍', '学习', '吃瓜', '失物招领'];
+  const TOPICS = ['闲聊', '社团活动', '食堂', '宿舍', '学习', '吃瓜', '失物招领', '学习资料'];
+  const STUDY_TOPIC = '学习资料';
+  const TRADE_TOPIC = '失物招领';
+  const TRADE_STATUS_LABEL = { ongoing: '进行中', found: '已找到', lost: '已失效' };
   // 用户自建话题（加载自后端 topics_list）：{display_name, is_permanent, ...}
   let customTopics = [];
   let currentDailyTopic = null;
@@ -61,6 +64,7 @@
   const state = {
     activeTopic: '', page: 1, totalPages: 1, totalCount: 0,
     sort: 'latest', mode: 'feed', keyword: '',
+    tradeStatus: 'ongoing',
     user: { token: null, profile: null },
     likedSet: new Set(),
     favSet: new Set(),
@@ -72,10 +76,13 @@
   const els = {
     feed: $('feed'), pinnedFeed: $('pinnedFeed'), pinnedSection: $('pinnedSection'),
     emptyState: $('emptyState'), pager: $('pager'), pageNum: $('pageNum'),
-    topicSelect: $('topicSelect'), filterBar: $('filterBar'), sortTabs: $('sortTabs'),
+    topicSelect: $('topicSelect'), filterBar: $('filterBar'), sortTabs: $('sortTabs'), tradeFilter: $('tradeFilter'),
     content: $('contentInput'), nickname: $('nicknameInput'), charCount: $('charCount'),
     publish: $('publishBtn'), composeWarn: $('composeWarn'), composeHint: $('composeHint'),
     composerPriv: $('composerPriv'), scheduleAt: $('scheduleAt'), minViewLevel: $('minViewLevel'), privHint: $('privHint'),
+    composerExtra: $('composerExtra'), askModeWrap: $('askModeWrap'), askMode: $('askMode'),
+    subjectWrap: $('subjectWrap'), subjectSelect: $('subjectSelect'),
+    tradeWrap: $('tradeWrap'), tradeStatusSelect: $('tradeStatusSelect'), composerExtraWarn: $('composerExtraWarn'),
     pollBuilder: $('pollBuilder'), pollQtype: $('pollQtype'), quizQuestions: $('quizQuestions'), quizTypeNote: $('quizTypeNote'), addQuestionBtn: $('addQuestionBtn'),
     seriesBox: $('seriesBox'), seriesOn: $('seriesOn'), seriesFields: $('seriesFields'), seriesTitle: $('seriesTitle'), seriesSelect: $('seriesSelect'), seriesPartTitle: $('seriesPartTitle'),
     spPanel: $('spPanel'), spPreview: $('spPreview'),
@@ -112,12 +119,26 @@
   }
   function topicLimit(t) {
     if (t === '吃瓜') return 5000;
+    if (t === STUDY_TOPIC) return 10000;
     const lv = loggedIn() ? (myLevelNow() || 0) : 0;
     return lv >= 21 ? 700 : lv >= 11 ? 600 : 500;
   }
   // 敏感词命中：只有内容中出现与词库“整个词条”完全一致的连续子串才命中（不做字符级/局部匹配）。
   // 若命中词被 SAFE_WORDS 里的某个豁免词完整包含（如单字“奶”被“牛奶”包含），则不算命中，避免误伤正常词。
   const SAFE_WORDS = ['牛奶', '奶茶', '奶酪', '奶牛', '酸奶', '奶粉', '奶昔', '奶嘴', '奶妈', '奶奶', '奶油', '蜜奶'] // 可按需增删
+  // 纯数字词条必须整体成词才算命中，避免「共64人」「考了64分」这类正常数字被误判
+  function numericWordHit(lower, sl) {
+    if (!/^\d+$/.test(sl)) return lower.includes(sl);
+    let from = 0;
+    for (;;) {
+      const i = lower.indexOf(sl, from);
+      if (i < 0) return false;
+      const b = i > 0 ? lower[i - 1] : '';
+      const a = i + sl.length < lower.length ? lower[i + sl.length] : '';
+      if (!/\d/.test(b) && !/\d/.test(a)) return true;
+      from = i + 1;
+    }
+  }
   function sensitiveHits(text) {
     if (!text) return [];
     const words = window.NEWTHEBA_SENSITIVE_WORDS || [];
@@ -127,7 +148,7 @@
       const s = String(w || '').trim();
       if (!s) continue;
       const sl = s.toLowerCase();
-      if (!lower.includes(sl)) continue;
+      if (!numericWordHit(lower, sl)) continue;
       // 若该命中词被某个“更长”的豁免词完整包裹，则认为属于正常用词，不判定违规
       // （如单字“奶”被“牛奶”包含则豁免；但敏感词若本身是“牛奶”，不会被豁免）
       if (SAFE_WORDS.some((sw) => sw.length > s.length && sw.includes(s) && lower.includes(sw.toLowerCase()))) continue;
@@ -213,6 +234,38 @@
     const no = (tier === 6 && author && author.legend_no) ? Number(author.legend_no) : 0;
     const noHtml = no ? `<i class="badge-no">No.${no}</i>` : '';
     return `<span class="author-level badge-x ${BADGE_TIER_CLS[tier]}" data-tier="${tier}" data-lv="${lv}" title="Lv.${lv} · ${escapeHtml(name)}${no ? ` · No.${no}` : ''}">${escapeHtml(name)}${noHtml}</span>`;
+  }
+
+  // ---------------- 内置特效引擎桥接（public/effects.js） ----------------
+  // 所有装扮（帖子背景 / 称号 / 昵称样式 / 徽章）都由内置网页特效渲染，不使用图片。
+  const FX = () => (window.XddFx || null);
+  function fxKnown(kind) { const F = FX(); return !!F && F.kinds().indexOf(kind) >= 0; }
+  function fxTitleHtml(cfg) {
+    const F = FX();
+    if (!F || !cfg) return '';
+    try { return F.titleHtml(cfg); } catch (_e) { return ''; }
+  }
+  function fxNickInner(cfg, innerHtml) {
+    const F = FX();
+    if (!F || !cfg) return innerHtml;
+    try {
+      const c = F.normalize('nickname_style', cfg);
+      return `<span class="${F.classes('nickname_style', c).join(' ')}" style="${escapeHtml(F.styleAttr('nickname_style', c))}">${innerHtml}</span>`;
+    } catch (_e) { return innerHtml; }
+  }
+  function fxBadgeHtml(cfg, name) {
+    const F = FX();
+    if (!F || !cfg) return '';
+    try { const c = F.normalize('badge', cfg); c.name = name || ''; return F.badgeHtml(c); } catch (_e) { return ''; }
+  }
+  function fxApplyBg(el, cfg) {
+    const F = FX();
+    if (!F || !el || !cfg) return;
+    try { F.applyBg(el, cfg); } catch (_e) { /* 特效失败不影响帖子渲染 */ }
+  }
+  // 作者已装备的装扮（来自 wear_showcase）
+  function wearOf(authorMap, authorId) {
+    return (authorId && authorMap && authorMap[authorId] && authorMap[authorId].wear) || null;
   }
 
   // ---------------- Edge 调用 ----------------
@@ -531,6 +584,8 @@
   }
 
   let composingDailyTopicId = '';
+  // 活动帖：从活动中心跳转（?event=<id>）时绑定活动，发帖携带 event_id
+  let composingEvent = null;
   let composingDailyTopicTitle = '';
   // ---------------- 每日任务 / 每日话题 ----------------
   function dailyOverlay(title, body) {
@@ -597,8 +652,14 @@
     if (!body) return;
     if (!data) { body.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted)">主页加载失败</div>'; return; }
     body.innerHTML = renderProfile(data);
-    body.querySelectorAll('[data-pact]').forEach((b) => b.addEventListener('click', () => { const ps = state.user.profile; renderProfileInto(body, data); }));
-    if (data.canEdit) { bindProfileEdit(body, data, overlay); renderPrivilegeCenter(body); loadDmPref(body, data); bindDmPref(body, data); loadBondPanel(body); }
+    mountProfileView(body, data, overlay, targetId);
+  }
+  // 主页视图的挂载 / 重挂载：初次打开与「编辑 → 返回」共用同一套绑定与面板加载，
+  // 否则返回后各面板（我的装扮 / 徽章墙 / 我的续缘 / 私信设置）会一直停在「加载中…」
+  function mountProfileView(body, data, overlay, targetId) {
+    body.querySelectorAll('[data-pact]').forEach((b) => b.addEventListener('click', () => renderProfileInto(body, data)));
+    if (data.canEdit) { bindProfileEdit(body, data, overlay); renderPrivilegeCenter(body); loadDmPref(body, data); bindDmPref(body, data); loadBondPanel(body); loadWearPanel(body, data); }
+    loadBadgeWall(body, data, targetId);
     // 他人主页：发起私信（走第二期私信面板，服务端按「陌生人私信」开关裁定）
     const dmBtn = body.querySelector('[data-dm-user]');
     if (dmBtn) dmBtn.addEventListener('click', () => {
@@ -665,6 +726,14 @@
         : (u.id && loggedIn() ? `<button class="profile-editbtn" data-dm-user="${escapeHtml(String(u.id))}">✉️ 私信</button>` : '')}
       <div class="profile-tags">${tagChips}</div>
       <div class="profile-rows">${rows || '<div style="color:var(--faint);font-size:12px;padding:8px 0">TA 还没有填写可见的公开资料</div>'}</div>
+      <div class="prof-badge">
+        <div class="pf-vis-title">🏅 ${data.canEdit ? '我的徽章' : '徽章墙'}</div>
+        <div data-badge-box style="font-size:12px;margin-top:6px"><span style="color:var(--faint)">加载中…</span></div>
+      </div>
+      ${data.canEdit ? `<div class="prof-wear">
+        <div class="pf-vis-title">🎨 我的装扮（称号 / 昵称样式 / 帖子背景）</div>
+        <div data-wear-box style="font-size:12px;margin-top:6px"><span style="color:var(--faint)">加载中…</span></div>
+      </div>` : ''}
       ${data.canEdit && myPriv().elite ? `<div class="prof-elite">
         <div class="pf-vis-title">🎓 校史留名特权</div>
         <button class="profile-editbtn" data-act="export">⬇️ 导出我的帖子数据</button>
@@ -830,8 +899,125 @@
       }
     });
   }
+  // ---------------- 成就徽章（个人主页徽章墙） ----------------
+  const BADGE_STATUS_LABEL = { expired: '已过期', hidden: '已隐藏', revoked: '已收回', delisted: '已下架' };
+  const BADGE_SCOPE_LABEL = { none: '都不展示', profile: '仅主页', post: '仅帖子头部', both: '主页+帖子' };
+  function badgeScopeOf(b) {
+    return b.show_scope || (b.hidden ? 'none' : (b.worn ? 'both' : 'profile'));
+  }
+  function badgeTile(b, canEdit) {
+    const off = b.status && b.status !== 'active';
+    const fx = fxBadgeHtml(b.effect, b.name);
+    const ico = fx || (b.icon_url ? `<img src="${escapeHtml(b.icon_url)}" alt="" />` : '<i>🏅</i>');
+    const scope = badgeScopeOf(b);
+    const state = off ? `<span class="bwall-state">${escapeHtml(BADGE_STATUS_LABEL[b.status] || b.status)}</span>`
+      : (scope === 'none' ? '<span class="bwall-state">未展示</span>' : '');
+    const meta = b.expires_at ? `至 ${String(formatTime(b.expires_at)).slice(0, 10)}` : (b.source === 'manual' ? '手动授予' : '自动授予');
+    const sel = (canEdit && !off)
+      ? `<select class="bwall-scope" data-bscope="${escapeHtml(String(b.id))}" title="选择这枚徽章展示在哪里">
+           ${['profile', 'post', 'both', 'none'].map((k) => `<option value="${k}"${scope === k ? ' selected' : ''}>${BADGE_SCOPE_LABEL[k]}</option>`).join('')}
+         </select>`
+      : '';
+    return `<div class="bwall-item${off ? ' off' : ''}${b.worn ? ' worn' : ''}" title="${escapeHtml(b.description || b.name || '')}">${state}
+      <div class="bwall-ico">${ico}</div>
+      <div class="bwall-name">${escapeHtml(b.name || '徽章')}</div>
+      <div class="bwall-meta">${escapeHtml(meta)}</div>${sel}</div>`;
+  }
+  function badgeWallHtml(list) {
+    const more = ' <a href="badges.html" style="margin-left:4px">查看全部徽章与达成进度 →</a>';
+    if (!list.length) return '<div class="bwall-empty">还没有获得徽章，多在站内活跃、参与活动就有机会获得～' + more + '</div>';
+    const onPost = list.filter((b) => ['post', 'both'].includes(badgeScopeOf(b))).length;
+    return `<div class="bwall-tip">每枚徽章可单独选择展示位置：<b>仅主页</b> / <b>仅帖子头部</b> / <b>主页+帖子</b> / <b>都不展示</b>；帖子头部最多同时展示 3 枚（当前 ${onPost}/3）。${more}</div>`
+      + `<div class="bwall">${list.map((b) => badgeTile(b, true)).join('')}</div>`;
+  }
+  async function loadBadgeWall(body, data, targetId) {
+    const box = body.querySelector('[data-badge-box]');
+    if (!box) return;
+    if (data.canEdit) {
+      const render = async () => {
+        const list = (await callEdge('my_badges', { token: state.user.token })) || [];
+        box.innerHTML = badgeWallHtml(list);
+      };
+      try { await render(); } catch (_e) { box.innerHTML = '<div class="bwall-empty">徽章加载失败</div>'; return; }
+      box.addEventListener('change', async (e) => {
+        const sel = e.target.closest('[data-bscope]');
+        if (!sel) return;
+        sel.disabled = true;
+        try {
+          await callEdge('badge_set_scope', { token: state.user.token, id: sel.getAttribute('data-bscope'), scope: sel.value });
+          await render();
+        } catch (err) { window.alert(err.message); sel.disabled = false; await render(); }
+      });
+      return;
+    }
+    const uid = (data.user && data.user.id) || targetId;
+    if (!uid) { box.innerHTML = '<div class="bwall-empty">暂无徽章</div>'; return; }
+    try {
+      const list = (await callEdge('user_badges', { user_id: uid })) || [];
+      box.innerHTML = list.length
+        ? `<div class="bwall">${list.map((b) => badgeTile({ ...b, status: 'active' }, false)).join('')}</div>`
+        : '<div class="bwall-empty">TA 还没有公开的徽章</div>';
+    } catch (_e) { box.innerHTML = '<div class="bwall-empty">徽章加载失败</div>'; }
+  }
+
+  // ---------------- 我的装扮（称号 / 昵称样式 / 帖子背景 佩戴管理） ----------------
+  const WEAR_TYPE_LABEL = { title: '称号', nickname_style: '昵称样式', background: '帖子背景' };
+  function wearPreviewHtml(type, payload) {
+    const F = FX();
+    if (!F || !payload) return '';
+    try {
+      if (type === 'title') return F.titleHtml(payload);
+      if (type === 'nickname_style') {
+        const c = F.normalize('nickname_style', payload);
+        return `<span class="${F.classes('nickname_style', c).join(' ')}" style="${escapeHtml(F.styleAttr('nickname_style', c))}">同学昵称</span>`;
+      }
+      const c = F.normalize('background', payload);
+      return `<span class="wear-bg ${F.classes('background', c).join(' ')}" style="${escapeHtml(F.styleAttr('background', c))}">${F.bgLayers()}</span>`;
+    } catch (_e) { return ''; }
+  }
+  function wearRow(r, type) {
+    const prev = wearPreviewHtml(type, r.payload);
+    return `<label class="wear-row">
+      <input type="checkbox" data-wear-ent="${escapeHtml(String(r.id))}" data-wtype="${type}"${r.equipped ? ' checked' : ''}>
+      <span class="wear-prev">${prev || '<span style="color:var(--faint)">无预览</span>'}</span>
+      <span class="wear-name">${escapeHtml(r.title || WEAR_TYPE_LABEL[type] || '装扮')}</span>
+    </label>`;
+  }
+  async function loadWearPanel(body, data) {
+    const box = body.querySelector('[data-wear-box]');
+    if (!box) return;
+    const render = async () => {
+      const rows = (await callEdge('my_entitlements', { token: state.user.token })) || [];
+      const active = rows.filter((r) => r.active && !r.revoked_at && WEAR_TYPE_LABEL[r.type]);
+      if (!active.length) { box.innerHTML = '<div class="bwall-empty">还没有可佩戴的装扮，去积分商城兑换试试～</div>'; return; }
+      const g = { title: [], nickname_style: [], background: [] };
+      active.forEach((r) => { g[r.type].push(r); });
+      const wornTitles = g.title.filter((r) => r.equipped).length;
+      const group = (type, note) => `<div class="wear-group">
+        <div class="wear-group-title">${escapeHtml(note)}</div>
+        ${g[type].length ? g[type].map((r) => wearRow(r, type)).join('') : '<div class="wear-empty">暂无可佩戴的' + escapeHtml(WEAR_TYPE_LABEL[type]) + '</div>'}
+      </div>`;
+      box.innerHTML = group('title', `🏷 称号（最多同时佩戴 3 个，当前 ${wornTitles}/3）`)
+        + group('nickname_style', '✨ 昵称样式（同一时间只能佩戴 1 个）')
+        + group('background', '🖼 帖子背景（同一时间只能佩戴 1 个）')
+        + '<div class="wear-note">⚠️ 佩戴购买的帖子背景后，等级专属光效（风云学长 / 校史留名）会自动让位，不再叠加展示。</div>';
+    };
+    try { await render(); } catch (_e) { box.innerHTML = '<div class="bwall-empty">装扮加载失败</div>'; return; }
+    box.addEventListener('change', async (e) => {
+      const cb = e.target.closest('[data-wear-ent]');
+      if (!cb) return;
+      cb.disabled = true;
+      try {
+        await callEdge('equip_entitlement', { token: state.user.token, id: cb.getAttribute('data-wear-ent'), equip: cb.checked });
+        await render();
+      } catch (err) { window.alert(err.message); cb.checked = !cb.checked; cb.disabled = false; }
+    });
+  }
   function multiLine(s) { return String(s || '').replace(/\n/g, '<br>'); }
-  function renderProfileInto(body, data) { body.innerHTML = renderProfile(data); }
+  function renderProfileInto(body, data) {
+    body.innerHTML = renderProfile(data);
+    mountProfileView(body, data, profileOverlay, (data.user && data.user.id) || '');
+  }
   function profileFieldHtml(p) {
     return PROFILE_FIELDS.map((f) => {
       const val = p ? (p[f.key] || '') : '';
@@ -1094,14 +1280,23 @@
     if (state.page > 1) { state.page = 1; await loadFeed(); el = findInDom(); }
 
     // 2) 用后端按「最新·全部话题」流估算页码（等级与前端 feed 完全一致，杜绝错位）
+    //    同时拿到「帖子是否失效」的判定：已删除/已屏蔽 → 直接提示，不再全书目扫描空转
     let hint = 1;
-    if (!el && state.user && state.user.token) {
+    if (!el) {
       try {
         const r = await callEdge('find_post_page', {
-          token: state.user.token, post_id: pid,
+          token: (state.user && state.user.token) || '', post_id: pid,
           view_level: viewerViewLevel()
         });
-        if (r && r.visible) hint = Math.max(1, Number(r.page) || 1);
+        if (r && r.visible === false) {
+          const reason = String(r.reason || '');
+          if (reason === 'deleted' || reason === 'blocked') { window.alert('该帖子已失效'); return; }
+          if (reason === 'level') { window.alert('该帖子需要更高的查看等级'); return; }
+          if (reason === 'scheduled') { window.alert('该帖子尚未到发布时间'); return; }
+          // unreviewed：可能是作者本人的待审帖，继续走后续扫描兜底
+        } else if (r && r.visible) {
+          hint = Math.max(1, Number(r.page) || 1);
+        }
       } catch (_e) { hint = 1; }
     }
 
@@ -1481,11 +1676,15 @@
       const { data } = await supabase.from('forum_users')
         .select('id, nickname, post_count, comment_count, like_received, level, bonus_xp, checkin_xp, col_post_count, col_comment_count, col_like_received, xp_post_comment, fav_received, xp_event, legend_no').in('id', ids);
       (data || []).forEach((u) => { map[u.id] = { nickname: u.nickname || u.username || '', level: finalLevel(u), legend_no: u.legend_no || null }; });
-      // 续缘展示：仅返回开启了展示的金玉良缘作者，失败不影响帖子渲染
-      try {
-        const showcase = await callEdge('bond_showcase', { user_ids: ids }) || {};
-        Object.keys(showcase).forEach((uid) => { if (map[uid]) map[uid].bond = showcase[uid]; });
-      } catch (_e) { /* ignore */ }
+      // 续缘展示 + 成就徽章（作者旁最多 3 枚）+ 已装备装扮（背景/称号/昵称样式）：失败不影响帖子渲染
+      const [bondShow, badgeShow, wearShow] = await Promise.all([
+        callEdge('bond_showcase', { user_ids: ids }).catch(() => null),
+        callEdge('badge_showcase', { user_ids: ids, limit: 3 }).catch(() => null),
+        callEdge('wear_showcase', { user_ids: ids }).catch(() => null)
+      ]);
+      if (bondShow) Object.keys(bondShow).forEach((uid) => { if (map[uid]) map[uid].bond = bondShow[uid]; });
+      if (badgeShow) Object.keys(badgeShow).forEach((uid) => { if (map[uid]) map[uid].badges = badgeShow[uid]; });
+      if (wearShow) Object.keys(wearShow).forEach((uid) => { if (map[uid]) map[uid].wear = wearShow[uid]; });
     }
     return map;
   }
@@ -1496,8 +1695,12 @@
       ? Number(ctx.authorMap[post.author_id].level) || 0 : 0;
     // 缓存作者信息，供「收藏风云学长帖」等提示读取
     if (post.author_id && ctx.authorMap && ctx.authorMap[post.author_id]) post._author = ctx.authorMap[post.author_id];
-    // 风云学长(36级)+ 动态光效作用于整个帖子卡片块（背景扫光）
-    const lightfxCard = cardLv >= 36;
+    // 作者已装备的装扮（购买的帖子背景 / 称号 / 昵称样式）
+    const wear = wearOf(ctx.authorMap, post.author_id);
+    const hasBg = !!(wear && wear.background);
+    // 风云学长(36级)+ 动态光效作用于整个帖子卡片块（背景扫光）；
+    // 但若作者装备了购买的帖子背景，则等级光效让位（互斥）
+    const lightfxCard = cardLv >= 36 && !hasBg;
     const card = document.createElement('article');
     card.className = 'post-card' + (ctx.pinned ? ' pinned-post' : '');
     card.dataset.id = post.id;
@@ -1513,6 +1716,24 @@
     const favOn = state.favSet.has(post.id);
     const floor = ctx.floor != null ? `<span class="post-floor">#${ctx.floor ? ctx.floor : ''}</span>` : '';
     const levelTag = cardLv ? levelBadgeHtml(ctx.authorMap[post.author_id]) : '';
+    // 成就徽章：作者旁最多 3 枚（来自 badge_showcase，匿名帖不展示）；全部由内置特效渲染
+    const authorBadges = (!isAnon && post.author_id && ctx.authorMap && ctx.authorMap[post.author_id] && Array.isArray(ctx.authorMap[post.author_id].badges))
+      ? ctx.authorMap[post.author_id].badges : [];
+    const badgeChips = authorBadges.map((b) => {
+      const fx = fxBadgeHtml(b.effect, b.name);
+      return `<span class="badge-chip" title="${escapeHtml(b.name || '')}">${fx || (b.icon_url
+        ? `<img src="${escapeHtml(b.icon_url)}" alt="" />` : '<i>🏅</i>')}</span>`;
+    }).join('');
+    // 称号：帖子头部最多展示 2 个，其余折叠为「+N」徽记（避免头部臃肿；完整称号在个人主页可见）
+    const authorTitles = (!isAnon && wear && Array.isArray(wear.titles)) ? wear.titles : [];
+    const titleShown = authorTitles.slice(0, 2).map((t) => fxTitleHtml(t)).join('');
+    const restTitles = authorTitles.slice(2).map((t) => String((t && t.text) || '').trim()).filter(Boolean);
+    const titleMore = restTitles.length
+      ? `<span class="chip-more" title="${escapeHtml('另有称号：' + restTitles.join('、'))}">+${restTitles.length}</span>`
+      : '';
+    const titleChips = titleShown + titleMore;
+    // 昵称样式：作者佩戴的昵称特效（作用于昵称文字本身）
+    const nickRendered = (!isAnon && wear && wear.nickname_style) ? fxNickInner(wear.nickname_style, nickHtml) : nickHtml;
     // 续缘展示（金玉良缘）：作者在个人主页开启后，帖子额外展示续缘标识与特效
     const authorBond = (post.author_id && ctx.authorMap && ctx.authorMap[post.author_id])
       ? ctx.authorMap[post.author_id].bond : null;
@@ -1536,6 +1757,18 @@
     if (post.ask_mentor_id) {
       badges += '<span class="badge" style="background:rgba(168,130,255,.14);color:#9b6bff;border:1px solid rgba(168,130,255,.4)">🙋 向学长提问</span>';
     }
+    // 第三期：求助帖状态 / 失物招领状态 / 资料帖待审
+    if (post.ask_mode) {
+      badges += post.resolved
+        ? '<span class="badge qa-badge qa-done">✅ 已解决</span>'
+        : '<span class="badge qa-badge qa-open">❓ 求助中</span>';
+    }
+    if (post.topic === TRADE_TOPIC && post.trade_status) {
+      badges += `<span class="badge trade-badge trade-${escapeHtml(post.trade_status)}">${escapeHtml(TRADE_STATUS_LABEL[post.trade_status] || post.trade_status)}</span>`;
+    }
+    if (post.pending_review) {
+      badges += '<span class="badge pending-review">⏳ 待审核</span>';
+    }
     // 连载：Lv21+ 系列帖徽标（点击打开连载目录）
     badges += post.series_id
       ? `<span class="badge series-badge" data-series="${post.series_id}" data-part="${post.series_part || ''}" style="cursor:pointer;background:rgba(34,197,94,.14);color:#22c55e;border:1px solid rgba(34,197,94,.4)" title="查看连载目录">📚 连载${post.series_part ? ' 第' + post.series_part + '章' : ''}</span>`
@@ -1543,13 +1776,15 @@
     const seriesPartTitle = (post.part_title && post.series_id)
       ? `<div class="series-part-title" style="font-weight:700;color:var(--text);margin-bottom:4px">📖 ${escapeHtml(post.part_title)}</div>` : '';
     // 校史留名自定义信纸：按 card_style 预设组合生成卡片样式类（全站可见）
+    // 与「购买的帖子背景」互斥：作者已装备背景（含其文字特效）时，校史留名信纸让位
     const cs = post.card_style || {};
-    const contentFx = (cs.frame || cs.font_effect || cs.glow_color || cs.font_color)
+    const contentFx = (!hasBg && (cs.frame || cs.font_effect || cs.glow_color || cs.font_color))
       ? ' cs-style cs-' + (cs.frame || 'none') + ' fx-' + (cs.font_effect || 'none') + ' gc-' + (cs.glow_color || 'none') + ' fc-' + (cs.font_color || 'none')
       : '';
     // 校史留名(55-60级)特权：淡金发光环绕边框；推荐/推流中的帖子升级为更柔和的流动高光
-    const legendGold = cardLv >= 55 ? ' legend-gold-card' : '';
-    const legendPrestige = cardLv >= 55 && (ctx.boosted || isBoosted || isRecommended) ? ' legend-prestige' : '';
+    // 同样受「购买的帖子背景」互斥约束：装备了背景则让位给自定义背景
+    const legendGold = (cardLv >= 55 && !hasBg) ? ' legend-gold-card' : '';
+    const legendPrestige = (cardLv >= 55 && !hasBg && (ctx.boosted || isBoosted || isRecommended)) ? ' legend-prestige' : '';
     // 金牌认证：更高级的旋转流光边框 + 暖金辉光（区别于校史留名的呼吸辉光）
     const goldFx = isGold ? ' gold-cert-card' : '';
     card.className = 'post-card' + (ctx.pinned ? ' pinned-post' : '') + (lightfxCard ? ' lightfx-card' : '') + legendGold + legendPrestige + goldFx + bondCardFx;
@@ -1572,7 +1807,7 @@
       : '';
     card.innerHTML = `
       <div class="post-head">
-        <span class="nickname">${isAnon ? nickHtml : `<span class="nickname-link" data-open-profile="${post.author_id || ''}">${nickHtml}${levelTag}</span>`}</span>
+        <span class="nickname">${isAnon ? nickHtml : `<span class="nickname-link" data-open-profile="${post.author_id || ''}">${nickRendered}${levelTag}${titleChips}${badgeChips}</span>`}</span>
         ${bondTag}
         ${badges}
         <span class="badge seen">新</span>
@@ -1597,7 +1832,13 @@
         <button class="act-btn rep-btn" data-type="post" data-id="${post.id}" title="举报">🚩</button>
         ${adminActs}
       </div>
+      ${isOwn && post.topic === TRADE_TOPIC ? `<div class="trade-mark-bar" data-trademark>
+        <span class="tm-label">🔎 标记状态：</span>
+        ${['ongoing', 'found', 'lost'].map((s) => `<button class="tm-btn${(post.trade_status || 'ongoing') === s ? ' on' : ''}" data-tm="${s}">${TRADE_STATUS_LABEL[s]}</button>`).join('')}
+      </div>` : ''}
       <div class="post-comments hidden" data-cmtbox></div>`;
+    // 购买的帖子背景：内置特效渲染（装备背景后自动屏蔽等级光效，见上方 lightfxCard/legendGold）
+    if (hasBg) fxApplyBg(card, wear.background);
     card.querySelector('.like-btn').addEventListener('click', (e) => { likePost(post, e.currentTarget); });
     card.querySelector('.cmt-toggle').addEventListener('click', () => toggleComments(card, post));
     card.querySelector('.fav-btn').addEventListener('click', (e) => toggleFav(post.id, e.currentTarget, post));
@@ -1633,6 +1874,12 @@
     if (profLink) profLink.addEventListener('click', () => { if (profLink.dataset.openProfile) openProfile(profLink.dataset.openProfile); else window.alert('该用户为匿名用户，无法访问个人主页'); });
     const sbadge = card.querySelector('.series-badge');
     if (sbadge) sbadge.addEventListener('click', (e) => { e.stopPropagation(); openSeriesModal(sbadge.dataset.series); });
+    // 第三期：失物招领状态标记（仅楼主）
+    const tmBar = card.querySelector('[data-trademark]');
+    if (tmBar) tmBar.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-tm]');
+      if (b) markTradeStatus(post, b.dataset.tm, tmBar);
+    });
     // 作者编辑/删除/推流
     if (isOwn) {
       const bBoost = card.querySelector('[data-act="boost"]');
@@ -2255,6 +2502,10 @@
       if (edit) { editOwnComment(box, edit.dataset.edit, post); return; }
       const del = e.target.closest('[data-del]');
       if (del) { doDeleteOwnComment(box, del.dataset.del, post); return; }
+      const bestBtn = e.target.closest('[data-best]');
+      if (bestBtn) { setBestAnswer(box, post, bestBtn.dataset.best, bestBtn); return; }
+      const unbestBtn = e.target.closest('[data-unbest]');
+      if (unbestBtn) { unsetBestAnswer(box, post, unbestBtn); return; }
       const flt = e.target.closest('.filter-author');
       if (flt) {
         const on = flt.classList.toggle('on');
@@ -2275,24 +2526,41 @@
     const map = {};
     list.forEach((x) => { map[x.id] = x; });
     const parent = c.parent_id ? map[c.parent_id] : null;
+    const wear = wearOf(authorMap, c.author_id);
+    const cHasBg = !!(wear && wear.background);
+    const nickTxt = c.nickname ? escapeHtml(c.nickname) : '匿名';
+    const nickStyled = (c.nickname && wear && wear.nickname_style) ? fxNickInner(wear.nickname_style, nickTxt) : nickTxt;
     const name = c.nickname
-      ? (c.author_id ? `<span class="nickname-link" data-open-profile="${c.author_id}">${escapeHtml(c.nickname)}</span>` : escapeHtml(c.nickname))
+      ? (c.author_id ? `<span class="nickname-link" data-open-profile="${c.author_id}">${nickStyled}</span>` : nickStyled)
       : '<span class="anonymous">匿名</span>';
     const cLv = c.author_id && authorMap[c.author_id] ? Number(authorMap[c.author_id].level) || 0 : 0;
     const lv = cLv ? levelBadgeHtml(authorMap[c.author_id]) : '';
+    // 称号：评论作者佩戴的称号（最多展示 2 个，避免头部臃肿）
+    const cTitles = (c.nickname && wear && Array.isArray(wear.titles)) ? wear.titles.slice(0, 2).map((t) => fxTitleHtml(t)).join('') : '';
     const isOwn = myId() && c.author_id === myId();
     const pinable = isOwn && !!myPriv().pinComment && !c.is_pinned;
     const pinnedTag = c.is_pinned ? '<span class="badge recommend" style="margin-left:4px">📌 已置顶</span>' : '';
+    // 第三期：求助帖最佳答案（仅楼主可选，且不能选自己的评论）
+    const isBest = !!(post && post.best_comment_id && c.id === post.best_comment_id);
+    const canPickBest = !!(post && post.ask_mode && myId() && post.author_id === myId()
+      && c.author_id && c.author_id !== post.author_id && !c.blocked);
+    const bestTag = isBest ? '<span class="best-badge">✅ 最佳答案</span>' : '';
+    const bestAct = canPickBest
+      ? (isBest
+        ? '<button class="tiny-btn qa-unpick" data-unbest="1">↩ 撤销最佳答案</button>'
+        : '<button class="tiny-btn qa-pick" data-best="' + c.id + '">✅ 设为最佳答案</button>')
+      : '';
     const ownActs = isOwn
       ? `<span class="own-acts">${pinable ? `<button class="tiny-btn pin-cell" data-pin="${c.id}">📌 置顶</button>` : ''}<button class="tiny-btn" data-edit="${c.id}">编辑</button><button class="tiny-btn danger" data-del="${c.id}">删除</button></span>` : '';
     const replyTag = parent
       ? ' <span class="cmt-replyto">回复 @' + (parent.nickname ? escapeHtml(parent.nickname) : '匿名') + '</span>' : '';
     const rname = c.nickname ? c.nickname : '匿名';
-    return `<div class="cmt-item${cLv >= 36 ? ' lightfx' : ''}" data-cid="${c.id}">
-      <div class="cmt-head">${name}${lv}${pinnedTag}${replyTag}<span class="cmt-time">#${i + 1} · ${formatTime(c.created_at)}</span></div>
+    return `<div class="cmt-item${(cLv >= 36 && !cHasBg) ? ' lightfx' : ''}${isBest ? ' best-answer' : ''}" data-cid="${c.id}">
+      <div class="cmt-head">${name}${lv}${cTitles}${bestTag}${pinnedTag}${replyTag}<span class="cmt-time">#${i + 1} · ${formatTime(c.created_at)}</span></div>
       <div class="cmt-text"><span class="cmt-content">${escapeHtml(c.content)}</span>${ownActs}</div>
       <button class="cmt-reply" data-reply="${c.id}" data-rname="${escapeHtml(rname)}">回复</button>
       <button class="cmt-reply" style="margin-left:10px" data-rep="${c.id}">举报</button>
+      ${bestAct ? `<span style="margin-left:10px">${bestAct}</span>` : ''}
     </div>`;
   }
   const COMMENT_CHUNK = 40;
@@ -2322,6 +2590,75 @@
       window.alert(`✅ 评论已置顶，今日剩余 ${r.remainingPin} 次。`);
       loadComments(box, post);
     } catch (e) { window.alert(e.message); }
+  }
+  // ---------------- 第三期：求助帖最佳答案（仅楼主；服务端为最终判定） ----------------
+  function refreshCardQaBadge(post) {
+    const card = document.querySelector(`article[data-id="${post.id}"], .post-card[data-id="${post.id}"]`);
+    if (!card) return;
+    const head = card.querySelector('.post-head');
+    if (!head) return;
+    const old = head.querySelector('.qa-badge');
+    if (old) old.remove();
+    const badge = document.createElement('span');
+    badge.className = 'badge qa-badge ' + (post.resolved ? 'qa-done' : 'qa-open');
+    badge.textContent = post.resolved ? '✅ 已解决' : '❓ 求助中';
+    const topicBadge = head.querySelector('.badge.topic');
+    if (topicBadge) topicBadge.insertAdjacentElement('afterend', badge); else head.appendChild(badge);
+  }
+  async function setBestAnswer(box, post, commentId, btn) {
+    if (!loggedIn()) { openUserModal(); return; }
+    if (!window.confirm('确认把这条评论设为最佳答案？答主将获得 15 经验；若已有最佳答案会先撤销旧的。')) return;
+    if (btn) btn.disabled = true;
+    try {
+      const r = await callEdge('qa_set_best', { token: state.user.token, post_id: post.id, comment_id: commentId });
+      post.resolved = true; post.best_comment_id = commentId;
+      refreshCardQaBadge(post);
+      await loadComments(box, post);
+      if (!(r && r.already)) window.alert('✅ 已设为最佳答案');
+    } catch (e) { window.alert(e.message || '操作失败'); if (btn) btn.disabled = false; }
+  }
+  async function unsetBestAnswer(box, post, btn) {
+    if (!window.confirm('确认撤销该帖的最佳答案？将扣回答主 15 经验，帖子回到「求助中」。')) return;
+    if (btn) btn.disabled = true;
+    try {
+      await callEdge('qa_unresolve', { token: state.user.token, post_id: post.id });
+      post.resolved = false; post.best_comment_id = null;
+      refreshCardQaBadge(post);
+      await loadComments(box, post);
+      window.alert('已撤销最佳答案');
+    } catch (e) { window.alert(e.message || '操作失败'); if (btn) btn.disabled = false; }
+  }
+  // ---------------- 第三期：失物招领状态标记（仅楼主；服务端为最终判定） ----------------
+  function refreshCardTradeBadge(post) {
+    const card = document.querySelector(`article[data-id="${post.id}"], .post-card[data-id="${post.id}"]`);
+    if (!card) return;
+    const head = card.querySelector('.post-head');
+    if (!head) return;
+    const old = head.querySelector('.trade-badge');
+    if (old) old.remove();
+    if (!post.trade_status) return;
+    const badge = document.createElement('span');
+    badge.className = 'badge trade-badge trade-' + post.trade_status;
+    badge.textContent = TRADE_STATUS_LABEL[post.trade_status] || post.trade_status;
+    const topicBadge = head.querySelector('.badge.topic');
+    if (topicBadge) topicBadge.insertAdjacentElement('afterend', badge); else head.appendChild(badge);
+  }
+  async function markTradeStatus(post, status, bar) {
+    if (!loggedIn()) { openUserModal(); return; }
+    if (!TRADE_STATUS_LABEL[status] || post.trade_status === status) return;
+    const btns = bar.querySelectorAll('.tm-btn');
+    btns.forEach((x) => { x.disabled = true; });
+    try {
+      const r = await callEdge('trade_mark', { token: state.user.token, post_id: post.id, status });
+      post.trade_status = (r && r.trade_status) || status;
+      btns.forEach((x) => { x.disabled = false; x.classList.toggle('on', x.dataset.tm === post.trade_status); });
+      refreshCardTradeBadge(post);
+      // 当前筛选不含新状态时，重新拉取列表让卡片同步移除
+      if (state.activeTopic === TRADE_TOPIC && state.tradeStatus && state.tradeStatus !== post.trade_status) loadFeed();
+    } catch (e) {
+      window.alert(e.message || '标记失败');
+      btns.forEach((x) => { x.disabled = false; });
+    }
   }
   async function doDeleteOwnComment(box, id, post) {
     if (!window.confirm('确定删除这条评论及其回复吗？')) return;
@@ -2426,6 +2763,8 @@
     // 定时发布：未到发布时间的帖子暂不对外展示
     q = q.or(`scheduled_for.is.null,scheduled_for.lte.${new Date().toISOString()}`);
     if (state.activeTopic) q = q.eq('topic', state.activeTopic);
+    // 第三期：失物招领状态下按状态筛选（默认「进行中」，可选「全部」）
+    if (state.activeTopic === TRADE_TOPIC && state.tradeStatus) q = q.eq('trade_status', state.tradeStatus);
     return q;
   }
   // 查看者等级（未登录视为 0，只可见全等级公开帖）
@@ -2440,6 +2779,7 @@
     q = q.or(`min_view_level.is.null,min_view_level.lte.${viewerViewLevel()}`);
     q = q.or(`scheduled_for.is.null,scheduled_for.lte.${new Date().toISOString()}`);
     if (state.activeTopic) q = q.eq('topic', state.activeTopic);
+    if (state.activeTopic === TRADE_TOPIC && state.tradeStatus) q = q.eq('trade_status', state.tradeStatus);
     const { count, error } = await q;
     if (error) return 0;
     return count || 0;
@@ -2623,6 +2963,28 @@
       });
       els.filterBar.appendChild(b);
     });
+    renderTradeFilter();
+  }
+  // 第三期：失物招领状态筛选条（仅在该话题下可见）
+  function renderTradeFilter() {
+    if (!els.tradeFilter) return;
+    const show = state.mode === 'feed' && state.activeTopic === TRADE_TOPIC;
+    els.tradeFilter.classList.toggle('hidden', !show);
+    if (!show) return;
+    els.tradeFilter.querySelectorAll('[data-trade]').forEach((b) => {
+      b.classList.toggle('active', (b.dataset.trade || '') === (state.tradeStatus || ''));
+    });
+  }
+  function bindTradeFilter() {
+    if (!els.tradeFilter) return;
+    els.tradeFilter.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-trade]');
+      if (!b) return;
+      state.tradeStatus = b.dataset.trade || '';
+      state.page = 1;
+      renderTradeFilter();
+      loadFeed();
+    });
   }
   function bindSort() {
     els.sortTabs.querySelectorAll('.chip').forEach((b) => {
@@ -2754,6 +3116,7 @@
     els.topicSelect.appendChild(n);
     if (selected && [...els.topicSelect.options].some((o) => o.value === selected)) els.topicSelect.value = selected;
     updateCharCount();
+    refreshComposerExtras();
   }
 
   // 从后端加载自定义话题并刷新下拉/筛选
@@ -2811,6 +3174,7 @@
       els.composeHint.textContent = '';
       updateCharCount();
     }
+    refreshComposerExtras();
   });
   function updateCharCount() {
     const limit = topicLimit(els.topicSelect.value);
@@ -2849,6 +3213,7 @@
     if (els.seriesBox) els.seriesBox.classList.toggle('hidden', !canSeries);
     if (els.spPanel) { els.spPanel.classList.toggle('hidden', !canSp); if (canSp) { renderStationeryPalette(); updateSpPreview(); } }
     updateDraftBar();
+    refreshComposerExtras();
     if (els.privHint) {
       const parts = [];
       if (canPoll) parts.push('可插入投票/问卷');
@@ -3040,7 +3405,51 @@
     const tag = els.draftBar.querySelector('span');
     if (tag) tag.textContent = on ? (hasDraft() ? '💾 已保存并缓冲本地草稿' : '💾 草稿会自动保存在本机') : '';
   }
+  // ---------------- 第三期：发帖附加项（求助模式 / 学科 / 失物招领状态） ----------------
+  let subjectsCache = null;
+  async function loadSubjects(force) {
+    if (subjectsCache && !force) return subjectsCache;
+    try { subjectsCache = (await callEdge('subject_list', {})) || []; }
+    catch (_e) { subjectsCache = subjectsCache || []; }
+    return subjectsCache;
+  }
+  async function refreshComposerExtras() {
+    if (!els.composerExtra) return;
+    const topic = els.topicSelect ? els.topicSelect.value : '';
+    const daily = topic === DAILY_TOPIC_OPTION || topic === NEW_TOPIC;
+    const canAsk = loggedIn() && !daily;
+    const showSubject = topic === STUDY_TOPIC;
+    const showTrade = topic === TRADE_TOPIC;
+    if (els.askModeWrap) els.askModeWrap.classList.toggle('hidden', !canAsk);
+    if (!canAsk && els.askMode) els.askMode.checked = false;
+    if (els.subjectWrap) els.subjectWrap.classList.toggle('hidden', !showSubject);
+    if (els.tradeWrap) els.tradeWrap.classList.toggle('hidden', !showTrade);
+    if (showSubject && els.subjectSelect) {
+      const list = await loadSubjects();
+      const cur = els.subjectSelect.value;
+      els.subjectSelect.innerHTML = '<option value="">请选择学科</option>' +
+        list.map((s) => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.display_name || s.name)}</option>`).join('');
+      if (cur && els.subjectSelect.querySelector(`option[value="${cur}"]`)) els.subjectSelect.value = cur;
+    }
+    const any = canAsk || showSubject || showTrade;
+    els.composerExtra.classList.toggle('hidden', !any);
+    if (els.composerExtraWarn) {
+      els.composerExtraWarn.textContent = (showSubject && !loggedIn())
+        ? '发布学习资料需先登录；内容提交后需管理员审核才公开展示。' : '';
+    }
+  }
+  if (els.askMode) els.askMode.addEventListener('change', () => {
+    if (els.composerExtraWarn) els.composerExtraWarn.textContent = '';
+  });
+  if (els.tradeStatusSelect) els.tradeStatusSelect.addEventListener('change', () => {
+    if (els.composerExtraWarn) els.composerExtraWarn.textContent = '';
+  });
   function clearComposerExtras() {
+    if (els.askMode) els.askMode.checked = false;
+    if (els.subjectSelect) els.subjectSelect.value = '';
+    if (els.tradeStatusSelect) els.tradeStatusSelect.value = 'ongoing';
+    if (els.composerExtraWarn) els.composerExtraWarn.textContent = '';
+    refreshComposerExtras();
     if (els.pollQtype) els.pollQtype.value = '';
     quizBuilderType = ''; quizItems = [];
     if (els.quizQuestions) els.quizQuestions.innerHTML = '';
@@ -3426,6 +3835,11 @@
       ...(loggedIn() && minView > 0 ? { min_view_level: minView } : {}),
       ...(loggedIn() && els.postAskMentor && els.postAskMentor.value ? { ask_mentor_id: els.postAskMentor.value } : {}),
       ...(loggedIn() && els.postResolve && els.postResolve.checked ? { resolve_post: true } : {}),
+      ...(loggedIn() && !dailyTopicSelection && els.askMode && els.askMode.checked ? { ask_mode: true } : {}),
+      ...(loggedIn() && composingEvent ? { event_id: composingEvent.id } : {}),
+      ...(loggedIn() && composingEvent && $('evAnon') && $('evAnon').checked ? { anonymous: true } : {}),
+      ...(topic === STUDY_TOPIC && els.subjectSelect && els.subjectSelect.value ? { subject_id: els.subjectSelect.value } : {}),
+      ...(topic === TRADE_TOPIC && els.tradeStatusSelect ? { trade_status: els.tradeStatusSelect.value || 'ongoing' } : {}),
       ...(quizData || {}),
       ...seriesData,
       ...(styleData || {})
@@ -3440,6 +3854,8 @@
       clearComposerExtras();
       composingDailyTopicId = '';
       composingDailyTopicTitle = '';
+      composingEvent = null;
+      const evAnonWrap = $('evAnonWrap'); if (evAnonWrap) evAnonWrap.remove();
       schedTs = 0;
       try { localStorage.removeItem(DRAFT_KEY); } catch (_e) {}
       updateCharCount();
@@ -3457,6 +3873,11 @@
     els.composeHint.textContent = '';
     if (!content) { warn.textContent = '内容不能为空'; return; }
     if (content.length > limit) { warn.textContent = `内容超出${limit}字上限`; return; }
+    // 第三期：学习资料必须选学科（后端另有兜底校验）
+    if (topic === STUDY_TOPIC) {
+      if (!loggedIn()) { warn.textContent = '发布学习资料需先登录'; return; }
+      if (!els.subjectSelect || !els.subjectSelect.value) { warn.textContent = '请选择学科后再提交'; return; }
+    }
     const quizText = (quizData && Array.isArray(quizData.quiz_questions))
       ? quizData.quiz_questions.map((qq) => [qq.q, ...(qq.options || [])].filter((x) => x != null).join(' ')).join(' ')
       : '';
@@ -3472,8 +3893,11 @@
     els.composeHint.textContent = '';
     const succMsg = () => {
       if (schedTs > 0) return '✅ 定时发布成功：将于 ' + (els.scheduleAt ? els.scheduleAt.value.replace('T', ' ') : '') + ' 自动公开展示。';
-      return topic === '吃瓜'
-        ? '✅ 已在「吃瓜」板块发布，内容提交成功后将由管理员审核后公开展示。' : '✅ 发布成功';
+      if (topic === '吃瓜') return '✅ 已在「吃瓜」板块发布，内容提交成功后将由管理员审核后公开展示。';
+      if (topic === STUDY_TOPIC) return '✅ 已提交，等待管理员审核通过后即可在「学习资料」区公开展示。';
+      if (topic === TRADE_TOPIC) return '✅ 发布成功，可在帖子上标记「进行中 / 已找到 / 已失效」。';
+      if (loggedIn() && els.askMode && els.askMode.checked && !dailyTopicSelection) return '✅ 求助帖发布成功，收到满意回答后可在评论区选择「最佳答案」。';
+      return '✅ 发布成功';
     };
 
     // 匿名发布：走防刷验证码（登录用户跳过）
@@ -3783,6 +4207,27 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
   });
 
   // ---------------- 启动 ----------------
+  // 参与活动发帖：从活动中心 ?event=<id> 进入时绑定活动并给出提示
+  async function enterEventCompose(id) {
+    let d = null;
+    try { d = await callEdge('event_detail', { id, token: state.user.token || '' }); } catch (_e) {}
+    if (!d || !d.event) { if (els.composeHint) els.composeHint.textContent = '⚠️ 活动不存在或未发布，本次按普通帖子发布。'; return; }
+    const e = d.event;
+    const st = (e.status === 'ongoing' && e.end_at && new Date(e.end_at).getTime() < Date.now()) ? 'ended' : e.status;
+    if (st !== 'ongoing') { if (els.composeHint) els.composeHint.textContent = `⚠️ 活动「${e.title}」当前不可参与发帖。`; return; }
+    if (e.require_signup && !d.signed_up) { if (els.composeHint) els.composeHint.textContent = `⚠️ 参与活动「${e.title}」需先报名，请回到活动中心报名后再来发帖。`; return; }
+    composingEvent = { id: e.id, title: e.title, anonymous_allowed: !!e.anonymous_allowed };
+    if (els.composeHint) els.composeHint.textContent = `🎉 正在参与活动发帖：${e.title}`;
+    const host = els.composeHint && els.composeHint.parentNode;
+    if (e.anonymous_allowed && host && !$('evAnonWrap')) {
+      const wrap = document.createElement('label');
+      wrap.id = 'evAnonWrap';
+      wrap.style.cssText = 'display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-top:4px';
+      wrap.innerHTML = '<input type="checkbox" id="evAnon"> 匿名参与（仅本活动帖隐藏昵称）';
+      host.parentNode.insertBefore(wrap, host.nextSibling);
+    }
+    if (els.content && els.content.scrollIntoView) els.content.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
   async function init() {
     readAdminSession();
     await loadAdminPerms();
@@ -3804,6 +4249,7 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
     if (!loggedIn()) return; // 未登录：不加载任何论坛内容，仅显示门禁覆盖层
     loadTopics();
     bindSort();
+    bindTradeFilter();
     setupMentorComposer();
     loadPinned();
     loadFeed();
@@ -3822,6 +4268,9 @@ if (haltAdminBtn) haltAdminBtn.addEventListener('click', () => { location.href =
     // 从专栏页等跳转过来的「个人主页」：index.html#profile-<uid>
     const pm = location.hash.match(/^#profile-(.+)$/);
     if (pm) setTimeout(() => openProfile(decodeURIComponent(pm[1])), 300);
+    // 从活动中心跳转过来的「参与活动发帖」：index.html?event=<id>
+    const evParam = new URLSearchParams(location.search).get('event');
+    if (evParam) await enterEventCompose(evParam);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init, { once: true });

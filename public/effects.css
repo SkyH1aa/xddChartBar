@@ -1,0 +1,190 @@
+/* ============================================================================
+   XDD吧 · 第四期特效引擎 · 结构样式（effects.css）
+   ----------------------------------------------------------------------------
+   本文件只放「结构/定位」类样式；具体特效（渐变 / 纹理 / 动效 / 形状 …）
+   由 public/effects.js 依据特效规格自动生成并注入 <style id="xdd-fx-style">，
+   以保证「配置器选项」与「渲染效果」永远一一对应，不会漂移。
+
+   层级约定：
+     .fx-bg > .fx-l（纹理 / 动效图层，z-index:-1，浮在自身背景之上、正文之下）
+     .fx-bg::after（暗角 / 描边光）
+   ========================================================================== */
+
+/* ---------- 帖子背景 ---------- */
+.fx-bg { position: relative; overflow: hidden; isolation: isolate; }
+.fx-bg > .fx-l {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-repeat: repeat; opacity: var(--fx-int, .65);
+}
+.fx-bg > .fx-l.fx-l-anim { background-repeat: no-repeat; background-size: 200% 200%; }
+.fx-bg::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+}
+.fx-bg.fx-has-vig > .fx-l { z-index: -2; }
+.fx-bg.fx-has-vig::after { z-index: -1; }
+
+/* ---------- 文字特效（作用于帖子正文 .post-content） ----------
+   具体「样式 / 动效 / 衬底」由 effects.js 依特效规格生成，选择器形如
+   .fx-bg.fx-tstyle-xxx .post-content；此处只放结构性保护规则：
+   渐变字等会把正文设为「透明填充」并挂上 text-shadow，需避免连累正文里的操作控件。 */
+.fx-bg .post-content .own-acts,
+.fx-bg .post-content .own-acts *,
+.fx-bg .post-content .series-part-title {
+  -webkit-text-fill-color: currentColor;
+  text-shadow: none;
+}
+
+/* ---------- 称号 ---------- */
+.fx-title {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 1px 8px; border-radius: 999px; font-size: 12px; line-height: 1.65;
+  font-weight: var(--fx-wt, 600); font-style: var(--fx-it, normal);
+  letter-spacing: var(--fx-sp, 0); white-space: nowrap; vertical-align: 1px;
+  margin-left: 4px; border: 1px solid transparent; max-width: 160px;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.fx-title::before, .fx-title::after { content: ''; flex: 0 0 auto; }
+
+/* ---------- 昵称样式 ---------- */
+.fx-nick {
+  font-weight: var(--fx-wt, 600); font-style: var(--fx-it, normal);
+  letter-spacing: var(--fx-sp, 0); border-radius: 6px; padding: 0 2px;
+  background-repeat: repeat; position: relative;
+}
+.fx-nick::before, .fx-nick::after { content: ''; }
+
+/* ---------- 徽章 ---------- */
+.fx-badge {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; flex: 0 0 auto; overflow: visible;
+  background: var(--fx-c1, #7c3aed); color: #fff;
+}
+.fx-badge.fx-badge-lg { width: 38px; height: 38px; }
+.fx-badge .fx-badge-ico {
+  position: relative; z-index: 2; line-height: 1; font-size: 11px;
+  display: block; transform: translateZ(0);
+}
+.fx-badge.fx-badge-lg .fx-badge-ico { font-size: 20px; }
+.fx-badge::before, .fx-badge::after { pointer-events: none; }
+.fx-badge .fx-badge-ring, .fx-badge .fx-badge-spk {
+  position: absolute; inset: 0; pointer-events: none;
+}
+.fx-badge .fx-badge-ring { z-index: 1; }
+.fx-badge .fx-badge-spk { z-index: 3; }
+
+/* 徽章墙 / 帖子作者旁：保持原有排布语义 */
+.bwall-ico .fx-badge { width: 100%; height: 100%; }
+.bwall-ico .fx-badge .fx-badge-ico { font-size: 19px; }
+.badge-chip .fx-badge { width: 100%; height: 100%; }
+/* 外发光 / 闪光点是画在盒子外的（filter:drop-shadow、绝对定位的光环），
+   而 .badge-chip / .bwall-ico 原本 overflow:hidden 会把光晕裁掉——内置特效徽章时放开裁剪 */
+.badge-chip:has(> .fx-badge) { overflow: visible; }
+.bwall-ico:has(> .fx-badge) { overflow: visible; }
+
+/* ---------- 配置器（后台可视化编辑器） ---------- */
+.fxcfg { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 760px) { .fxcfg { grid-template-columns: minmax(0, 1fr) 240px; } }
+.fxcfg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.fxcfg-field { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); }
+.fxcfg-field select, .fxcfg-field input[type=text], .fxcfg-field input[type=number] {
+  background: var(--input-bg); border: 1px solid var(--line); color: var(--text);
+  border-radius: 8px; padding: 6px 9px; font-size: 12.5px; font-family: inherit; width: 100%;
+}
+.fxcfg-color { display: flex; align-items: center; gap: 6px; }
+.fxcfg-color input[type=color] {
+  width: 34px; height: 28px; padding: 0; border: 1px solid var(--line);
+  border-radius: 7px; background: transparent; cursor: pointer; flex: 0 0 auto;
+}
+.fxcfg-color input[type=text] { flex: 1; min-width: 0; font-family: monospace; text-transform: lowercase; }
+.fxcfg-swatches { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.fxcfg-sw { width: 16px; height: 16px; border-radius: 5px; border: 1px solid var(--line); cursor: pointer; padding: 0; }
+.fxcfg-sw:hover { transform: scale(1.15); }
+.fxcfg-preview {
+  border: 1px dashed var(--line); border-radius: 12px; padding: 12px;
+  background: var(--card-soft); display: flex; flex-direction: column; gap: 10px;
+  align-items: center; justify-content: center; min-height: 150px; position: sticky; top: 10px;
+}
+.fxcfg-preview .fx-prev-stage { width: 100%; min-height: 84px; display: flex; align-items: center; justify-content: center; }
+.fxcfg-preview .fx-prev-card {
+  width: 100%; border-radius: 12px; padding: 12px; border: 1px solid var(--line);
+  background: var(--card); color: var(--text);
+}
+/* 预览里的正文样例：与帖子里的 .post-content 同结构，让文字特效真实生效 */
+.fx-prev-card .post-content { font-size: 12.5px; margin-top: 6px; line-height: 1.7; }
+.fxcfg-combos { font-size: 12px; color: var(--muted); text-align: center; line-height: 1.6; }
+.fxcfg-combos b { color: var(--accent); font-size: 14px; font-variant-numeric: tabular-nums; }
+.fxcfg-hint { font-size: 11px; color: var(--faint); text-align: center; }
+.fxcfg-summary { font-size: 12px; color: var(--muted); line-height: 1.7; word-break: break-word; }
+/* 配置器里的分组标题（如「文字特效」），横跨整行 */
+.fxcfg-group {
+  grid-column: 1 / -1; font-size: 12px; font-weight: 600; color: var(--text);
+  margin-top: 6px; padding: 6px 0 2px; border-top: 1px dashed var(--line);
+}
+.fxcfg-group:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+
+/* 后台列表里的特效缩略图（徽章 / 商品） */
+.fx-list-ico {
+  width: 38px; height: 38px; flex: 0 0 auto; display: inline-flex;
+  align-items: center; justify-content: center; font-size: 18px;
+}
+.fx-list-ico .fx-badge { width: 34px; height: 34px; }
+.fx-list-ico .fx-badge .fx-badge-ico { font-size: 17px; }
+/* 商品列表里的「帖子背景」缩略图：.fx-prev-card 的大卡片样式只在配置器里定义，
+   列表里若不另给样式，就会退化成 38px 宽的裸 div，示例文字被挤成很长的竖条 */
+.fx-list-ico .fx-prev-card {
+  position: relative; overflow: hidden; isolation: isolate;
+  width: 34px; height: 34px; min-height: 0; padding: 0; margin: 0;
+  border: 1px solid var(--line); border-radius: 8px; display: block;
+}
+.fx-list-ico .fx-prev-card > .fx-l {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-repeat: repeat; opacity: var(--fx-int, .65);
+}
+.fx-list-ico .fx-prev-card > div { display: none; }
+
+/* ---------- 通用背景预览（商城 / 佩戴面板） ---------- */
+.fx-prev-bg {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%; min-height: 54px; border-radius: 10px;
+  padding: 8px 10px; font-size: 12px; color: var(--text);
+}
+.fx-prev-bg > .fx-l { position: absolute; inset: 0; z-index: -1; pointer-events: none; background-repeat: repeat; opacity: var(--fx-int, .65); }
+.fx-prev-bg > .fx-l.fx-l-anim { background-repeat: no-repeat; background-size: 200% 200%; }
+.fx-prev-bg::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+/* 商城详情预览里的正文样例（承载「文字特效」） */
+.fx-prev-bg > .post-content { font-size: 12.5px; line-height: 1.7; width: 100%; text-align: left; }
+
+/* 商城商品卡 / 详情里的特效舞台 */
+.p4-fx-stage { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; min-height: 62px; padding: 4px; }
+.p4-fx-stage.detail { height: auto; min-height: 84px; border: 1px dashed var(--line); border-radius: 12px; margin-bottom: 10px; padding: 12px; }
+.p4-fx-stage > .fx-title { font-size: 13px; }
+.ent-prev { display: inline-flex; align-items: center; justify-content: center; min-width: 62px; height: 26px; flex: 0 0 auto; }
+
+/* ---------- 我的装扮（个人主页佩戴管理） ---------- */
+.wear-group { margin-top: 10px; }
+.wear-group-title { font-size: 12.5px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.wear-row {
+  display: flex; align-items: center; gap: 10px; padding: 7px 9px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--card-soft);
+  margin-bottom: 6px; cursor: pointer;
+}
+.wear-row:hover { border-color: var(--accent); }
+.wear-row input[type=checkbox] { flex: 0 0 auto; width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+.wear-prev {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  min-width: 96px; height: 34px; padding: 0 8px; border-radius: 8px;
+  background: var(--card); border: 1px solid var(--line); overflow: hidden;
+}
+.wear-prev > .fx-prev-bg { min-height: 32px; border-radius: 8px; }
+/* app.js 的佩戴预览用 .wear-bg 承载背景特效：必须撑满容器，否则（图层是绝对定位的）会塌成 0 宽不可见 */
+.wear-prev > .wear-bg {
+  flex: 1 1 auto; align-self: stretch; width: 100%; min-height: 32px;
+  border-radius: 8px; display: block;
+}
+.wear-name { font-size: 12.5px; color: var(--muted); word-break: break-all; }
+.wear-empty { color: var(--faint); font-size: 12px; padding: 4px 0; }
+.wear-note { margin-top: 10px; font-size: 11.5px; color: var(--faint); line-height: 1.6; }
+@media (max-width: 560px) {
+  .wear-prev { min-width: 72px; }
+}

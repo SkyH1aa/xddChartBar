@@ -11,7 +11,7 @@
   const EDGE_URL = `${SUPABASE_URL}/functions/v1/newtheba`;
   const TOKEN_KEY = 'nzb_admin_token';
   const PROFILE_KEY = 'nzb_admin_profile';
-  const TOPICS = ['闲聊', '社团活动', '食堂', '宿舍', '学习', '吃瓜', '失物招领'];
+  const TOPICS = ['闲聊', '社团活动', '食堂', '宿舍', '学习', '吃瓜', '失物招领', '学习资料'];
 
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   const $ = (id) => document.getElementById(id);
@@ -24,7 +24,10 @@
   const TAB_DEFS = [
     { key: 'dashboard', label: '看板' },
     { key: 'posts', label: '帖子管理' },
-    { key: 'review', label: '吃瓜审核', perm: 'can_review' },
+    { key: 'review', label: '内容审核', perm: 'can_review' },
+    { key: 'qa', label: '❓ 问答管理', perm: 'can_qa' },
+    { key: 'study', label: '📖 学习资料', perm: 'can_digest' },
+    { key: 'trade', label: '🔎 失物招领', perm: 'can_trade' },
     { key: 'reports', label: '举报', perm: 'can_report' },
     { key: 'trash', label: '回收站', perm: 'can_delete' },
     { key: 'columns', label: '🎓 专栏管理', perm: 'can_column' },
@@ -43,7 +46,10 @@
     { key: 'udellog', label: '用户删除日志', perm: 'can_del_log' },
     { key: 'archive', label: '留档日志', perm: 'can_archive' },
     { key: 'deviceban', label: '设备封禁', perm: 'can_deviceban' },
-    { key: 'daily', label: '每日运营', perm: 'can_daily' }
+    { key: 'daily', label: '每日运营', perm: 'can_daily' },
+    { key: 'badge', label: '🏅 成就徽章', perm: 'can_badge' },
+    { key: 'shop', label: '🛒 积分商城', perm: 'can_shop' },
+    { key: 'event', label: '🎉 活动中心', perm: 'can_event' }
   ];
   const FOUNDER_ONLY_TABS = ['admins', 'resetPwd', 'site', 'legends'];
 
@@ -253,6 +259,9 @@
     if (key === 'posts') loadPosts();
     if (key === 'columns') loadColAdminMgmt();
     if (key === 'review') loadReview();
+    if (key === 'qa') loadQa();
+    if (key === 'study') loadStudy();
+    if (key === 'trade') loadTrade();
     if (key === 'reports') loadReports();
     if (key === 'trash') loadTrash();
     if (key === 'pinned') loadPinned();
@@ -280,6 +289,9 @@
     if (key === 'archive') loadArchive();
     if (key === 'deviceban') loadDeviceBan();
     if (key === 'daily') loadDailyOps();
+    if (key === 'badge') { badgeResetForm(); loadBadgeAdmin(); }
+    if (key === 'shop') { shopResetForm(); loadShopAdmin(); }
+    if (key === 'event') loadEventAdmin();
   }
 
   // ---------- 邀请码管理（can_invite） ----------
@@ -1349,21 +1361,20 @@
     $('changePwdBtn').title = '修改自己的登录密码';
     const tags = [];
     const m = [
-      ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
+      ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '内容审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
       ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志'], ['can_deviceban', '设备封禁'], ['can_daily', '每日运营'], ['can_dm', '私信管理']
+      ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志'], ['can_deviceban', '设备封禁'], ['can_daily', '每日运营'], ['can_dm', '私信管理'], ['can_qa', '问答管理'], ['can_trade', '失物招领'], ['can_badge', '成就徽章'], ['can_shop', '积分商城'], ['can_event', '活动中心']
     ];
     tags.push(...m.filter(([k]) => hasPerm(k)).map(([, l]) => `<span class="badge">${l}</span>`));
-    (profile?.isFounder ? m : m.filter(([k]) => profile?.perms?.[k])).forEach(([k, label]) => {
-      tags.push(`<span class="badge topic">${label}</span>`);
-    });
     $('permTags').innerHTML = tags.join(' ');
   }
 
   // ---------- 帖子管理 ----------
   function postFilterOptions() {
     $('postFilter').innerHTML = '<option value="">全部话题</option>' +
+      TOPICS.map((t) => `<option>${t}</option>`).join('');
+    if ($('qaTopic')) $('qaTopic').innerHTML = '<option value="">全部话题</option>' +
       TOPICS.map((t) => `<option>${t}</option>`).join('');
   }
   async function loadPosts() {
@@ -1825,13 +1836,13 @@
     } catch (e) { alert(e.message); }
   });
 
-  // ---------- 吃瓜审核 ----------
+  // ---------- 内容审核（吃瓜 + 学习资料；can_review） ----------
   async function loadReview() {
-    const data = await callEdge('list_posts', { topic: '吃瓜', page: 1, pageSize: 200 });
-    const pending = data.filter((p) => !p.blocked);   // 已通过 / 已屏蔽的都不在待审列表
+    const data = await callEdge('list_posts', { topics: ['吃瓜', '学习资料'], page: 1, pageSize: 200 });
+    const pending = (data || []).filter((p) => !p.blocked);   // 已屏蔽的不在列表内
     const list = $('reviewList');
     list.innerHTML = '';
-    if (!pending.length) { list.innerHTML = '<div class="empty">暂无待审核的吃瓜帖</div>'; return; }
+    if (!pending.length) { list.innerHTML = '<div class="empty">暂无待审核内容</div>'; return; }
     pending.forEach((p) => {
       const stateTag = p.reviewed
         ? '<span class="badge topic">已通过</span>'
@@ -1847,7 +1858,9 @@
         <button class="btn sm danger" data-a="del" data-id="${p.id}">删除</button>` : '<span class="badge">无审核权限</span>';
       card.innerHTML = `
         <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
-          <strong>${escapeHtml(p.nickname || '匿名')}</strong> ${stateTag}
+          <strong>${escapeHtml(p.nickname || '匿名')}</strong>
+          <span class="badge topic">${escapeHtml(p.topic || '')}</span>
+          ${stateTag}
           <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(p.created_at)}</span>
         </div>
         <div style="color:var(--text);font-size:14px;line-height:1.7;white-space:pre-wrap;margin-bottom:10px">${escapeHtml(p.content)}</div>
@@ -1868,6 +1881,245 @@
     });
   }
   $('reviewRefresh').addEventListener('click', loadReview);
+
+  // ---------- 问答管理（can_qa） ----------
+  //   管理员可强制结贴（代设最佳答案）与撤销最佳答案；撤销会扣回答主 15 经验，全部写审计。
+  async function loadQa() {
+    const scope = $('qaScope').value;
+    const keyword = $('qaKeyword').value.trim();
+    const payload = { page: 1, pageSize: 200, ask_only: true };
+    if (scope === 'unresolved') payload.unresolved_only = true;
+    else if (scope === 'resolved') payload.resolved = true;
+    const topic = $('qaTopic').value; if (topic) payload.topic = topic;
+    const from = $('qaFrom').value; if (from) payload.from = from;
+    const to = $('qaTo').value; if (to) payload.to = to + 'T23:59:59';
+    if (keyword) payload.keyword = keyword;
+    const list = $('qaList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    let data = [];
+    try { data = await callEdge('list_posts', payload) || []; }
+    catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; return; }
+    list.innerHTML = '';
+    if (!data.length) { list.innerHTML = '<div class="empty">没有符合条件的求助帖</div>'; return; }
+    data.forEach((p) => list.appendChild(qaCard(p)));
+  }
+  function qaCard(p) {
+    const resolved = !!p.resolved;
+    const card = document.createElement('div');
+    card.className = 'panel fade-in-up';
+    card.style.padding = '14px 16px';
+    card.style.boxShadow = 'none';
+    card.style.marginBottom = '10px';
+    card.innerHTML = `
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+        <strong>${escapeHtml(p.nickname || '匿名')}</strong>
+        <span class="badge topic">${escapeHtml(p.topic || '')}</span>
+        ${resolved
+          ? '<span class="badge" style="color:#fff;background:#22c55e">已解决</span>'
+          : '<span class="badge" style="color:#fff;background:var(--warn)">求助中</span>'}
+        <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(p.created_at)}</span>
+      </div>
+      <div style="color:var(--text);font-size:14px;line-height:1.7;white-space:pre-wrap;margin-bottom:8px">${escapeHtml(truncate(p.content, 400))}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn sm ghost" data-qa="answers">查看答案</button>
+        ${resolved ? '<button class="btn sm danger" data-qa="unset">撤销最佳答案</button>' : ''}
+      </div>
+      <div data-qa-answers class="hidden" style="border-top:1px dashed var(--line);margin-top:10px;padding-top:8px"></div>`;
+    const box = card.querySelector('[data-qa-answers]');
+    card.querySelector('[data-qa="answers"]').addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      if (!box.classList.contains('hidden')) { box.classList.add('hidden'); btn.textContent = '查看答案'; return; }
+      box.classList.remove('hidden');
+      btn.textContent = '收起答案';
+      box.innerHTML = '<div class="empty" style="padding:8px">加载中…</div>';
+      let cmts = [];
+      try { cmts = await callEdge('admin_post_comments', { post_id: p.id }) || []; }
+      catch (err) { box.innerHTML = `<div class="empty" style="padding:8px">加载失败：${escapeHtml(err.message)}</div>`; return; }
+      if (!cmts.length) { box.innerHTML = '<div class="empty" style="padding:8px">该帖暂无评论</div>'; return; }
+      box.innerHTML = '';
+      cmts.forEach((c) => {
+        const isBest = !!(p.best_comment_id && c.id === p.best_comment_id);
+        const isOwnerCmt = c.author_id && p.author_id && c.author_id === p.author_id;
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:8px 0;border-bottom:1px dashed var(--line)';
+        row.innerHTML = `
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)">
+            <strong>${escapeHtml(c.nickname || '匿名')}</strong>
+            ${isBest ? '<span class="badge" style="color:#fff;background:#22c55e">最佳答案</span>' : ''}
+            ${isOwnerCmt ? '<span class="badge topic">楼主评论</span>' : ''}
+            ${c.blocked ? '<span class="badge" style="color:#fff;background:#8a8a8a">已屏蔽</span>' : ''}
+            <span style="margin-left:auto">${formatTime(c.created_at)}</span>
+          </div>
+          <div style="color:var(--text);font-size:13.5px;line-height:1.6;white-space:pre-wrap;margin:4px 0 6px">${escapeHtml(c.content)}</div>
+          ${(!c.blocked && !isOwnerCmt && !isBest) ? `<button class="btn sm ghost" data-best="${c.id}">设为最佳答案</button>` : ''}`;
+        const bb = row.querySelector('[data-best]');
+        if (bb) bb.addEventListener('click', async () => {
+          if (!confirm('确认把该评论设为最佳答案？答主将获得 15 经验；若已有最佳答案会先撤销旧的。')) return;
+          bb.disabled = true;
+          try {
+            await callEdge('qa_admin_set_best', { post_id: p.id, comment_id: c.id });
+            alert('✅ 已设为最佳答案');
+            loadQa();
+          } catch (err) { alert(err.message); bb.disabled = false; }
+        });
+        box.appendChild(row);
+      });
+    });
+    const unsetBtn = card.querySelector('[data-qa="unset"]');
+    if (unsetBtn) unsetBtn.addEventListener('click', async () => {
+      if (!confirm('确认撤销该帖的最佳答案？将扣回答主 15 经验，帖子回到「求助中」。')) return;
+      unsetBtn.disabled = true;
+      try {
+        await callEdge('qa_admin_unresolve', { post_id: p.id });
+        alert('已撤销最佳答案');
+        loadQa();
+      } catch (err) { alert(err.message); unsetBtn.disabled = false; }
+    });
+    return card;
+  }
+  $('qaRefresh').addEventListener('click', loadQa);
+  $('qaScope').addEventListener('change', loadQa);
+  $('qaTopic').addEventListener('change', loadQa);
+  $('qaFrom').addEventListener('change', loadQa);
+  $('qaTo').addEventListener('change', loadQa);
+  $('qaKeyword').addEventListener('keydown', (e) => { if (e.key === 'Enter') loadQa(); });
+
+  // ---------- 学习资料 · 学科管理（can_digest） ----------
+  async function loadStudy() {
+    const list = $('subjList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    let data = [];
+    try { data = await callEdge('admin_subject_list', {}) || []; }
+    catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; return; }
+    list.innerHTML = '';
+    if (!data.length) { list.innerHTML = '<div class="empty">还没有学科，请先在上方新增。</div>'; return; }
+    data.forEach((s) => {
+      const count = Number(s.post_count) || 0;
+      const c = document.createElement('div');
+      c.className = 'panel fade-in-up';
+      c.style.padding = '12px 14px';
+      c.style.boxShadow = 'none';
+      c.style.marginBottom = '8px';
+      c.innerHTML = `
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input class="input" data-f="name" value="${escapeHtml(s.name)}" style="width:170px" title="学科名称（唯一）" />
+          <input class="input" data-f="display_name" value="${escapeHtml(s.display_name || s.name)}" style="width:150px" title="显示名" />
+          <input class="input" type="number" data-f="sort" value="${Number(s.sort) || 0}" style="width:80px" title="排序（越小越靠前）" />
+          <label style="display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--muted)"><input type="checkbox" data-f="enabled" ${s.enabled ? 'checked' : ''} /> 启用</label>
+          <span class="badge">在用资料帖 ${count}</span>
+          ${s.enabled ? '' : '<span class="badge" style="color:#fff;background:#8a8a8a">已停用</span>'}
+          <span style="margin-left:auto;display:flex;gap:6px">
+            <button class="btn sm" data-save="${s.id}">保存</button>
+            <button class="btn sm danger" data-del="${s.id}">删除</button>
+          </span>
+        </div>`;
+      const read = (f) => c.querySelector(`[data-f="${f}"]`);
+      c.querySelector('[data-save]').addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        btn.disabled = true;
+        try {
+          await callEdge('admin_subject_update', {
+            id: s.id,
+            name: read('name').value.trim(),
+            display_name: read('display_name').value.trim(),
+            sort: Number(read('sort').value) || 0,
+            enabled: read('enabled').checked
+          });
+          loadStudy();
+        } catch (err) { alert(err.message); btn.disabled = false; }
+      });
+      c.querySelector('[data-del]').addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        if (count > 0) { alert(`该学科下仍有 ${count} 篇资料帖，请改为「停用」而不是删除。`); return; }
+        if (!confirm(`确定删除学科「${s.name}」？`)) return;
+        btn.disabled = true;
+        try { await callEdge('admin_subject_delete', { id: s.id, name: s.name }); loadStudy(); }
+        catch (err) { alert(err.message); btn.disabled = false; }
+      });
+      list.appendChild(c);
+    });
+  }
+  $('studyRefresh').addEventListener('click', loadStudy);
+  $('subjCreateBtn').addEventListener('click', async () => {
+    const name = $('subjName').value.trim();
+    if (!name) { alert('请填写学科名称'); return; }
+    const btn = $('subjCreateBtn');
+    btn.disabled = true;
+    try {
+      await callEdge('admin_subject_create', {
+        name,
+        display_name: $('subjDisplay').value.trim(),
+        sort: Number($('subjSort').value) || 0,
+        enabled: $('subjEnabled').checked
+      });
+      $('subjName').value = ''; $('subjDisplay').value = ''; $('subjSort').value = '0'; $('subjEnabled').checked = true;
+      loadStudy();
+    } catch (e) { alert(e.message); }
+    btn.disabled = false;
+  });
+
+  // ---------- 失物招领管理（can_trade） ----------
+  const TRADE_LABELS = { ongoing: '进行中', found: '已找到', lost: '已失效' };
+  async function loadTrade() {
+    const payload = { topic: '失物招领', page: 1, pageSize: 200 };
+    const st = $('tradeStatusFilter').value; if (st) payload.trade_status = st;
+    const kw = $('tradeKeyword').value.trim(); if (kw) payload.keyword = kw;
+    const from = $('tradeFrom').value; if (from) payload.from = from;
+    const to = $('tradeTo').value; if (to) payload.to = to + 'T23:59:59';
+    const list = $('tradeList');
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    let data = [];
+    try { data = await callEdge('list_posts', payload) || []; }
+    catch (e) { list.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; return; }
+    list.innerHTML = '';
+    if (!data.length) { list.innerHTML = '<div class="empty">没有符合条件的失物招领帖</div>'; return; }
+    data.forEach((p) => {
+      const st2 = p.trade_status || 'ongoing';
+      const card = document.createElement('div');
+      card.className = 'panel fade-in-up';
+      card.style.padding = '14px 16px';
+      card.style.boxShadow = 'none';
+      card.style.marginBottom = '10px';
+      card.innerHTML = `
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+          <strong>${escapeHtml(p.nickname || '匿名')}</strong>
+          <span class="badge topic">${escapeHtml(TRADE_LABELS[st2] || st2)}</span>
+          ${p.blocked ? '<span class="badge" style="color:#fff;background:var(--danger)">已屏蔽</span>' : ''}
+          <span style="margin-left:auto;color:var(--faint);font-size:12px">${formatTime(p.created_at)}</span>
+        </div>
+        <div style="color:var(--text);font-size:14px;line-height:1.7;white-space:pre-wrap;margin-bottom:10px">${escapeHtml(truncate(p.content, 400))}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span style="font-size:12px;color:var(--muted)">强制改状态：</span>
+          ${['ongoing', 'found', 'lost'].map((s) => `<button class="btn sm ${s === st2 ? '' : 'ghost'}" data-set="${s}" data-id="${p.id}">${TRADE_LABELS[s]}</button>`).join('')}
+        </div>`;
+      card.querySelectorAll('[data-set]').forEach((b) => {
+        b.addEventListener('click', async () => {
+          if (b.dataset.set === st2) return;
+          if (!confirm(`确认把该帖状态改为「${TRADE_LABELS[b.dataset.set]}」？`)) return;
+          b.disabled = true;
+          try { await callEdge('admin_trade_set_status', { post_id: p.id, status: b.dataset.set }); loadTrade(); }
+          catch (err) { alert(err.message); b.disabled = false; }
+        });
+      });
+      list.appendChild(card);
+    });
+  }
+  $('tradeRefresh').addEventListener('click', loadTrade);
+  $('tradeStatusFilter').addEventListener('change', loadTrade);
+  $('tradeFrom').addEventListener('change', loadTrade);
+  $('tradeTo').addEventListener('change', loadTrade);
+  $('tradeKeyword').addEventListener('keydown', (e) => { if (e.key === 'Enter') loadTrade(); });
+  $('tradeArchiveBtn').addEventListener('click', async () => {
+    if (!confirm('确认归档发布满 60 天且仍为「进行中」的失物招领帖？帖子将移入回收站，可恢复。')) return;
+    const btn = $('tradeArchiveBtn');
+    btn.disabled = true;
+    try {
+      const r = await callEdge('admin_trade_archive', { days: 60 });
+      alert(`✅ 已归档 ${Number(r && r.archived) || 0} 条过期失物招领帖`);
+      loadTrade();
+    } catch (e) { alert(e.message); }
+    btn.disabled = false;
+  });
 
   // ---------- 顶置管理 ----------
   async function loadPinned() {
@@ -1913,44 +2165,61 @@
     if (!input || input.__xddPickerBound) return;
     input.__xddPickerBound = true;
     let drop = null, items = [], idx = -1, timer = null;
-    const close = () => { if (drop) { drop.remove(); drop = null; } items = []; idx = -1; };
+    // 注意：渲染下拉时只能移除旧节点，不能清空 items —— 否则候选会被自己清掉，下拉框一片空白
+    const closeDrop = () => { if (drop) { drop.remove(); drop = null; } };
+    const reset = () => { closeDrop(); items = []; idx = -1; };
     const paint = () => { if (drop) drop.querySelectorAll('.mn-item').forEach((n, i) => n.classList.toggle('active', i === idx)); };
     const pick = (u) => {
       if (!u) return;
       input.value = u.nickname;
-      close();
+      reset();
       onPick(u);
     };
-    const open = () => {
-      close();
+    const place = (node) => {
+      const r = input.getBoundingClientRect();
+      const h = node.offsetHeight;
+      node.style.left = Math.max(8, Math.min(r.left, window.innerWidth - node.offsetWidth - 8)) + 'px';
+      node.style.top = (window.innerHeight - r.bottom < h + 12 && r.top > h + 12 ? r.top - h - 4 : r.bottom + 4) + 'px';
+    };
+    const open = (list) => {
+      closeDrop();
       drop = document.createElement('div');
       drop.className = 'mention-drop';
-      drop.innerHTML = items.map((u, i) => `<div class="mn-item${i === 0 ? ' active' : ''}" data-i="${i}"><span class="mn-nick">${escapeHtml(u.nickname)}</span><span class="mn-lv">Lv.${Number(u.level) || 0}</span></div>`).join('');
+      drop.innerHTML = list.map((u, i) => `<div class="mn-item${i === 0 ? ' active' : ''}" data-i="${i}"><span class="mn-nick">${escapeHtml(u.nickname)}</span><span class="mn-lv">Lv.${Number(u.level) || 0}</span></div>`).join('');
       document.body.appendChild(drop);
-      const r = input.getBoundingClientRect();
-      const h = drop.offsetHeight;
-      drop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - drop.offsetWidth - 8)) + 'px';
-      drop.style.top = (window.innerHeight - r.bottom < h + 12 && r.top > h + 12 ? r.top - h - 4 : r.bottom + 4) + 'px';
+      place(drop);
       drop.addEventListener('mousedown', (e) => {
         const it = e.target.closest('.mn-item');
         if (!it) return;
         e.preventDefault();                 // 保住输入框焦点
-        pick(items[Number(it.dataset.i)]);
+        pick(list[Number(it.dataset.i)]);
       });
+    };
+    const openEmpty = (kw) => {
+      closeDrop();
+      drop = document.createElement('div');
+      drop.className = 'mention-drop';
+      drop.innerHTML = `<div class="mn-item" style="color:var(--faint);cursor:default">没有匹配「${escapeHtml(kw)}」的用户</div>`;
+      document.body.appendChild(drop);
+      place(drop);
     };
     input.addEventListener('input', () => {
       onPick(null);                          // 手改过就作废上一次的选中，避免用错人
       const kw = input.value.trim();
       if (timer) { clearTimeout(timer); timer = null; }
-      if (!kw) { close(); return; }
+      if (!kw) { reset(); return; }
       timer = setTimeout(async () => {
         timer = null;
         if (input.value.trim() !== kw) return;
-        try { items = await callEdge('admin_daily_user_search', { keyword: kw }); }
-        catch (_e) { items = []; }
-        idx = items.length ? 0 : -1;
-        if (!items.length) { close(); return; }
-        open();
+        let list = [];
+        try { list = (await callEdge('admin_daily_user_search', { keyword: kw })) || []; }
+        catch (_e) { list = []; }
+        if (!Array.isArray(list)) list = list.list || [];   // 兼容 { list: [...] } 形态
+        if (input.value.trim() !== kw) return;              // 期间又改了输入：丢弃这次结果
+        items = list;
+        idx = list.length ? 0 : -1;
+        if (!list.length) { openEmpty(kw); return; }
+        open(list);
       }, 200);
     });
     input.addEventListener('keydown', (e) => {
@@ -1958,9 +2227,9 @@
       if (e.key === 'ArrowDown') { e.preventDefault(); idx = (idx + 1) % items.length; paint(); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); idx = (idx - 1 + items.length) % items.length; paint(); }
       else if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); pick(items[idx]); }
-      else if (e.key === 'Escape') { e.preventDefault(); close(); }
+      else if (e.key === 'Escape') { e.preventDefault(); reset(); }
     });
-    input.addEventListener('blur', () => setTimeout(close, 120));
+    input.addEventListener('blur', () => setTimeout(() => { if (drop) reset(); }, 120));
   }
   async function loadDailyOps() {
     const cfg = await callEdge('daily_config_get', {});
@@ -2339,10 +2608,10 @@
       c.className = 'panel fade-in-up';
       c.style.padding = '12px 14px'; c.style.boxShadow = 'none'; c.style.marginBottom = '8px';
       const perms = [
-        ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '吃瓜审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
+        ['can_block', '屏蔽'], ['can_delete', '删除/回收站'], ['can_gold', '金牌认证'], ['can_review', '内容审核'], ['can_pin', '顶置'], ['can_popup', '弹窗'],
         ['can_report', '举报管理'], ['can_view_audit', '审计查看'], ['can_blacklist', '黑名单管理'],
       ['can_notice', '公告管理'], ['can_bug', 'Bug回复'], ['can_topic', '话题管理'],
-        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志'], ['can_deviceban', '设备封禁'], ['can_daily', '每日运营'], ['can_dm', '私信管理']
+        ['can_ban', '用户封禁'], ['can_user_mgmt', '用户统一管理'], ['can_column', '专栏管理'], ['can_digest', '精华聚合'], ['can_mentor', '学长认证'], ['can_invite', '管理论坛邀请码'], ['can_del_log', '用户删除日志'], ['can_archive', '留档日志'], ['can_deviceban', '设备封禁'], ['can_daily', '每日运营'], ['can_dm', '私信管理'], ['can_qa', '问答管理'], ['can_trade', '失物招领'], ['can_badge', '成就徽章'], ['can_shop', '积分商城'], ['can_event', '活动中心']
       ];
       const toggles = perms.map(([k, label]) => {
         const on = !!a[k];
@@ -2594,6 +2863,567 @@
       }
     });
   }
+
+  // ================= 第四期：成就徽章管理（can_badge） =================
+  let badgeEditingId = null;
+  let badgeGrantUserId = '';
+  let badgeCache = [];
+  let badgeFx = null;           // 当前徽章特效配置（配置器实时回写）
+  let badgeFxApi = null;
+  let shopFx = null;            // 当前商品特效配置
+  let shopFxApi = null;
+  const BADGE_RULE_LABELS = { post: '发帖数', comment: '评论数', like_received: '获赞数', digest: '精华数', legend: '校史编号', best_answer: '最佳答案数', checkin_streak: '连续签到天数', event_win: '活动获奖次数' };
+  const DUR_LABELS = { forever: '永久', day: '天', week: '周', month: '月', year: '年' };
+
+  // 内置特效引擎（public/effects.js）；缺失时降级为「仅提示」，不阻塞后台其他功能
+  const FX = () => (window.XddFx || null);
+  function fxBlank(kind) { const F = FX(); return F ? F.blank(kind) : null; }
+  // 挂载可视化配置器：下拉框 + 取色器 + 实时预览 + 组合数校验
+  function mountFx(hostId, kind, cfg, onSet) {
+    const host = $(hostId);
+    if (!host) return;
+    const F = FX();
+    if (!F) { host.innerHTML = '<div class="fxcfg-hint">特效引擎未加载（public/effects.js），请检查静态资源。</div>'; return; }
+    onSet(F.normalize(kind, cfg));
+    F.mountConfigurator(host, kind, cfg, (next) => onSet(next));
+  }
+  // 特效配置的中文摘要（列表展示用）
+  function fxSummary(kind, cfg) {
+    const F = FX();
+    if (!F || !cfg) return '';
+    try { return F.summary(kind, cfg); } catch (_e) { return ''; }
+  }
+  // 内联渲染特效预览 HTML（列表缩略图用）
+  function fxPreviewHtml(kind, cfg) {
+    const F = FX();
+    if (!F || !cfg || F.kinds().indexOf(kind) < 0) return '';
+    try {
+      const c = F.normalize(kind, cfg);
+      if (kind === 'badge') return F.badgeHtml(c, 'lg');
+      if (kind === 'title') return F.titleHtml(c);
+      return F.previewHtml(kind, c);
+    } catch (_e) { return ''; }
+  }
+
+  // 活动配置可视化表单（public/event-cfg.js）；缺失时降级为提示，不阻塞后台其他功能
+  const EC = () => (window.XddEventCfg || null);
+  let eventRuleEditor = null;     // 玩法细则编辑器
+  let eventRewardEditor = null;   // 奖励配置编辑器（抽奖奖品 / 排行名次奖励）
+  let eventRewardMode = null;     // 奖励编辑器当前对应的玩法，用于判断切换玩法时能否沿用已填内容
+  async function ensureEventBadges() {
+    if (badgeCache && badgeCache.length) return badgeCache;
+    try { badgeCache = (await callEdge('admin_badge_list', {})) || []; } catch (_e) { badgeCache = []; }
+    return badgeCache;
+  }
+  // 按玩法挂载「玩法细则 + 奖励配置」两张可视化表单
+  async function renderEventForm(mode, ruleCfg, rewardCfg) {
+    const E = EC();
+    const ruleHost = $('eventRuleCfgHost'), rewardHost = $('eventRewardCfgHost');
+    if (!ruleHost || !rewardHost) return;
+    if (!E) {
+      const hint = '<div class="fxcfg-hint">活动配置模块未加载（public/event-cfg.js），请检查静态资源。</div>';
+      ruleHost.innerHTML = hint; rewardHost.innerHTML = hint;
+      eventRuleEditor = null; eventRewardEditor = null; eventRewardMode = null;
+      return;
+    }
+    E.setBadges(await ensureEventBadges());
+    eventRuleEditor = E.rules(ruleHost, ruleCfg, null);
+    eventRewardEditor = E.reward(rewardHost, mode, rewardCfg, null);
+    eventRewardMode = mode;
+  }
+
+  function durText(t, d) { return t === 'forever' ? '永久' : `${Number(d) || 0} ${DUR_LABELS[t] || t}`; }
+  function badgeRuleText(r) { return (!r || !r.type) ? '—' : `${BADGE_RULE_LABELS[r.type] || r.type} ≥ ${Number(r.count) || 1}`; }
+  function badgeSyncSource() {
+    const auto = $('badgeSource').value === 'auto';
+    $('badgeRuleTypeWrap').style.display = auto ? '' : 'none';
+    $('badgeRuleCountWrap').style.display = auto ? '' : 'none';
+  }
+  function badgeResetForm() {
+    badgeEditingId = null;
+    ['badgeName', 'badgeDesc', 'badgeHint'].forEach((id) => { const el = $(id); if (el) el.value = ''; });
+    $('badgeSource').value = 'auto'; $('badgeDurType').value = 'forever'; $('badgeDurDays').value = '0';
+    $('badgeRuleType').value = 'post'; $('badgeRuleCount').value = '1'; $('badgeSort').value = '0';
+    $('badgeEnabled').checked = true;
+    $('badgeFormTitle').textContent = '新建徽章';
+    $('badgeCancel').classList.add('hidden');
+    badgeSyncSource();
+    mountFx('badgeFxHost', 'badge', fxBlank('badge'), (c) => { badgeFx = c; });
+  }
+  async function loadBadgeAdmin() {
+    const list = (await callEdge('admin_badge_list', {})) || [];
+    badgeCache = list;
+    $('badgeGrantBadge').innerHTML = list.map((b) => `<option value="${b.id}">${escapeHtml(b.name)}${b.enabled ? '' : '（已停用）'}</option>`).join('');
+    const box = $('badgeList');
+    box.innerHTML = list.map((b) => `<div class="panel" style="box-shadow:none;padding:10px 12px;margin-bottom:8px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <span class="fx-list-ico">${fxPreviewHtml('badge', b.effect) || '🏅'}</span>
+        <b>${escapeHtml(b.name)}</b>
+        <span class="badge topic">${b.source === 'auto' ? '自动' : '手动'}</span>
+        <span style="color:var(--faint);font-size:12px">${b.source === 'auto' ? escapeHtml(badgeRuleText(b.rule)) : '手动授予'} · ${durText(b.duration_type, b.duration_days)} · 已授予 ${b.granted_count}</span>
+        <span style="margin-left:auto;color:${b.enabled ? 'var(--ok)' : 'var(--faint)'}">${b.enabled ? '启用' : '停用'}</span>
+        <button class="btn sm ghost" data-bedit="${b.id}">编辑</button>
+        <button class="btn sm ghost" data-btoggle="${b.id}" data-benabled="${b.enabled ? '1' : '0'}">${b.enabled ? '停用' : '启用'}</button>
+        <button class="btn sm danger" data-bdel="${b.id}">删除</button>
+      </div>
+      <div style="color:var(--muted);font-size:12px;margin-top:5px">${escapeHtml(b.description || '')}${b.obtain_hint ? ` · 提示：${escapeHtml(b.obtain_hint)}` : ''}</div>
+      ${b.effect ? `<div style="color:var(--faint);font-size:11px;margin-top:4px">🎨 ${escapeHtml(fxSummary('badge', b.effect))}</div>` : ''}
+    </div>`).join('') || '<div class="empty">暂无徽章定义</div>';
+    box.querySelectorAll('[data-bedit]').forEach((btn) => btn.addEventListener('click', () => {
+      const b = badgeCache.find((x) => x.id === btn.dataset.bedit); if (!b) return;
+      badgeEditingId = b.id;
+      $('badgeName').value = b.name;
+      $('badgeDesc').value = b.description || ''; $('badgeHint').value = b.obtain_hint || '';
+      $('badgeSource').value = b.source; $('badgeDurType').value = b.duration_type; $('badgeDurDays').value = b.duration_days;
+      $('badgeRuleType').value = b.rule?.type || 'post'; $('badgeRuleCount').value = b.rule?.count || 1;
+      $('badgeSort').value = b.sort; $('badgeEnabled').checked = !!b.enabled;
+      $('badgeFormTitle').textContent = '编辑徽章'; $('badgeCancel').classList.remove('hidden');
+      badgeSyncSource();
+      mountFx('badgeFxHost', 'badge', b.effect || fxBlank('badge'), (c) => { badgeFx = c; });
+      $('badgeFormTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }));
+    box.querySelectorAll('[data-btoggle]').forEach((btn) => btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      try { await callEdge('admin_badge_toggle', { id: btn.dataset.btoggle, enabled: btn.dataset.benabled !== '1' }); await loadBadgeAdmin(); }
+      catch (e) { alert(e.message); btn.disabled = false; }
+    }));
+    box.querySelectorAll('[data-bdel]').forEach((btn) => btn.addEventListener('click', async () => {
+      if (!confirm('确认删除该徽章定义？历史授予记录会保留，徽章墙标记为已下架。')) return;
+      btn.disabled = true;
+      try { await callEdge('admin_badge_delete', { id: btn.dataset.bdel }); await loadBadgeAdmin(); }
+      catch (e) { alert(e.message); btn.disabled = false; }
+    }));
+    const grants = (await callEdge('admin_badge_grants', {})) || [];
+    const gbox = $('badgeGrantList');
+    gbox.innerHTML = grants.map((g) => `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12px">
+      <b>${escapeHtml(g.nickname || g.username || g.user_id)}</b>
+      <span>${escapeHtml(g.badge_name || '')}</span>
+      <span class="badge topic">${g.source === 'manual' ? '手动' : '自动'}</span>
+      <span style="color:var(--faint)">${formatTime(g.granted_at)}</span>
+      <span style="color:var(--faint)">${g.expires_at ? '到期 ' + formatTime(g.expires_at) : '永久'}</span>
+      <span style="margin-left:auto;color:${g.revoked_at ? 'var(--faint)' : 'var(--ok)'}">${g.revoked_at ? '已撤销' : '生效中'}</span>
+      ${g.revoked_at ? '' : `<button class="btn sm ghost" data-brevoke="${g.badge_id}" data-buid="${g.user_id}">撤销</button>`}
+    </div>`).join('') || '<div class="empty">暂无授予记录</div>';
+    gbox.querySelectorAll('[data-brevoke]').forEach((btn) => btn.addEventListener('click', async () => {
+      if (!confirm('确认撤销该用户此徽章？')) return;
+      btn.disabled = true;
+      try { await callEdge('admin_badge_revoke', { user_id: btn.dataset.buid, badge_id: btn.dataset.brevoke }); await loadBadgeAdmin(); }
+      catch (e) { alert(e.message); btn.disabled = false; }
+    }));
+  }
+  $('badgeRefresh')?.addEventListener('click', () => loadBadgeAdmin().catch((e) => alert(e.message)));
+  $('badgeSource')?.addEventListener('change', badgeSyncSource);
+  $('badgeCancel')?.addEventListener('click', badgeResetForm);
+  attachUserPicker($('badgeGrantUser'), (u) => { badgeGrantUserId = u ? u.id : ''; });
+  $('badgeSave')?.addEventListener('click', async () => {
+    const name = $('badgeName').value.trim();
+    if (!name) { alert('请填写徽章名称'); return; }
+    const source = $('badgeSource').value;
+    const payload = {
+      id: badgeEditingId || undefined, name,
+      effect: badgeFx || fxBlank('badge'),
+      description: $('badgeDesc').value.trim(), obtain_hint: $('badgeHint').value.trim(),
+      source, duration_type: $('badgeDurType').value, duration_days: Number($('badgeDurDays').value) || 0,
+      sort: Number($('badgeSort').value) || 0, enabled: $('badgeEnabled').checked
+    };
+    if (source === 'auto') payload.rule = { type: $('badgeRuleType').value, count: Math.max(1, Number($('badgeRuleCount').value) || 1) };
+    try { await callEdge('admin_badge_save', payload); badgeResetForm(); await loadBadgeAdmin(); }
+    catch (e) { alert(e.message); }
+  });
+  $('badgeGrantBtn')?.addEventListener('click', async () => {
+    const bid = $('badgeGrantBadge').value;
+    if (!badgeGrantUserId) { alert('请先搜索并选择用户'); return; }
+    if (!bid) { alert('请选择徽章'); return; }
+    try { const r = await callEdge('admin_badge_grant', { user_id: badgeGrantUserId, badge_id: bid }); alert(r.already ? '该用户已拥有此徽章' : '已授予'); await loadBadgeAdmin(); }
+    catch (e) { alert(e.message); }
+  });
+  $('badgeRevokeBtn')?.addEventListener('click', async () => {
+    const bid = $('badgeGrantBadge').value;
+    if (!badgeGrantUserId || !bid) { alert('请先选择用户和徽章'); return; }
+    if (!confirm('确认撤销该用户此徽章？')) return;
+    try { await callEdge('admin_badge_revoke', { user_id: badgeGrantUserId, badge_id: bid }); await loadBadgeAdmin(); }
+    catch (e) { alert(e.message); }
+  });
+
+  // ================= 第四期：积分商城管理（can_shop） =================
+  let shopEditingId = null;
+  let shopAdjustUserId = '';
+  let shopGrantUserId = '';
+  let shopGrantFx = null;
+  let shopGrantItems = [];
+  const SHOP_CAT_LABELS = { background: '帖子背景', title: '称号', nickname_style: '昵称样式', makeup_card: '补签卡', custom: '自定义' };
+  const ORDER_STATUS_LABELS = { paid: '已支付', refunding: '待处理退款', refunded: '已退款', refund_rejected: '退款被拒' };
+  const COIN_REASON_LABELS = { admin_adjust: '管理员调整', shop_buy: '商城兑换', shop_refund: '退款返还', checkin: '签到', quest: '每日任务', event: '活动奖励' };
+
+  function shopSub(name) {
+    ['items', 'orders', 'logs', 'adjust', 'grant'].forEach((k) => { $('shopPane-' + k).classList.toggle('hidden', k !== name); });
+    document.querySelectorAll('.shop-sub').forEach((b) => b.classList.toggle('ghost', b.dataset.shopsub !== name));
+    if (name === 'orders') loadShopOrders().catch((e) => alert(e.message));
+    if (name === 'logs') loadShopLogs().catch((e) => alert(e.message));
+    if (name === 'grant') shopGrantSyncSource();
+  }
+  // 商城分类 → 特效分类（仅这三类需要配置外观，其余无需）
+  const SHOP_FX_KINDS = { background: 'background', title: 'title', nickname_style: 'nickname_style' };
+  // 依据当前分类挂载/切换可视化特效配置器（下拉框 + 取色器 + 预览）
+  function shopSyncFx(cfg) {
+    const host = $('shopFxHost');
+    if (!host) return;
+    const kind = SHOP_FX_KINDS[$('shopCategory').value];
+    const hint = $('shopFxHint');
+    if (!kind) { shopFx = null; host.innerHTML = ''; if (hint) hint.style.display = ''; return; }
+    if (hint) hint.style.display = 'none';
+    mountFx('shopFxHost', kind, cfg || shopFx || fxBlank(kind), (c) => { shopFx = c; });
+  }
+  function shopResetForm() {
+    shopEditingId = null;
+    ['shopTitle', 'shopImage', 'shopDesc'].forEach((id) => { $(id).value = ''; });
+    $('shopCategory').value = 'custom'; $('shopPrice').value = '0'; $('shopStock').value = '-1';
+    $('shopDurType').value = 'forever'; $('shopDurDays').value = '0'; $('shopSort').value = '0';
+    $('shopEnabled').checked = true; $('shopIsCustom').checked = false;
+    $('shopFormTitle').textContent = '新建商品';
+    $('shopCancel').classList.add('hidden');
+    shopFx = null; shopSyncFx();
+  }
+  // ---- 手动分发装扮：现场配置特效 / 复用商城商品 ----
+  function shopGrantSyncFx(cfg) {
+    const host = $('shopGrantFxHost');
+    if (!host) return;
+    const usingItem = $('shopGrantSource').value === 'item';
+    const hint = $('shopGrantFxHint');
+    host.classList.toggle('hidden', usingItem);
+    if (hint) hint.style.display = usingItem ? '' : 'none';
+    if (usingItem) { host.innerHTML = ''; return; }
+    const kind = SHOP_FX_KINDS[$('shopGrantType').value];
+    mountFx('shopGrantFxHost', kind, cfg || shopGrantFx || fxBlank(kind), (c) => { shopGrantFx = c; });
+  }
+  async function loadShopGrantItems() {
+    const sel = $('shopGrantItem');
+    if (!sel) return;
+    try {
+      const list = (await callEdge('admin_shop_list', { category: $('shopGrantType').value })) || [];
+      shopGrantItems = list;
+      sel.innerHTML = list.length
+        ? list.map((it) => `<option value="${escapeHtml(it.id)}">${escapeHtml(it.title)}${it.enabled ? '' : '（已下架）'}</option>`).join('')
+        : '<option value="">（该分类暂无商品）</option>';
+    } catch (_e) { sel.innerHTML = '<option value="">加载失败</option>'; }
+  }
+  async function shopGrantSyncSource() {
+    const usingItem = $('shopGrantSource').value === 'item';
+    $('shopGrantItemWrap').classList.toggle('hidden', !usingItem);
+    if (usingItem) await loadShopGrantItems();
+    shopGrantSyncFx();
+  }
+  async function loadShopAdmin() {
+    const list = (await callEdge('admin_shop_list', {})) || [];
+    const box = $('shopItemList');
+    box.innerHTML = list.map((it) => `<div class="panel" style="box-shadow:none;padding:10px 12px;margin-bottom:8px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        ${fxPreviewHtml(it.category, it.template) ? `<span class="fx-list-ico">${fxPreviewHtml(it.category, it.template)}</span>`
+          : (it.image_url ? `<img src="${escapeHtml(it.image_url)}" alt="" style="width:38px;height:38px;border-radius:8px;object-fit:cover" />` : '')}
+        <b>${escapeHtml(it.title)}</b>
+        <span class="badge topic">${SHOP_CAT_LABELS[it.category] || it.category}</span>
+        <span style="color:var(--faint);font-size:12px">${it.price} 积分 · 库存 ${it.stock < 0 ? '不限量' : it.stock} · 已售 ${it.sold_count} · ${durText(it.duration_type, it.duration_days)}</span>
+        <span style="margin-left:auto;color:${it.enabled ? 'var(--ok)' : 'var(--faint)'}">${it.enabled ? '已上架' : '已下架'}</span>
+        <button class="btn sm ghost" data-iedit="${it.id}">编辑</button>
+        <button class="btn sm ghost" data-itoggle="${it.id}" data-ienabled="${it.enabled ? '1' : '0'}">${it.enabled ? '下架' : '上架'}</button>
+        <button class="btn sm danger" data-idel="${it.id}">删除</button>
+      </div>
+      <div style="color:var(--muted);font-size:12px;margin-top:5px">${escapeHtml(it.description || '')}</div>
+    </div>`).join('') || '<div class="empty">暂无商品</div>';
+    box.querySelectorAll('[data-iedit]').forEach((btn) => btn.addEventListener('click', () => {
+      const it = list.find((x) => x.id === btn.dataset.iedit); if (!it) return;
+      shopEditingId = it.id;
+      $('shopTitle').value = it.title; $('shopImage').value = it.image_url || ''; $('shopDesc').value = it.description || '';
+      $('shopCategory').value = it.category; $('shopPrice').value = it.price; $('shopStock').value = it.stock;
+      $('shopDurType').value = it.duration_type; $('shopDurDays').value = it.duration_days; $('shopSort').value = it.sort;
+      $('shopEnabled').checked = !!it.enabled; $('shopIsCustom').checked = !!it.is_custom;
+      $('shopFormTitle').textContent = '编辑商品'; $('shopCancel').classList.remove('hidden');
+      shopFx = null; shopSyncFx(it.template);
+      $('shopFormTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }));
+    box.querySelectorAll('[data-itoggle]').forEach((btn) => btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      try { await callEdge('admin_shop_toggle', { id: btn.dataset.itoggle, enabled: btn.dataset.ienabled !== '1' }); await loadShopAdmin(); }
+      catch (e) { alert(e.message); btn.disabled = false; }
+    }));
+    box.querySelectorAll('[data-idel]').forEach((btn) => btn.addEventListener('click', async () => {
+      if (!confirm('确认删除该商品？历史订单与积分流水会保留。')) return;
+      btn.disabled = true;
+      try { await callEdge('admin_shop_delete', { id: btn.dataset.idel }); await loadShopAdmin(); }
+      catch (e) { alert(e.message); btn.disabled = false; }
+    }));
+  }
+  async function loadShopOrders() {
+    const rows = (await callEdge('admin_shop_orders', {
+      from: $('shopOrderFrom').value, to: $('shopOrderTo').value,
+      status: $('shopOrderStatus').value, keyword: $('shopOrderKw').value.trim()
+    })) || [];
+    const box = $('shopOrderList');
+    box.innerHTML = rows.map((r) => `<div class="panel" style="box-shadow:none;padding:10px 12px;margin-bottom:8px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <b>${escapeHtml(r.item_snapshot?.title || '（商品已删除）')}</b>
+        <span class="badge topic">${ORDER_STATUS_LABELS[r.status] || r.status}</span>
+        <span style="color:var(--faint);font-size:12px">${escapeHtml(r.nickname || r.username || r.user_id)} · ${r.price} 积分 · ${formatTime(r.created_at)}</span>
+        ${r.balance_after != null ? `<span style="color:var(--faint);font-size:12px">余额 ${r.balance_after}</span>` : ''}
+        ${r.status === 'refunding' ? `<button class="btn sm" style="margin-left:auto" data-orefund="${r.id}" data-oapprove="1">通过退款</button><button class="btn sm ghost" data-orefund="${r.id}" data-oapprove="0">拒绝</button>` : ''}
+      </div></div>`).join('') || '<div class="empty">该条件下暂无兑换记录</div>';
+    box.querySelectorAll('[data-orefund]').forEach((btn) => btn.addEventListener('click', async () => {
+      const approve = btn.dataset.oapprove === '1';
+      if (!confirm(approve ? '确认通过退款？将按原价 80% 返还积分并收回权益。' : '确认拒绝该退款申请？')) return;
+      btn.disabled = true;
+      try { await callEdge('admin_shop_refund_handle', { order_id: btn.dataset.orefund, approve }); await loadShopOrders(); }
+      catch (e) { alert(e.message); btn.disabled = false; }
+    }));
+  }
+  async function loadShopLogs() {
+    const rows = (await callEdge('admin_coin_logs', {
+      keyword: $('shopLogKw').value.trim(), reason: $('shopLogReason').value,
+      from: $('shopLogFrom').value, to: $('shopLogTo').value
+    })) || [];
+    const box = $('shopLogList');
+    box.innerHTML = rows.map((r) => `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12px">
+      <b>${escapeHtml(r.nickname || r.username || r.user_id)}</b>
+      <span style="color:${Number(r.delta) >= 0 ? 'var(--ok)' : 'var(--faint)'}">${Number(r.delta) >= 0 ? '+' : ''}${r.delta}</span>
+      <span>${escapeHtml(COIN_REASON_LABELS[r.reason] || r.reason || '')}</span>
+      <span style="color:var(--faint)">余额 ${r.balance}</span>
+      <span style="margin-left:auto;color:var(--faint)">${formatTime(r.created_at)}</span>
+    </div>`).join('') || '<div class="empty">暂无积分流水</div>';
+  }
+  document.querySelectorAll('.shop-sub').forEach((b) => b.addEventListener('click', () => shopSub(b.dataset.shopsub)));
+  $('shopRefresh')?.addEventListener('click', async () => {
+    try {
+      await loadShopAdmin();
+      if (!$('shopPane-orders').classList.contains('hidden')) await loadShopOrders();
+      if (!$('shopPane-logs').classList.contains('hidden')) await loadShopLogs();
+    } catch (e) { alert(e.message); }
+  });
+  $('shopOrderLoad')?.addEventListener('click', () => loadShopOrders().catch((e) => alert(e.message)));
+  $('shopLogLoad')?.addEventListener('click', () => loadShopLogs().catch((e) => alert(e.message)));
+  $('shopCancel')?.addEventListener('click', shopResetForm);
+  attachUserPicker($('shopAdjustUser'), (u) => { shopAdjustUserId = u ? u.id : ''; });
+  attachUserPicker($('shopGrantUser'), (u) => { shopGrantUserId = u ? u.id : ''; });
+  $('shopGrantSource')?.addEventListener('change', () => shopGrantSyncSource());
+  $('shopGrantType')?.addEventListener('change', async () => {
+    if ($('shopGrantSource').value === 'item') await loadShopGrantItems();
+    shopGrantSyncFx();
+  });
+  $('shopGrantSave')?.addEventListener('click', async () => {
+    const type = $('shopGrantType').value;
+    const source = $('shopGrantSource').value;
+    if (!shopGrantUserId) { alert('请先搜索并选择目标用户'); return; }
+    const payload = {
+      user_id: shopGrantUserId, type,
+      duration_type: $('shopGrantDurType').value,
+      duration_days: Number($('shopGrantDurDays').value) || 0,
+      equip: $('shopGrantEquip').checked
+    };
+    if (source === 'item') {
+      const itemId = $('shopGrantItem').value;
+      if (!itemId) { alert('请选择要复用的商城商品（该分类暂无商品时请改用「现场配置特效」）'); return; }
+      payload.item_id = itemId;
+    } else {
+      payload.payload = shopGrantFx || fxBlank(SHOP_FX_KINDS[type]);
+      payload.label = $('shopGrantLabel').value.trim();
+    }
+    if (!confirm(`确认为选中用户分发「${SHOP_CAT_LABELS[type] || type}」？`)) return;
+    try { await callEdge('admin_grant_entitlement', payload); alert('分发成功'); }
+    catch (e) { alert(e.message); }
+  });
+  $('shopCategory')?.addEventListener('change', () => shopSyncFx());
+  $('shopSave')?.addEventListener('click', async () => {
+    const title = $('shopTitle').value.trim();
+    if (!title) { alert('请填写商品名称'); return; }
+    const category = $('shopCategory').value;
+    // 特效类商品：外观配置来自可视化配置器；补签卡固定；其余无需模板
+    let template = null;
+    if (SHOP_FX_KINDS[category]) template = shopFx || fxBlank(SHOP_FX_KINDS[category]);
+    else if (category === 'makeup_card') template = { card: 'makeup' };
+    const payload = {
+      id: shopEditingId || undefined, title,
+      description: $('shopDesc').value.trim(), image_url: $('shopImage').value.trim(),
+      category: $('shopCategory').value, price: Number($('shopPrice').value) || 0,
+      stock: Number($('shopStock').value), duration_type: $('shopDurType').value,
+      duration_days: Number($('shopDurDays').value) || 0, sort: Number($('shopSort').value) || 0,
+      enabled: $('shopEnabled').checked, is_custom: $('shopIsCustom').checked, template
+    };
+    try { await callEdge('admin_shop_save', payload); shopResetForm(); await loadShopAdmin(); }
+    catch (e) { alert(e.message); }
+  });
+  document.querySelectorAll('[data-shoptpl]').forEach((b) => b.addEventListener('click', async () => {
+    if (!confirm('一键添加该分类的模板商品？（默认下架，需调整后手动上架）')) return;
+    try { await callEdge('admin_shop_template', { category: b.dataset.shoptpl }); await loadShopAdmin(); }
+    catch (e) { alert(e.message); }
+  }));
+  $('shopAdjustSave')?.addEventListener('click', async () => {
+    const delta = Math.floor(Number($('shopAdjustDelta').value) || 0);
+    const reason = $('shopAdjustReason').value.trim();
+    if (!shopAdjustUserId) { alert('请先搜索并选择用户'); return; }
+    if (!delta) { alert('调整数值不能为 0'); return; }
+    if (!reason) { alert('必须填写调整原因'); return; }
+    if (!confirm(`确认对选中用户${delta > 0 ? '补发' : '扣减'} ${Math.abs(delta)} 积分？`)) return;
+    try {
+      const r = await callEdge('admin_coins_adjust', { user_id: shopAdjustUserId, delta, reason });
+      alert(`调整成功，当前余额 ${r.balance} 积分`);
+      $('shopAdjustDelta').value = ''; $('shopAdjustReason').value = '';
+    } catch (e) { alert(e.message); }
+  });
+
+  // ================= 第四期：活动中心管理（can_event） =================
+  let eventEditingId = null;
+  const EVENT_MODE_LABELS = { lottery: '抽奖', likes: '点赞排行', favorites: '收藏排行', comments: '评论排行' };
+  const EVENT_STATUS_LABELS = { draft: '草稿', ongoing: '进行中', ended: '已结束', pending_confirm: '待二次确认', settled: '已结算' };
+
+  function toLocalInput(iso) {
+    if (!iso) return '';
+    const d = new Date(iso); const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  function showModal(title, html) {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px';
+    ov.innerHTML = `<div class="panel" style="max-width:640px;width:100%;max-height:80vh;overflow:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><h3 style="margin:0">${escapeHtml(title)}</h3><button class="btn ghost sm" data-close>关闭</button></div>
+      <div>${html}</div></div>`;
+    ov.addEventListener('click', (e) => { if (e.target === ov || e.target.closest('[data-close]')) ov.remove(); });
+    document.body.appendChild(ov);
+  }
+  function eventResetForm() {
+    eventEditingId = null;
+    ['eventTitle', 'eventCover', 'eventIntro', 'eventRules'].forEach((id) => { $(id).value = ''; });
+    $('eventMode').value = 'lottery'; $('eventStatus').value = 'draft';
+    $('eventStart').value = ''; $('eventEnd').value = '';
+    ['eventRequireSignup', 'eventAnon', 'eventAutoSettle', 'eventRuleCfgEnabled'].forEach((id) => { $(id).checked = false; });
+    $('eventFormTitle').textContent = '新建活动';
+    $('eventCancel').classList.add('hidden');
+    void renderEventForm('lottery', null, null);
+  }
+  async function loadEventAdmin() {
+    // 首次进入活动 Tab 时初始化可视化配置表单（已在编辑中的内容不会被覆盖）
+    if (!eventRuleEditor || !eventRewardEditor) await renderEventForm($('eventMode').value || 'lottery', null, null);
+    const list = (await callEdge('admin_event_list', {})) || [];
+    const box = $('eventList');
+    box.innerHTML = list.map((e) => {
+      const base = ['draft', 'ongoing', 'ended'];
+      const opts = (base.includes(e.status) ? [] : [`<option value="${e.status}" selected>${EVENT_STATUS_LABELS[e.status] || e.status}</option>`])
+        .concat(base.map((s) => `<option value="${s}" ${e.status === s ? 'selected' : ''}>${EVENT_STATUS_LABELS[s]}</option>`)).join('');
+      return `<div class="panel" style="box-shadow:none;padding:10px 12px;margin-bottom:8px">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <b>${escapeHtml(e.title)}</b>
+          <span class="badge topic">${EVENT_MODE_LABELS[e.mode] || e.mode}</span>
+          <span class="badge">${EVENT_STATUS_LABELS[e.status] || e.status}</span>
+          <span style="color:var(--faint);font-size:12px">${e.start_at ? formatTime(e.start_at) : '未设开始'} ~ ${e.end_at ? formatTime(e.end_at) : '未设结束'}</span>
+          <span style="color:var(--faint);font-size:12px">报名 ${e.signup_count} · 已发奖 ${e.granted_count}</span>
+          ${e.require_signup ? '<span class="badge topic">需报名</span>' : ''}
+          ${e.auto_settle ? '<span class="badge topic">自动结算</span>' : ''}
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px">
+          <select class="input" data-estatus="${e.id}" style="width:120px">${opts}</select>
+          <button class="btn sm ghost" data-esignups="${e.id}">报名名单</button>
+          <button class="btn sm ghost" data-epreview="${e.id}">预览结果</button>
+          ${e.mode !== 'lottery' && e.status === 'ended' ? `<button class="btn sm" data-econfirm="${e.id}">管理员确认结算</button>` : ''}
+          ${profile?.isFounder && e.status === 'pending_confirm' ? `<button class="btn sm" data-efounder="${e.id}">创始人二次确认</button>` : ''}
+          <button class="btn sm ghost" data-eedit="${e.id}">编辑</button>
+          <button class="btn sm danger" data-edel="${e.id}">删除</button>
+        </div>
+        <div style="color:var(--muted);font-size:12px;margin-top:5px">${escapeHtml(e.intro || '')}</div>
+      </div>`;
+    }).join('') || '<div class="empty">暂无活动</div>';
+
+    box.querySelectorAll('[data-estatus]').forEach((sel) => sel.addEventListener('change', async () => {
+      sel.disabled = true;
+      try { await callEdge('admin_event_status', { id: sel.dataset.estatus, status: sel.value }); await loadEventAdmin(); }
+      catch (e) { alert(e.message); sel.disabled = false; }
+    }));
+    box.querySelectorAll('[data-eedit]').forEach((btn) => btn.addEventListener('click', async () => {
+      const e = list.find((x) => x.id === btn.dataset.eedit); if (!e) return;
+      eventEditingId = e.id;
+      $('eventTitle').value = e.title; $('eventCover').value = e.cover_url || '';
+      $('eventMode').value = e.mode; $('eventStatus').value = ['draft', 'ongoing', 'ended'].includes(e.status) ? e.status : 'draft';
+      $('eventStart').value = toLocalInput(e.start_at); $('eventEnd').value = toLocalInput(e.end_at);
+      $('eventIntro').value = e.intro || ''; $('eventRules').value = e.rules || '';
+      $('eventRequireSignup').checked = !!e.require_signup; $('eventAnon').checked = !!e.anonymous_allowed;
+      $('eventAutoSettle').checked = !!e.auto_settle; $('eventRuleCfgEnabled').checked = !!e.rule_config_enabled;
+      await renderEventForm(e.mode, e.rule_config, e.reward_config);
+      $('eventFormTitle').textContent = '编辑活动'; $('eventCancel').classList.remove('hidden');
+      $('eventFormTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }));
+    box.querySelectorAll('[data-edel]').forEach((btn) => btn.addEventListener('click', async () => {
+      if (!confirm('确认删除该活动？已结算并发放奖励的活动不可删除。')) return;
+      btn.disabled = true;
+      try { await callEdge('admin_event_delete', { id: btn.dataset.edel }); await loadEventAdmin(); }
+      catch (e) { alert(e.message); btn.disabled = false; }
+    }));
+    box.querySelectorAll('[data-esignups]').forEach((btn) => btn.addEventListener('click', async () => {
+      try {
+        const d = await callEdge('admin_event_signups', { id: btn.dataset.esignups });
+        const rows = (d?.list || []).map((r) => `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12px">
+          <b>${escapeHtml(r.nickname || r.username || r.user_id)}</b>
+          <span style="color:var(--faint)">${formatTime(r.created_at)}</span>
+          <span style="margin-left:auto;color:var(--faint)">${r.lottery ? '已抽奖：' + escapeHtml(r.lottery.prize || '未中奖') : '未抽奖'}</span>
+        </div>`).join('');
+        showModal(`报名名单（${d?.count || 0} 人）`, rows || '<div class="empty">暂无报名</div>');
+      } catch (e) { alert(e.message); }
+    }));
+    box.querySelectorAll('[data-epreview]').forEach((btn) => btn.addEventListener('click', async () => {
+      try {
+        const d = await callEdge('admin_event_preview', { id: btn.dataset.epreview });
+        let html = '';
+        if (d.mode === 'lottery') {
+          html = (d.prizes || []).map((p) => `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12px"><b>${escapeHtml(p.name)}</b><span style="color:var(--faint)">数量 ${p.qty} · 已抽 ${p.drawn} · 权重 ${p.weight}</span></div>`).join('');
+          html += `<div style="margin-top:8px;color:var(--faint);font-size:12px">未中奖次数：${d.no_prize_count}</div>`;
+        } else {
+          html = (d.proposed || []).map((p) => `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12px"><b>第 ${p.rank} 名</b><span>${escapeHtml(p.nickname || p.user_id)}</span><span style="margin-left:auto;color:var(--faint)">+${p.coins} 积分${p.xp ? ' · +' + p.xp + ' 经验' : ''}</span></div>`).join('') || '<div class="empty">暂无排行数据</div>';
+        }
+        showModal('结算预览', html);
+      } catch (e) { alert(e.message); }
+    }));
+    box.querySelectorAll('[data-econfirm]').forEach((btn) => btn.addEventListener('click', async () => {
+      if (!confirm('确认按当前排行拟定获奖名单？之后需创始人二次确认才会真正发奖。')) return;
+      btn.disabled = true;
+      try { await callEdge('admin_event_confirm', { id: btn.dataset.econfirm }); alert('已提交，等待创始人二次确认'); await loadEventAdmin(); }
+      catch (e) { alert(e.message); btn.disabled = false; }
+    }));
+    box.querySelectorAll('[data-efounder]').forEach((btn) => btn.addEventListener('click', async () => {
+      if (!confirm('确认结算并发放奖励？此操作不可撤销。')) return;
+      btn.disabled = true;
+      try { const r = await callEdge('admin_event_founder_confirm', { id: btn.dataset.efounder }); alert(`已结算，共发放 ${r.granted} 名奖励`); await loadEventAdmin(); }
+      catch (e) { alert(e.message); btn.disabled = false; }
+    }));
+  }
+  $('eventRefresh')?.addEventListener('click', () => loadEventAdmin().catch((e) => alert(e.message)));
+  $('eventCancel')?.addEventListener('click', eventResetForm);
+  // 玩法切换：抽奖 ↔ 排行类的奖励结构不同，跨类型重置为默认，同类型保留已填内容
+  $('eventMode')?.addEventListener('change', async () => {
+    const E = EC(); if (!E) return;
+    const next = $('eventMode').value;
+    const keep = !!(eventRewardEditor && eventRewardMode) && ((eventRewardMode === 'lottery') === (next === 'lottery'));
+    const seed = keep ? eventRewardEditor.get() : null;
+    E.setBadges(await ensureEventBadges());
+    eventRewardEditor = E.reward($('eventRewardCfgHost'), next, seed, null);
+    eventRewardMode = next;
+  });
+  $('eventSave')?.addEventListener('click', async () => {
+    const title = $('eventTitle').value.trim();
+    if (!title) { alert('请填写活动标题'); return; }
+    const mode = $('eventMode').value;
+    const rule_config = eventRuleEditor ? eventRuleEditor.get() : null;
+    const reward_config = eventRewardEditor ? eventRewardEditor.get() : null;
+    if (mode === 'lottery' && !reward_config) {
+      alert('抽奖活动至少需要一个有效奖品：请填写奖品名称，并给「权重」填一个大于 0 的数值。');
+      return;
+    }
+    const payload = {
+      id: eventEditingId || undefined, title,
+      intro: $('eventIntro').value.trim(), rules: $('eventRules').value.trim(),
+      cover_url: $('eventCover').value.trim(), mode,
+      start_at: $('eventStart').value, end_at: $('eventEnd').value, status: $('eventStatus').value,
+      require_signup: $('eventRequireSignup').checked, anonymous_allowed: $('eventAnon').checked,
+      auto_settle: $('eventAutoSettle').checked, rule_config_enabled: $('eventRuleCfgEnabled').checked,
+      rule_config, reward_config
+    };
+    try { await callEdge('admin_event_save', payload); eventResetForm(); await loadEventAdmin(); }
+    catch (e) { alert(e.message); }
+  });
 
   // ---------- 启动 ----------
   function boot() {

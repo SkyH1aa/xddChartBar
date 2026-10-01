@@ -42,6 +42,19 @@
   }
   function formatCount(n) { n = Number(n) || 0; return n > 9999 ? '9999+' : String(n); }
   const SAFE_WORDS = ['牛奶', '奶茶', '奶酪', '奶牛', '酸奶', '奶粉', '奶昔', '奶嘴', '奶奶', '奶油', '蜜奶'] // 误伤豁免词，可按需增删
+  // 纯数字词条必须整体成词才算命中，避免正常数字（如「共64人」）被误判
+  function numericWordHit(lower, sl) {
+    if (!/^\d+$/.test(sl)) return lower.includes(sl);
+    let from = 0;
+    for (;;) {
+      const i = lower.indexOf(sl, from);
+      if (i < 0) return false;
+      const b = i > 0 ? lower[i - 1] : '';
+      const a = i + sl.length < lower.length ? lower[i + sl.length] : '';
+      if (!/\d/.test(b) && !/\d/.test(a)) return true;
+      from = i + 1;
+    }
+  }
   function sensitiveHits(text) {
     if (!text) return [];
     const words = window.NEWTHEBA_SENSITIVE_WORDS || [];
@@ -50,7 +63,7 @@
       const s = String(w || '').trim();
       if (!s) continue;
       const sl = s.toLowerCase();
-      if (!lower.includes(sl)) continue;
+      if (!numericWordHit(lower, sl)) continue;
       // 命中词被某个“更长”的豁免词完整包裹则不算违规（如单字“奶”被“牛奶”豁免）
       if (SAFE_WORDS.some((sw) => sw.length > s.length && sw.includes(s) && lower.includes(sw.toLowerCase()))) continue;
       if (found.indexOf(s) === -1) found.push(s);
@@ -81,6 +94,58 @@
   // 提交时取本输入框真正 @ 绑定到的用户（与主论坛共用 mentions.js）
   function mentionPick(el) {
     try { return (el && window.XddMentions) ? XddMentions.collect(el) : []; } catch (_e) { return []; }
+  }
+
+  // ---------------- 内置特效引擎桥接（public/effects.js） ----------------
+  // 称号 / 昵称样式 / 帖子背景 / 徽章 全部由内置网页特效渲染（不使用图片）
+  const FX = () => (window.XddFx || null);
+  const colAuthorFx = {};   // author_id -> { titles:[], nickname_style, background, badges:[] }
+  function fxOf(id) { return (id && colAuthorFx[id]) || null; }
+  function fxTitleHtml(cfg) {
+    const F = FX(); if (!F || !cfg) return '';
+    try { return F.titleHtml(cfg); } catch (_e) { return ''; }
+  }
+  function fxNickInner(cfg, innerHtml) {
+    const F = FX(); if (!F || !cfg) return innerHtml;
+    try {
+      const c = F.normalize('nickname_style', cfg);
+      return `<span class="${F.classes('nickname_style', c).join(' ')}" style="${escapeHtml(F.styleAttr('nickname_style', c))}">${innerHtml}</span>`;
+    } catch (_e) { return innerHtml; }
+  }
+  function fxBadgeHtml(cfg, name) {
+    const F = FX(); if (!F || !cfg) return '';
+    try { const c = F.normalize('badge', cfg); c.name = name || ''; return F.badgeHtml(c); } catch (_e) { return ''; }
+  }
+  function fxBgParts(cfg) {
+    const F = FX(); if (!F || !cfg) return { cls: '', style: '', layers: '' };
+    try {
+      const c = F.normalize('background', cfg);
+      return { cls: ' fx-bg ' + F.classes('background', c).join(' '), style: F.styleAttr('background', c), layers: F.bgLayers() };
+    } catch (_e) { return { cls: '', style: '', layers: '' }; }
+  }
+  function fxChips(badges) {
+    return (badges || []).map((b) => {
+      const fx = fxBadgeHtml(b.effect, b.name);
+      return `<span class="badge-chip" title="${escapeHtml(b.name || '')}">${fx || (b.icon_url
+        ? `<img src="${escapeHtml(b.icon_url)}" alt="" />` : '<i>🏅</i>')}</span>`;
+    }).join('');
+  }
+  // 拉取这批作者的装扮与徽章（失败不影响帖子渲染）
+  async function loadAuthorFx(ids) {
+    const need = Array.from(new Set((ids || []).filter((x) => x && !colAuthorFx[x])));
+    if (!need.length) return;
+    need.forEach((id) => { colAuthorFx[id] = { titles: [], nickname_style: null, background: null, badges: [] }; });
+    try {
+      const [wear, badges] = await Promise.all([
+        callEdge('wear_showcase', { user_ids: need }).catch(() => null),
+        callEdge('badge_showcase', { user_ids: need, limit: 3 }).catch(() => null)
+      ]);
+      if (wear) Object.keys(wear).forEach((id) => {
+        const w = wear[id] || {}; const slot = colAuthorFx[id]; if (!slot) return;
+        slot.titles = w.titles || []; slot.nickname_style = w.nickname_style || null; slot.background = w.background || null;
+      });
+      if (badges) Object.keys(badges).forEach((id) => { if (colAuthorFx[id]) colAuthorFx[id].badges = badges[id] || []; });
+    } catch (_e) { /* 特效加载失败不影响专栏渲染 */ }
   }
 
   function readSession() {
@@ -481,6 +546,7 @@
     try {
       const posts = await callEdge('col_feed', { column_id: activeCol.id, page: colState.page, page_size: PAGE_SIZE });
       colState.posts = posts;
+      await loadAuthorFx(posts.map((p) => p.author_id));
       // activeCol.post_count 是进入专栏时取的快照，发帖后不会自增；分页与计数统一以
       // 「快照值」和「本页实际取到的条数」的较大者为准，避免刚发完帖仍显示 0 帖。
       colState.total = Math.max(Number(activeCol.post_count) || 0, (colState.page - 1) * PAGE_SIZE + posts.length);
@@ -529,8 +595,16 @@
   }
 
   function renderColPost(p) {
-    const light = (Number(p.author_level) || 0) >= 45 ? ' lightfx-card' : '';
-    const muted = activeColRole.muted;
+    const fx = fxOf(p.author_id);
+    const hasBg = !!(fx && fx.background);
+    // 等级专属光效（风云学长 / 校史留名）：装备了购买的帖子背景后自动让位（互斥）
+    const light = !hasBg && (Number(p.author_level) || 0) >= 45 ? ' lightfx-card' : '';
+    const bg = hasBg ? fxBgParts(fx.background) : { cls: '', style: '', layers: '' };
+    const isAnon = !p.nickname;
+    const nickHtml = escapeHtml(p.nickname || '匿名');
+    const nickRendered = (!isAnon && fx && fx.nickname_style) ? fxNickInner(fx.nickname_style, nickHtml) : nickHtml;
+    const titleChips = (!isAnon && fx) ? (fx.titles || []).slice(0, 3).map((t) => fxTitleHtml(t)).join('') : '';
+    const badgeChips = isAnon ? '' : fxChips(fx && fx.badges);
     const pin = p.pinned ? '<span class="badge pinned">置顶</span> ' : '';
     const own = p.is_owner;
     const mgmt = canManageCol() || own ? `
@@ -538,10 +612,12 @@
         ${own ? `<button class="tiny-btn" data-ep="${p.id}">编辑</button>` : ''}
         ${canManageCol() || own ? `<button class="tiny-btn danger" data-dp="${p.id}">删除</button>` : ''}</div>` : '';
     return `
-      <div class="post-card${p.pinned ? ' pinned-post' : ''}${light}" data-post="${p.id}">
+      <div class="post-card${p.pinned ? ' pinned-post' : ''}${light}${bg.cls}" style="${escapeHtml(bg.style)}" data-post="${p.id}">
+        ${bg.layers}
         ${pin}<span class="badge topic">专栏帖</span>
         <div class="post-head">
-          <span class="nickname" data-openprofile="${p.author_id || ''}">${escapeHtml(p.nickname || '匿名')}</span>
+          <span class="nickname" data-openprofile="${p.author_id || ''}">${nickRendered}</span>
+          ${titleChips}${badgeChips}
           ${levelBadgeHtml(p.author_level)}
           <span class="post-time">${formatTime(p.created_at)}</span>
         </div>
@@ -613,6 +689,7 @@
     try {
       const list = await callEdge('col_comment_list', { post_id: postId });
       openComments[postId] = { list, loaded: true };
+      await loadAuthorFx(list.map((c) => c.author_id));
       const post = colState.posts.find((p) => p.id === postId);
       renderCommentsBox(postId, box, list, post);
     } catch (e) { box.innerHTML = `<div class="empty">加载失败：${escapeHtml(e.message)}</div>`; }
@@ -625,12 +702,19 @@
       box.innerHTML = list.map((c) => {
         const parent = c.parent_id ? byId[c.parent_id] : null;
         const own = c.is_owner;
+        const cfx = fxOf(c.author_id);
+        const cAnon = !c.nickname;
+        const cnHtml = escapeHtml(c.nickname || '匿名');
+        const cnRendered = (!cAnon && cfx && cfx.nickname_style) ? fxNickInner(cfx.nickname_style, cnHtml) : cnHtml;
+        const cTitles = (!cAnon && cfx) ? (cfx.titles || []).slice(0, 3).map((t) => fxTitleHtml(t)).join('') : '';
+        const cBadges = cAnon ? '' : fxChips(cfx && cfx.badges);
         const mgmt = (own || canManageCol()) ? `
           <div class="own-acts">${own ? `<button class="tiny-btn" data-ec="${c.id}">编辑</button>` : ''}
           <button class="tiny-btn danger" data-dc="${c.id}">删除</button></div>` : '';
         return `<div class="cmt-item" data-comment="${c.id}">
           <div class="cmt-head">
-            <span class="nickname" data-openprofile="${c.author_id || ''}">${escapeHtml(c.nickname || '匿名')}</span>
+            <span class="nickname" data-openprofile="${c.author_id || ''}">${cnRendered}</span>
+            ${cTitles}${cBadges}
             ${levelBadgeHtml(c.author_level)}
             ${parent ? `<span class="cmt-replyto">回复 @${escapeHtml(parent.nickname || '匿名')}</span>` : ''}
             <span class="cmt-time">${formatTime(c.created_at)}</span>
