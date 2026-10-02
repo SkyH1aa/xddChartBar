@@ -11,12 +11,45 @@
    ========================================================================== */
 
 /* ---------- 帖子背景 ---------- */
-.fx-bg { position: relative; overflow: hidden; isolation: isolate; }
+.fx-bg { position: relative; overflow: visible; isolation: isolate; }
 .fx-bg > .fx-l {
-  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
   background-repeat: repeat; opacity: var(--fx-int, .65);
 }
-.fx-bg > .fx-l.fx-l-anim { background-repeat: no-repeat; background-size: 200% 200%; }
+.fx-bg > .fx-l.fx-l-pat,
+.fx-bg > .fx-l.fx-l-ovl,
+.fx-bg > .fx-l.fx-l-anim,
+.fx-bg > .fx-l.fx-l-mo,
+.fx-bg > .fx-l.fx-l-halo,
+.fx-bg > .fx-l.fx-l-vig { border-radius: inherit; overflow: hidden; }
+.fx-bg > .fx-l.fx-l-cor { overflow: visible; }
+.fx-bg > .fx-l.fx-l-anim,
+.fx-bg > .fx-l.fx-l-mo { background-repeat: no-repeat; background-size: 200% 200%; }
+.fx-bg > .fx-l.fx-l-pat { z-index: 0; }
+.fx-bg > .fx-l.fx-l-ovl { z-index: 1; }
+.fx-bg > .fx-l.fx-l-anim,
+.fx-bg > .fx-l.fx-l-mo { z-index: 2; }
+.fx-bg > .fx-l.fx-l-halo { z-index: 3; }
+.fx-bg > .fx-l.fx-l-cor { z-index: 4; }
+.fx-bg > .fx-l.fx-l-vig { z-index: 5; }
+.fx-bg > :not(.fx-l) { position: relative; z-index: 6; }
+.fx-bg::after { z-index: 5; }
+.fx-bg.fx-has-vig > .fx-l { z-index: auto; }
+.fx-bg.fx-has-vig::after { z-index: 5; }
+
+/* 角饰：4 个独立子元素，各自贴一个角并按角位旋转。
+   用独立元素（而不是 4 层 background-position）的原因：只有独立元素才能用
+   clip-path / border / transform 画出「星形角标 / 金属包角 / 缎带角」这类真实形状，
+   单靠背景渐变最多只能画出圆点，这正是角饰看起来「只有几个圈」的原因。 */
+.fx-l-cor > i {
+  position: absolute; width: var(--fx-cor-s, 18px); height: var(--fx-cor-s, 18px);
+  pointer-events: none; background-repeat: no-repeat; background-position: center;
+  background-size: contain; opacity: 1;
+}
+.fx-l-cor > i:nth-child(1) { left: 0; top: 0; }
+.fx-l-cor > i:nth-child(2) { right: 0; top: 0; transform: rotate(90deg); }
+.fx-l-cor > i:nth-child(3) { right: 0; bottom: 0; transform: rotate(180deg); }
+.fx-l-cor > i:nth-child(4) { left: 0; bottom: 0; transform: rotate(270deg); }
 .fx-bg::after {
   content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
 }

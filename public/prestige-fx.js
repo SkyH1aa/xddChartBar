@@ -205,92 +205,92 @@
   "moroccan": "background-image: linear-gradient(60deg, transparent 0 30%, rgba(255,215,150,.10) 30% 70%, transparent 70%), linear-gradient(120deg, transparent 0 30%, rgba(255,215,150,.10) 30% 70%, transparent 70%); background-size:30px 38px;"
  },
  "gw": {
-  "outer": "box-shadow: 0 0 24px -2px var(--fx-c2), 0 8px 30px rgba(0,0,0,.5);",
-  "outer2": "box-shadow: 0 0 18px var(--fx-c2), 0 0 40px -4px var(--fx-c2), 0 8px 30px rgba(0,0,0,.5);",
-  "inner": "box-shadow: inset 0 0 50px -10px var(--fx-c2);",
-  "both": "box-shadow: 0 0 24px -2px var(--fx-c2), inset 0 0 30px -8px var(--fx-c2);",
-  "soft": "box-shadow: 0 6px 40px -6px var(--fx-c2);",
-  "softwide": "box-shadow: 0 10px 60px -10px var(--fx-c2);",
-  "tight": "box-shadow: 0 0 10px 2px var(--fx-c2);",
-  "breath": "animation: pfGwBreath 3.5s ease-in-out infinite;",
-  "breathslow": "animation: pfGwBreath 6s ease-in-out infinite;",
-  "pulse": "animation: pfGwPulse 2.2s ease-out infinite;",
-  "pulse2": "animation: pfGwPulse2 2.6s ease-out infinite;",
-  "sonar": "animation: pfGwSonar 3s ease-out infinite;",
-  "neon": "box-shadow: 0 0 6px var(--fx-c2), 0 0 18px var(--fx-c2), 0 0 46px var(--fx-c2);",
-  "neonflick": "animation: pfGwFlick 8s infinite;",
-  "buzzing": "animation: pfGwBuzz 3s infinite;",
-  "rainbow": "animation: pfGwRainbow 4s linear infinite;",
-  "rainbowslow": "animation: pfGwRainbow 8s linear infinite;",
-  "aurora": "background-image: radial-gradient(circle at 20% 0%, color-mix(in srgb,var(--fx-c2) 12%,transparent), transparent 60%), radial-gradient(circle at 85% 100%, color-mix(in srgb,var(--fx-c2) 10%,transparent), transparent 55%);",
-  "spot": "box-shadow: 0 -10px 50px -15px var(--fx-c2);",
-  "volumetric": "box-shadow: 0 0 60px -10px var(--fx-c2), inset 0 0 40px -20px var(--fx-c2);",
-  "bloom": "box-shadow: 0 0 20px var(--fx-c2), 0 0 60px -10px var(--fx-c2);",
-  "bloomsoft": "box-shadow: 0 0 30px -6px var(--fx-c2), 0 0 80px -20px var(--fx-c2);",
-  "glowup": "animation: pfGwUp 2.5s ease-in-out infinite alternate;",
-  "glowdown": "animation: pfGwDown 2.5s ease-in-out infinite alternate;",
-  "shimmer": "animation: pfGwShim 4s ease-in-out infinite;",
-  "sparkle": "animation: pfGwSpark 5s ease-in-out infinite;",
-  "fairy": "animation: pfGwFairy 6s ease-in-out infinite;",
-  "halo": "box-shadow: 0 0 30px 4px var(--fx-c2), inset 0 0 20px var(--fx-c2);",
-  "halorot": "animation: pfGwHaloRot 6s linear infinite;",
-  "ringglow": "box-shadow: 0 0 0 1px var(--fx-c2), 0 0 24px -2px var(--fx-c2);",
-  "shadowcore": "box-shadow: inset 0 0 40px 4px rgba(0,0,0,.5), 0 0 30px -6px var(--fx-c2);",
-  "underglow": "box-shadow: 0 20px 40px -10px var(--fx-c2);",
-  "topglow": "box-shadow: 0 -20px 40px -10px var(--fx-c2);",
-  "sides": "box-shadow: -16px 0 40px -16px var(--fx-c2), 16px 0 40px -16px var(--fx-c2);",
-  "fire": "box-shadow: 0 0 24px -2px #ff5722, 0 0 50px -10px #ff9800;",
-  "ice": "box-shadow: 0 0 28px -2px #80deea, inset 0 0 20px -4px #b2ebf2;",
-  "magic": "box-shadow: 0 0 26px -2px #ce93d8, 0 0 50px -12px #ba68c8;",
-  "electric": "box-shadow: 0 0 12px #00e5ff, 0 0 30px #00bcd4, inset 0 0 12px #00e5ff;",
-  "plasma": "box-shadow: 0 0 22px -2px #b388ff, 0 0 50px -10px #7c4dff;",
-  "laser": "box-shadow: 0 0 4px var(--fx-c2), 0 0 14px var(--fx-c2), 0 0 32px var(--fx-c2);",
-  "energy": "box-shadow: 0 0 20px -2px var(--fx-c2), inset 0 0 16px -4px var(--fx-c2); animation: pfGwBreath 3s ease-in-out infinite;",
-  "energyflow": "animation: pfGwFlow 3s ease-in-out infinite alternate;",
-  "core": "box-shadow: inset 0 0 20px 4px var(--fx-c2), 0 0 30px -4px var(--fx-c2);",
-  "gridglow": "box-shadow: 0 0 30px -6px var(--fx-c2); filter: drop-shadow(0 0 6px var(--fx-c2));",
-  "matrixglow": "box-shadow: 0 0 24px -2px #00ff96;",
-  "glitch": "animation: pfGwGlitch 3s infinite;",
-  "glitchrgb": "box-shadow: -3px 0 0 rgba(255,0,80,.5), 3px 0 0 rgba(0,200,255,.5);",
-  "scan": "animation: pfGwScan 6s linear infinite;",
-  "scanline": "box-shadow: inset 0 0 0 1px var(--fx-c2);",
-  "crt": "box-shadow: inset 0 0 60px rgba(0,0,0,.5);",
-  "hologram": "box-shadow: 0 0 24px -2px var(--fx-c2), inset 0 0 24px -6px var(--fx-c2); animation: pfGwHolo 5s ease-in-out infinite;",
-  "hologrid": "box-shadow: 0 0 24px -4px var(--fx-c2); filter: drop-shadow(0 0 4px var(--fx-c2));",
-  "morph": "animation: pfGwMorph 8s ease-in-out infinite;",
-  "wobble": "animation: pfGwWobble 4s ease-in-out infinite;",
-  "strobe": "animation: pfGwStrobe 2s steps(2) infinite;",
-  "flicker": "animation: pfGwFlicker 4s infinite;",
-  "ember": "box-shadow: 0 0 20px -4px #ff6d00, 0 0 40px -12px #ff3d00;",
-  "sunset": "box-shadow: 0 0 40px -10px #ff7043, 0 -10px 50px -16px #ffab40;",
-  "dawn": "box-shadow: 0 0 40px -12px #ff8a80, 0 0 60px -18px #ffd180;",
-  "golden": "box-shadow: 0 0 30px -6px #ffd54f;",
-  "silver": "box-shadow: 0 0 30px -6px #cfd8dc;",
-  "iridescent": "box-shadow: 0 0 24px -2px var(--fx-c2); animation: pfGwIridescent 5s linear infinite;",
-  "oil": "box-shadow: 0 0 24px -4px var(--fx-c2); animation: pfGwOil 6s linear infinite;",
-  "soap": "box-shadow: 0 0 30px -6px var(--fx-c2); animation: pfGwSoap 7s ease-in-out infinite;",
-  "prism": "box-shadow: -4px 0 12px rgba(255,0,80,.5), 4px 0 12px rgba(0,150,255,.5);",
-  "chroma": "box-shadow: 0 0 14px var(--fx-c2); animation: pfGwChroma 5s linear infinite;",
-  "ambient": "box-shadow: 0 8px 40px -8px var(--fx-c2);",
-  "ambientsm": "box-shadow: 0 6px 30px -10px var(--fx-c2);",
-  "refract": "box-shadow: 0 0 20px -4px var(--fx-c2); filter: blur(.2px);",
-  "reflect": "box-shadow: inset 0 -20px 40px -20px var(--fx-c2), 0 10px 30px -10px var(--fx-c2);",
-  "shadow": "box-shadow: 0 12px 30px -8px rgba(0,0,0,.6);",
-  "shadowdeep": "box-shadow: 0 20px 50px -10px rgba(0,0,0,.7);",
-  "shadowlong": "box-shadow: 20px 20px 40px -10px rgba(0,0,0,.6);",
-  "layered": "box-shadow: 0 0 10px var(--fx-c2), 0 0 26px -2px var(--fx-c2), 0 0 50px -10px var(--fx-c2), inset 0 0 16px -4px var(--fx-c2);",
-  "comet": "animation: pfGwComet 6s ease-in-out infinite;",
-  "flare": "box-shadow: 0 0 60px 4px var(--fx-c2), 0 0 120px -10px var(--fx-c2);",
-  "dust": "box-shadow: 0 0 40px -10px var(--fx-c2);",
-  "starlight": "box-shadow: 0 0 20px -2px var(--fx-c2), inset 0 0 10px -2px #fff;",
-  "sunbeam": "box-shadow: 0 -20px 60px -16px var(--fx-c2);",
-  "lunar": "box-shadow: 0 0 40px -10px #cfd8dc, inset 0 0 20px -6px #eceff1;",
-  "twilight": "box-shadow: 0 0 40px -10px #b39ddb, 0 0 60px -18px #f48fb1;",
-  "polar": "box-shadow: 0 0 40px -10px var(--fx-c2); animation: pfGwPolar 6s linear infinite;",
-  "candle": "box-shadow: 0 0 20px -4px #ffb74d; animation: pfGwFlicker 3s infinite;",
-  "torch": "box-shadow: 0 0 26px -4px #ff8a65, 0 0 50px -12px #ff5722;",
-  "lamp": "box-shadow: 0 0 30px -6px #ffe082;",
-  "dreame": "box-shadow: 0 0 40px -12px #ea80fc, 0 0 60px -20px #b388ff;"
+  "outer": "box-shadow: 0 0 24px -2px var(--fx-c2), 0 8px 30px rgba(0,0,0,.5)",
+  "outer2": "box-shadow: 0 0 18px var(--fx-c2), 0 0 40px -4px var(--fx-c2), 0 8px 30px rgba(0,0,0,.5)",
+  "inner": "box-shadow: inset 0 0 50px -10px var(--fx-c2)",
+  "both": "box-shadow: 0 0 24px -2px var(--fx-c2), inset 0 0 30px -8px var(--fx-c2)",
+  "soft": "box-shadow: 0 6px 40px -6px var(--fx-c2)",
+  "softwide": "box-shadow: 0 10px 60px -10px var(--fx-c2)",
+  "tight": "box-shadow: 0 0 10px 2px var(--fx-c2)",
+  "breath": "animation: pfGwBreath 3.5s ease-in-out infinite",
+  "breathslow": "animation: pfGwBreath 6s ease-in-out infinite",
+  "pulse": "animation: pfGwPulse 2.2s ease-out infinite",
+  "pulse2": "animation: pfGwPulse2 2.6s ease-out infinite",
+  "sonar": "animation: pfGwSonar 3s ease-out infinite",
+  "neon": "box-shadow: 0 0 6px var(--fx-c2), 0 0 18px var(--fx-c2), 0 0 46px var(--fx-c2)",
+  "neonflick": "animation: pfGwFlick 8s infinite",
+  "buzzing": "animation: pfGwBuzz 3s infinite",
+  "rainbow": "animation: pfGwRainbow 4s linear infinite",
+  "rainbowslow": "animation: pfGwRainbow 8s linear infinite",
+  "aurora": "box-shadow:0 0 30px -6px var(--fx-c2),inset 0 0 24px -12px var(--fx-c1)",
+  "spot": "box-shadow: 0 -10px 50px -15px var(--fx-c2)",
+  "volumetric": "box-shadow: 0 0 60px -10px var(--fx-c2), inset 0 0 40px -20px var(--fx-c2)",
+  "bloom": "box-shadow: 0 0 20px var(--fx-c2), 0 0 60px -10px var(--fx-c2)",
+  "bloomsoft": "box-shadow: 0 0 30px -6px var(--fx-c2), 0 0 80px -20px var(--fx-c2)",
+  "glowup": "animation: pfGwUp 2.5s ease-in-out infinite alternate",
+  "glowdown": "animation: pfGwDown 2.5s ease-in-out infinite alternate",
+  "shimmer": "animation: pfGwShim 4s ease-in-out infinite",
+  "sparkle": "animation: pfGwSpark 5s ease-in-out infinite",
+  "fairy": "animation: pfGwFairy 6s ease-in-out infinite",
+  "halo": "box-shadow: 0 0 30px 4px var(--fx-c2), inset 0 0 20px var(--fx-c2)",
+  "halorot": "animation: pfGwHaloRot 6s linear infinite",
+  "ringglow": "box-shadow: 0 0 0 1px var(--fx-c2), 0 0 24px -2px var(--fx-c2)",
+  "shadowcore": "box-shadow: inset 0 0 40px 4px rgba(0,0,0,.5), 0 0 30px -6px var(--fx-c2)",
+  "underglow": "box-shadow: 0 20px 40px -10px var(--fx-c2)",
+  "topglow": "box-shadow: 0 -20px 40px -10px var(--fx-c2)",
+  "sides": "box-shadow: -16px 0 40px -16px var(--fx-c2), 16px 0 40px -16px var(--fx-c2)",
+  "fire": "box-shadow: 0 0 24px -2px #ff5722, 0 0 50px -10px #ff9800",
+  "ice": "box-shadow: 0 0 28px -2px #80deea, inset 0 0 20px -4px #b2ebf2",
+  "magic": "box-shadow: 0 0 26px -2px #ce93d8, 0 0 50px -12px #ba68c8",
+  "electric": "box-shadow: 0 0 12px #00e5ff, 0 0 30px #00bcd4, inset 0 0 12px #00e5ff",
+  "plasma": "box-shadow: 0 0 22px -2px #b388ff, 0 0 50px -10px #7c4dff",
+  "laser": "box-shadow: 0 0 4px var(--fx-c2), 0 0 14px var(--fx-c2), 0 0 32px var(--fx-c2)",
+  "energy": "box-shadow: 0 0 20px -2px var(--fx-c2), inset 0 0 16px -4px var(--fx-c2); animation: pfGwBreath 3s ease-in-out infinite",
+  "energyflow": "animation: pfGwFlow 3s ease-in-out infinite alternate",
+  "core": "box-shadow: inset 0 0 20px 4px var(--fx-c2), 0 0 30px -4px var(--fx-c2)",
+  "gridglow": "box-shadow: 0 0 30px -6px var(--fx-c2); filter: drop-shadow(0 0 6px var(--fx-c2))",
+  "matrixglow": "box-shadow: 0 0 24px -2px #00ff96",
+  "glitch": "animation: pfGwGlitch 3s infinite",
+  "glitchrgb": "box-shadow: -3px 0 0 rgba(255,0,80,.5), 3px 0 0 rgba(0,200,255,.5)",
+  "scan": "animation: pfGwScan 6s linear infinite",
+  "scanline": "box-shadow: inset 0 0 0 1px var(--fx-c2)",
+  "crt": "box-shadow: inset 0 0 60px rgba(0,0,0,.5)",
+  "hologram": "box-shadow: 0 0 24px -2px var(--fx-c2), inset 0 0 24px -6px var(--fx-c2); animation: pfGwHolo 5s ease-in-out infinite",
+  "hologrid": "box-shadow: 0 0 24px -4px var(--fx-c2); filter: drop-shadow(0 0 4px var(--fx-c2))",
+  "morph": "animation: pfGwMorph 8s ease-in-out infinite",
+  "wobble": "animation: pfGwWobble 4s ease-in-out infinite",
+  "strobe": "animation: pfGwStrobe 2s steps(2) infinite",
+  "flicker": "animation: pfGwFlicker 4s infinite",
+  "ember": "box-shadow: 0 0 20px -4px #ff6d00, 0 0 40px -12px #ff3d00",
+  "sunset": "box-shadow: 0 0 40px -10px #ff7043, 0 -10px 50px -16px #ffab40",
+  "dawn": "box-shadow: 0 0 40px -12px #ff8a80, 0 0 60px -18px #ffd180",
+  "golden": "box-shadow: 0 0 30px -6px #ffd54f",
+  "silver": "box-shadow: 0 0 30px -6px #cfd8dc",
+  "iridescent": "box-shadow: 0 0 24px -2px var(--fx-c2); animation: pfGwIridescent 5s linear infinite",
+  "oil": "box-shadow: 0 0 24px -4px var(--fx-c2); animation: pfGwOil 6s linear infinite",
+  "soap": "box-shadow: 0 0 30px -6px var(--fx-c2); animation: pfGwSoap 7s ease-in-out infinite",
+  "prism": "box-shadow: -4px 0 12px rgba(255,0,80,.5), 4px 0 12px rgba(0,150,255,.5)",
+  "chroma": "box-shadow: 0 0 14px var(--fx-c2); animation: pfGwChroma 5s linear infinite",
+  "ambient": "box-shadow: 0 8px 40px -8px var(--fx-c2)",
+  "ambientsm": "box-shadow: 0 6px 30px -10px var(--fx-c2)",
+  "refract": "box-shadow: 0 0 20px -4px var(--fx-c2); filter: blur(.2px)",
+  "reflect": "box-shadow: inset 0 -20px 40px -20px var(--fx-c2), 0 10px 30px -10px var(--fx-c2)",
+  "shadow": "box-shadow: 0 12px 30px -8px rgba(0,0,0,.6)",
+  "shadowdeep": "box-shadow: 0 20px 50px -10px rgba(0,0,0,.7)",
+  "shadowlong": "box-shadow: 20px 20px 40px -10px rgba(0,0,0,.6)",
+  "layered": "box-shadow: 0 0 10px var(--fx-c2), 0 0 26px -2px var(--fx-c2), 0 0 50px -10px var(--fx-c2), inset 0 0 16px -4px var(--fx-c2)",
+  "comet": "animation: pfGwComet 6s ease-in-out infinite",
+  "flare": "box-shadow: 0 0 60px 4px var(--fx-c2), 0 0 120px -10px var(--fx-c2)",
+  "dust": "box-shadow: 0 0 40px -10px var(--fx-c2)",
+  "starlight": "box-shadow: 0 0 20px -2px var(--fx-c2), inset 0 0 10px -2px #fff",
+  "sunbeam": "box-shadow: 0 -20px 60px -16px var(--fx-c2)",
+  "lunar": "box-shadow: 0 0 40px -10px #cfd8dc, inset 0 0 20px -6px #eceff1",
+  "twilight": "box-shadow: 0 0 40px -10px #b39ddb, 0 0 60px -18px #f48fb1",
+  "polar": "box-shadow: 0 0 40px -10px var(--fx-c2); animation: pfGwPolar 6s linear infinite",
+  "candle": "box-shadow: 0 0 20px -4px #ffb74d; animation: pfGwFlicker 3s infinite",
+  "torch": "box-shadow: 0 0 26px -4px #ff8a65, 0 0 50px -12px #ff5722",
+  "lamp": "box-shadow: 0 0 30px -6px #ffe082",
+  "dreame": "box-shadow: 0 0 40px -12px #ea80fc, 0 0 60px -20px #b388ff"
  },
  "bd": {
   "solid": "box-shadow: inset 0 0 0 2px var(--fx-c2);",
@@ -466,192 +466,192 @@
   "chrome": "background: linear-gradient(180deg, #fff 0%, color-mix(in srgb,var(--fx-c1) 72%,#fff) 45%, color-mix(in srgb,var(--fx-c1) 62%,#000) 55%, #fff 100%); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800;"
  },
  "pq": {
-  "plate": "background: linear-gradient(180deg, color-mix(in srgb, var(--fx-c1) 25%, #1a1f2b), color-mix(in srgb, var(--fx-c1) 40%, #0f131c)); border: 1px solid color-mix(in srgb, var(--fx-c1) 50%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 12%,transparent), 0 2px 6px rgba(0,0,0,.4);",
-  "plate2": "background: color-mix(in srgb,var(--fx-c2) 4%,transparent); border: 1px solid color-mix(in srgb, var(--fx-c1) 45%, transparent); backdrop-filter: blur(4px);",
-  "plate3": "background: repeating-linear-gradient(90deg, transparent 0 3px, color-mix(in srgb,var(--fx-c2) 5%,transparent) 3px 4px), linear-gradient(180deg, color-mix(in srgb, var(--fx-c1) 20%, #1a1f2b), color-mix(in srgb, var(--fx-c1) 35%, #0f131c)); border: 1px solid color-mix(in srgb, var(--fx-c1) 50%, transparent);",
-  "platebold": "background: color-mix(in srgb, var(--fx-c1) 30%, #141a26); border: 2px solid var(--fx-c1);",
-  "ribbon": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 700; clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%);",
-  "ribbon2": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 8px 100%);",
-  "ribbon3": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 700; clip-path: polygon(0 0, 100% 0, 100% 100%, 86% 100%, 80% 0, 74% 100%, 60% 100%, 54% 0, 48% 100%, 34% 100%, 28% 0, 22% 100%, 8% 100%, 0 0);",
-  "ribbon4": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; clip-path: polygon(0 20%, 20% 0, 80% 0, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0 80%);",
-  "crest": "background: linear-gradient(135deg, color-mix(in srgb, var(--fx-c1) 40%, #0f131c), #0f131c); border: 1px solid var(--fx-c1); border-radius: 4px 14px 4px 14px; box-shadow: 0 0 12px -4px var(--fx-c1);",
-  "crest2": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);",
-  "crest3": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); border-radius: 50% 50% 0 0;",
-  "chip": "background: #0c1018; border: 1px solid var(--fx-c1); border-radius: 4px; font-family: \"JetBrains Mono\", monospace;",
-  "chip2": "background: #0c1018; border: 1px solid var(--fx-c1); border-radius: 4px; box-shadow: inset 0 0 0 3px #0c1018, inset 0 0 0 4px var(--fx-c1);",
-  "seal": "background: radial-gradient(circle at 30% 30%, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; border-radius: 50px;",
-  "seal2": "background: #0b0e15; border: 2px solid var(--fx-c1); border-radius: 50px; color: color-mix(in srgb,var(--fx-c1) 72%,#fff);",
-  "seal3": "background: #0b0e15; border: 2px solid var(--fx-c1); color: color-mix(in srgb,var(--fx-c1) 72%,#fff);",
-  "badge": "background: #0b0e15; border: 1px solid var(--fx-c1); border-radius: 6px; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); box-shadow: 0 3px 8px rgba(0,0,0,.4);",
-  "badge2": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); border-radius: 6px 6px 0 0;",
-  "tag": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; clip-path: polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px));",
-  "tag2": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), 50% 100%, 0 calc(100% - 10px));",
-  "label": "background: color-mix(in srgb,var(--fx-c2) 6%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 12%,transparent); border-left: 3px solid var(--fx-c1);",
-  "label2": "background: linear-gradient(90deg, var(--fx-c1), transparent 80%); color: #0b0e15; font-weight: 700;",
-  "label3": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; border-radius: 4px;",
-  "band": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); height: 22px; border-radius: 2px;",
-  "band2": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 700;",
-  "band3": "background: linear-gradient(90deg, var(--fx-c1), var(--fx-c2)); color: #0b0e15; font-weight: 700;",
-  "banner": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; padding: 5px 16px;",
-  "banner2": "background: var(--fx-c1); color: #0b0e15; font-weight: 800; clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%); padding: 5px 18px;",
-  "banner3": "background: var(--fx-c1); color: #0b0e15; font-weight: 800; clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 10px 100%); padding: 5px 18px;",
-  "tab": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border-radius: 6px 6px 0 0;",
-  "tab2": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; border-radius: 0 0 6px 6px;",
-  "tab3": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border-radius: 0 6px 6px 0;",
-  "pill": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; border-radius: 50px; padding: 4px 14px;",
-  "pill2": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 1px solid var(--fx-c1); border-radius: 50px;",
-  "pill3": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 700; border-radius: 50px;",
-  "bubble": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; border-radius: 14px 14px 14px 2px;",
-  "bubble2": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border-radius: 14px 14px 14px 2px; border: 1px solid var(--fx-c1);",
-  "cloud": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; border-radius: 20px 20px 4px 20px;",
-  "shieldp": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);",
-  "shieldp2": "background: linear-gradient(135deg, var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);",
-  "medallion": "background: radial-gradient(circle at 30% 30%, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; border-radius: 50%; width: 120px; height: 28px; line-height: 28px; text-align: center; padding: 0;",
-  "coinp": "background: radial-gradient(circle at 35% 30%, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; border: 2px solid color-mix(in srgb,var(--fx-c1) 72%,#fff); border-radius: 50%; box-shadow: 0 0 8px var(--fx-c1);",
-  "key": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 1px solid var(--fx-c1); clip-path: polygon(0 0, 100% 0, 100% 100%, 20% 100%, 20% 60%, 0 60%);",
-  "gem": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; clip-path: polygon(50% 0, 100% 35%, 100% 65%, 50% 100%, 0 65%, 0 35%);",
-  "crownp": "background: var(--fx-c1); color: #0b0e15; font-weight: 800; clip-path: polygon(0 100%, 0 50%, 20% 30%, 35% 50%, 50% 10%, 65% 50%, 80% 30%, 100% 50%, 100% 100%);",
-  "laurelp": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; position: relative;",
-  "wingp": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 1px solid var(--fx-c1); clip-path: polygon(0 20%, 15% 0, 85% 0, 100% 20%, 100% 80%, 85% 100%, 15% 100%, 0 80%);",
-  "bookp": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; clip-path: polygon(0 0, 48% 0, 52% 8%, 100% 8%, 100% 100%, 0 100%);",
-  "scrollp": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; border-radius: 4px; box-shadow: 0 4px 0 -2px color-mix(in srgb,var(--fx-c1) 62%,#000), 0 -4px 0 -2px color-mix(in srgb,var(--fx-c1) 62%,#000);",
-  "emblem": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 2px solid var(--fx-c1); border-radius: 4px;",
-  "emblem2": "background: #0b0e15; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 2px solid var(--fx-c1); border-radius: 50%; width: 120px; text-align: center; padding: 0;",
-  "emblem3": "background: #0b0e15; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 2px solid var(--fx-c1); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);",
-  "frame": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 4px solid var(--fx-c1); border-radius: 4px;",
-  "frame2": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 3px solid #8a6a30; box-shadow: 0 0 0 1px #2a1a08, inset 0 0 0 1px #2a1a08;",
-  "frame3": "background: #2a1a10; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 3px solid #4a2a14;",
-  "glassp": "background: color-mix(in srgb,var(--fx-c2) 8%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 25%,transparent); backdrop-filter: blur(6px);",
-  "glassp2": "background: color-mix(in srgb,var(--fx-c2) 5%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 18%,transparent); backdrop-filter: blur(8px); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 20%,transparent);",
-  "neonp": "background: #0b0e15; color: #fff; border: 1.5px solid var(--fx-c1); box-shadow: 0 0 6px var(--fx-c1), inset 0 0 6px var(--fx-c1); font-weight: 700;",
-  "neonp2": "background: #0b0e15; color: #fff; border: 1.5px solid var(--fx-c1); box-shadow: 0 0 6px var(--fx-c1), 0 0 14px var(--fx-c2), inset 0 0 6px var(--fx-c1); font-weight: 700;",
-  "led": "background: #0b0e15; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); font-family: \"VT323\", \"JetBrains Mono\", monospace; border: 1px solid color-mix(in srgb,var(--fx-c1) 62%,#000); letter-spacing: 2px;",
-  "lcd": "background: #0a1a14; color: #7cffb2; font-family: \"VT323\", monospace; border: 1px solid #1a3a2a;",
-  "metal": "background: linear-gradient(180deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; border: 1px solid var(--fx-c1); box-shadow: inset 0 1px 2px color-mix(in srgb,var(--fx-c2) 40%,transparent);",
-  "metal2": "background: repeating-linear-gradient(90deg, transparent 0 3px, color-mix(in srgb,var(--fx-c2) 6%,transparent) 3px 4px), linear-gradient(180deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; border: 1px solid var(--fx-c1);",
-  "metal3": "background: linear-gradient(180deg, #e0a070, #8a4a20); color: #1a0a04; font-weight: 800; border: 1px solid #6a3a10;",
-  "metal4": "background: linear-gradient(180deg, #e8eef5, #8a9aa8); color: #0b1018; font-weight: 800; border: 1px solid #6a7a88;",
-  "metal5": "background: linear-gradient(180deg, #f0f4f8, #aab4c0); color: #0b1018; font-weight: 800;",
-  "metal6": "background: linear-gradient(180deg, #f5f5f0, #d0d0c8); color: #0b0e15; font-weight: 800; border: 1px solid #b0b0a8;",
-  "wood": "background: linear-gradient(180deg, #5a3418, #3a2010); color: #f0d0a0; border: 1px solid #2a1808; box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 10%,transparent);",
-  "wood2": "background: linear-gradient(180deg, #4a2814, #2a1408); color: #d0a070; border: 1px solid #1a0c04;",
-  "wood3": "background: linear-gradient(180deg, #6a3a1c, #3a1e0c); color: #f0d0a0; border: 2px solid #2a1408; box-shadow: inset 0 0 8px rgba(0,0,0,.4);",
-  "acrylic": "background: color-mix(in srgb,var(--fx-c2) 10%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 30%,transparent); backdrop-filter: blur(10px);",
-  "acrylic2": "background: color-mix(in srgb,var(--fx-c2) 4%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 20%,transparent); backdrop-filter: blur(12px);",
-  "marblep": "background: linear-gradient(135deg, #f5f5f5, #c9c9c9); color: #1a1a1a; font-weight: 800; border: 1px solid #a0a0a0;",
-  "marblep2": "background: linear-gradient(135deg, #f5f5f5, #c9c9c9); color: #1a1a1a; font-weight: 800; border: 2px solid var(--fx-c1);",
-  "leatherp": "background: linear-gradient(180deg, #4a2818, #2a1408); color: #f0d0a0; border: 1px solid #1a0c04; box-shadow: inset 0 0 12px rgba(0,0,0,.5);",
-  "leatherp2": "background: #3a2010; color: #e0c090; border: 2px solid #5a3418; box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 10%,transparent), inset 0 -1px 0 rgba(0,0,0,.4);",
-  "paperp": "background: #f5f0e6; color: #2a2018; border: 1px solid #d0c8b8; box-shadow: 1px 1px 4px rgba(0,0,0,.2);",
-  "paperp2": "background: #f5f0e6; color: #8a2010; border: 1px solid #8a2010; border-radius: 50px;",
-  "washi": "background: #f5efe0; color: #2a2018; border: 1px solid #d0c8b0; box-shadow: inset 0 0 12px rgba(180,160,120,.2);",
-  "carbonp": "background: linear-gradient(135deg, #1a1a1a, #0a0a0a); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 1px solid #333;",
-  "crystalp": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c2) 20%,transparent), color-mix(in srgb,var(--fx-c2) 5%,transparent)); border: 1px solid color-mix(in srgb,var(--fx-c2) 40%,transparent); backdrop-filter: blur(6px); color: #fff;",
-  "crystalp2": "background: linear-gradient(105deg, transparent 0 30%, color-mix(in srgb,var(--fx-c2) 15%,transparent) 30% 33%, transparent 33% 66%, color-mix(in srgb,var(--fx-c2) 10%,transparent) 66% 69%, transparent 69%); border: 1px solid color-mix(in srgb,var(--fx-c2) 30%,transparent); color: #fff;",
-  "enamel": "background: linear-gradient(135deg, #1a1a2a, #0a0a14); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 1.5px solid var(--fx-c1); box-shadow: inset 0 1px 1px color-mix(in srgb,var(--fx-c2) 20%,transparent);",
-  "enamel2": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 1.5px solid var(--fx-c1); box-shadow: inset 0 1px 1px color-mix(in srgb,var(--fx-c2) 20%,transparent), 0 0 8px -2px var(--fx-c1);",
-  "gold": "background: linear-gradient(135deg, #f5dfae, #c9a15a, #8a6a30); color: #1a1208; font-weight: 800; border: 1px solid #8a6a30;",
-  "gold2": "background: linear-gradient(135deg, #f5dfae, #c9a15a); color: #1a1208; font-weight: 800; border: 1px solid #6a4a20; box-shadow: inset 0 1px 2px color-mix(in srgb,var(--fx-c2) 50%,transparent);",
-  "silverp": "background: linear-gradient(135deg, #f0f4f8, #b0bcc8); color: #0b1018; font-weight: 800; border: 1px solid #8090a0;",
-  "brass": "background: linear-gradient(135deg, #e8c877, #a08030); color: #1a1408; font-weight: 800; border: 1px solid #806020;",
-  "tech": "background: #0c1018; border: 1px solid var(--fx-c1); border-left: 3px solid var(--fx-c1); font-family: \"JetBrains Mono\", monospace; color: color-mix(in srgb,var(--fx-c1) 72%,#fff);",
-  "holo": "background: linear-gradient(135deg, var(--fx-c1), var(--fx-c2)); color: #0b0e15; font-weight: 800; box-shadow: 0 0 10px -2px var(--fx-c1);",
-  "minimal": "background: transparent; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border-bottom: 1.5px solid var(--fx-c1); border-radius: 0;",
-  "minimal2": "background: transparent; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border-radius: 0; box-shadow: inset 4px 0 0 var(--fx-c1);"
+  "plate": "background: linear-gradient(180deg, color-mix(in srgb, var(--fx-c1) 25%, #1a1f2b), color-mix(in srgb, var(--fx-c1) 40%, #0f131c)); border: 1px solid color-mix(in srgb, var(--fx-c1) 50%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 12%,transparent), 0 2px 6px rgba(0,0,0,.4);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "plate2": "background: color-mix(in srgb,var(--fx-c2) 4%,transparent); border: 1px solid color-mix(in srgb, var(--fx-c1) 45%, transparent); backdrop-filter: blur(4px);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "plate3": "background: repeating-linear-gradient(90deg, transparent 0 3px, color-mix(in srgb,var(--fx-c2) 5%,transparent) 3px 4px), linear-gradient(180deg, color-mix(in srgb, var(--fx-c1) 20%, #1a1f2b), color-mix(in srgb, var(--fx-c1) 35%, #0f131c)); border: 1px solid color-mix(in srgb, var(--fx-c1) 50%, transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "platebold": "background: color-mix(in srgb, var(--fx-c1) 30%, #141a26); border: 2px solid var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "ribbon": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 700; clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "ribbon2": "background: var(--fx-c1); font-weight: 700; clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 8px 100%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "ribbon3": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 700; clip-path: polygon(0 0, 100% 0, 100% 100%, 86% 100%, 80% 0, 74% 100%, 60% 100%, 54% 0, 48% 100%, 34% 100%, 28% 0, 22% 100%, 8% 100%, 0 0);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "ribbon4": "background: var(--fx-c1); font-weight: 700; clip-path: polygon(0 20%, 20% 0, 80% 0, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0 80%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "crest": "background: linear-gradient(135deg, color-mix(in srgb, var(--fx-c1) 40%, #0f131c), #0f131c); border: 1px solid var(--fx-c1); border-radius: 4px 14px 4px 14px; box-shadow: 0 0 12px -4px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "crest2": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "crest3": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); border-radius: 50% 50% 0 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "chip": "background: #0c1018; border: 1px solid var(--fx-c1); border-radius: 4px; font-family: \"JetBrains Mono\", monospace;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "chip2": "background: #0c1018; border: 1px solid var(--fx-c1); border-radius: 4px; box-shadow: inset 0 0 0 3px #0c1018, inset 0 0 0 4px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "seal": "background: radial-gradient(circle at 30% 30%, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; border-radius: 50px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "seal2": "background: #0b0e15; border: 2px solid var(--fx-c1); border-radius: 50px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "seal3": "background: #0b0e15; border: 2px solid var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "badge": "background: #0b0e15; border: 1px solid var(--fx-c1); border-radius: 6px; box-shadow: 0 3px 8px rgba(0,0,0,.4);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "badge2": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); border-radius: 6px 6px 0 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "tag": "background: var(--fx-c1); font-weight: 700; clip-path: polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px));color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "tag2": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), 50% 100%, 0 calc(100% - 10px));color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "label": "background: color-mix(in srgb,var(--fx-c2) 6%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 12%,transparent); border-left: 3px solid var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "label2": "background: linear-gradient(90deg, var(--fx-c1), transparent 80%); font-weight: 700;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "label3": "background: var(--fx-c1); font-weight: 700; border-radius: 4px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "band": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); height: 22px; border-radius: 2px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "band2": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 700;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "band3": "background: linear-gradient(90deg, var(--fx-c1), var(--fx-c2)); font-weight: 700;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "banner": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; padding: 5px 16px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "banner2": "background: var(--fx-c1); font-weight: 800; clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%); padding: 5px 18px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "banner3": "background: var(--fx-c1); font-weight: 800; clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 10px 100%); padding: 5px 18px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "tab": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border-radius: 6px 6px 0 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "tab2": "background: var(--fx-c1); font-weight: 700; border-radius: 0 0 6px 6px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "tab3": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border-radius: 0 6px 6px 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "pill": "background: var(--fx-c1); font-weight: 700; border-radius: 50px; padding: 4px 14px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "pill2": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border: 1px solid var(--fx-c1); border-radius: 50px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "pill3": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 700; border-radius: 50px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "bubble": "background: var(--fx-c1); font-weight: 700; border-radius: 14px 14px 14px 2px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "bubble2": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border-radius: 14px 14px 14px 2px; border: 1px solid var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "cloud": "background: var(--fx-c1); font-weight: 700; border-radius: 20px 20px 4px 20px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "shieldp": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "shieldp2": "background: linear-gradient(135deg, var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "medallion": "background: radial-gradient(circle at 30% 30%, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; border-radius: 50%; height: 28px; text-align: center; padding: 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "coinp": "background: radial-gradient(circle at 35% 30%, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; border: 2px solid color-mix(in srgb,var(--fx-c1) 72%,#fff); border-radius: 50%; box-shadow: 0 0 8px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "key": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border: 1px solid var(--fx-c1); clip-path: polygon(0 0, 100% 0, 100% 100%, 20% 100%, 20% 60%, 0 60%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "gem": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; clip-path: polygon(50% 0, 100% 35%, 100% 65%, 50% 100%, 0 65%, 0 35%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "crownp": "background: var(--fx-c1); font-weight: 800; clip-path: polygon(0 100%, 0 50%, 20% 30%, 35% 50%, 50% 10%, 65% 50%, 80% 30%, 100% 50%, 100% 100%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "laurelp": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "wingp": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border: 1px solid var(--fx-c1); clip-path: polygon(0 20%, 15% 0, 85% 0, 100% 20%, 100% 80%, 85% 100%, 15% 100%, 0 80%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "bookp": "background: var(--fx-c1); font-weight: 700; clip-path: polygon(0 0, 48% 0, 52% 8%, 100% 8%, 100% 100%, 0 100%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "scrollp": "background: var(--fx-c1); font-weight: 700; border-radius: 4px; box-shadow: 0 4px 0 -2px color-mix(in srgb,var(--fx-c1) 62%,#000), 0 -4px 0 -2px color-mix(in srgb,var(--fx-c1) 62%,#000);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "emblem": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border: 2px solid var(--fx-c1); border-radius: 4px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "emblem2": "background: #0b0e15; border: 2px solid var(--fx-c1); border-radius: 50%; text-align: center; padding: 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "emblem3": "background: #0b0e15; border: 2px solid var(--fx-c1); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "frame": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border: 4px solid var(--fx-c1); border-radius: 4px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "frame2": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border: 3px solid #8a6a30; box-shadow: 0 0 0 1px #2a1a08, inset 0 0 0 1px #2a1a08;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "frame3": "background: #2a1a10; border: 3px solid #4a2a14;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "glassp": "background: color-mix(in srgb,var(--fx-c2) 8%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 25%,transparent); backdrop-filter: blur(6px);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "glassp2": "background: color-mix(in srgb,var(--fx-c2) 5%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 18%,transparent); backdrop-filter: blur(8px); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 20%,transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "neonp": "background: #0b0e15; border: 1.5px solid var(--fx-c1); box-shadow: 0 0 6px var(--fx-c1), inset 0 0 6px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "neonp2": "background: #0b0e15; border: 1.5px solid var(--fx-c1); box-shadow: 0 0 6px var(--fx-c1), 0 0 14px var(--fx-c2), inset 0 0 6px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "led": "background: #0b0e15; font-family: \"VT323\", \"JetBrains Mono\", monospace; border: 1px solid color-mix(in srgb,var(--fx-c1) 62%,#000); letter-spacing: 2px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "lcd": "background: #0a1a14; font-family: \"VT323\", monospace; border: 1px solid #1a3a2a;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "metal": "background: linear-gradient(180deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; border: 1px solid var(--fx-c1); box-shadow: inset 0 1px 2px color-mix(in srgb,var(--fx-c2) 40%,transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "metal2": "background: repeating-linear-gradient(90deg, transparent 0 3px, color-mix(in srgb,var(--fx-c2) 6%,transparent) 3px 4px), linear-gradient(180deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; border: 1px solid var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "metal3": "background: linear-gradient(180deg, #e0a070, #8a4a20); font-weight: 800; border: 1px solid #6a3a10;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "metal4": "background: linear-gradient(180deg, #e8eef5, #8a9aa8); font-weight: 800; border: 1px solid #6a7a88;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "metal5": "background: linear-gradient(180deg, #f0f4f8, #aab4c0); font-weight: 800;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "metal6": "background: linear-gradient(180deg, #f5f5f0, #d0d0c8); font-weight: 800; border: 1px solid #b0b0a8;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "wood": "background: linear-gradient(180deg, #5a3418, #3a2010); border: 1px solid #2a1808; box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 10%,transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "wood2": "background: linear-gradient(180deg, #4a2814, #2a1408); border: 1px solid #1a0c04;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "wood3": "background: linear-gradient(180deg, #6a3a1c, #3a1e0c); border: 2px solid #2a1408; box-shadow: inset 0 0 8px rgba(0,0,0,.4);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "acrylic": "background: color-mix(in srgb,var(--fx-c2) 10%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 30%,transparent); backdrop-filter: blur(10px);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "acrylic2": "background: color-mix(in srgb,var(--fx-c2) 4%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 20%,transparent); backdrop-filter: blur(12px);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "marblep": "background: linear-gradient(135deg, #f5f5f5, #c9c9c9); font-weight: 800; border: 1px solid #a0a0a0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "marblep2": "background: linear-gradient(135deg, #f5f5f5, #c9c9c9); font-weight: 800; border: 2px solid var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "leatherp": "background: linear-gradient(180deg, #4a2818, #2a1408); border: 1px solid #1a0c04; box-shadow: inset 0 0 12px rgba(0,0,0,.5);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "leatherp2": "background: #3a2010; border: 2px solid #5a3418; box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 10%,transparent), inset 0 -1px 0 rgba(0,0,0,.4);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "paperp": "background: #f5f0e6; border: 1px solid #d0c8b8; box-shadow: 1px 1px 4px rgba(0,0,0,.2);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "paperp2": "background: #f5f0e6; border: 1px solid #8a2010; border-radius: 50px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "washi": "background: #f5efe0; border: 1px solid #d0c8b0; box-shadow: inset 0 0 12px rgba(180,160,120,.2);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "carbonp": "background: linear-gradient(135deg, #1a1a1a, #0a0a0a); border: 1px solid #333;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "crystalp": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c2) 20%,transparent), color-mix(in srgb,var(--fx-c2) 5%,transparent)); border: 1px solid color-mix(in srgb,var(--fx-c2) 40%,transparent); backdrop-filter: blur(6px);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "crystalp2": "background: linear-gradient(105deg, transparent 0 30%, color-mix(in srgb,var(--fx-c2) 15%,transparent) 30% 33%, transparent 33% 66%, color-mix(in srgb,var(--fx-c2) 10%,transparent) 66% 69%, transparent 69%); border: 1px solid color-mix(in srgb,var(--fx-c2) 30%,transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "enamel": "background: linear-gradient(135deg, #1a1a2a, #0a0a14); border: 1.5px solid var(--fx-c1); box-shadow: inset 0 1px 1px color-mix(in srgb,var(--fx-c2) 20%,transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "enamel2": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1.5px solid var(--fx-c1); box-shadow: inset 0 1px 1px color-mix(in srgb,var(--fx-c2) 20%,transparent), 0 0 8px -2px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "gold": "background: linear-gradient(135deg, #f5dfae, #c9a15a, #8a6a30); font-weight: 800; border: 1px solid #8a6a30;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "gold2": "background: linear-gradient(135deg, #f5dfae, #c9a15a); font-weight: 800; border: 1px solid #6a4a20; box-shadow: inset 0 1px 2px color-mix(in srgb,var(--fx-c2) 50%,transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "silverp": "background: linear-gradient(135deg, #f0f4f8, #b0bcc8); font-weight: 800; border: 1px solid #8090a0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "brass": "background: linear-gradient(135deg, #e8c877, #a08030); font-weight: 800; border: 1px solid #806020;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "tech": "background: #0c1018; border: 1px solid var(--fx-c1); border-left: 3px solid var(--fx-c1); font-family: \"JetBrains Mono\", monospace;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "holo": "background: linear-gradient(135deg, var(--fx-c1), var(--fx-c2)); font-weight: 800; box-shadow: 0 0 10px -2px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "minimal": "background: transparent; border-bottom: 1.5px solid var(--fx-c1); border-radius: 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box",
+  "minimal2": "background: transparent; border-radius: 0; box-shadow: inset 4px 0 0 var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
  },
  "cor": {
-  "metal": "background-image:radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.60",
-  "metal2": "background-image:linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2))),linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2))),linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2))),linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)));background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.70",
-  "metalbold": "background-image:conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.80;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "cut": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.90",
-  "cutthin": "background-image:radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.50",
-  "cutbold": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.60;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "dot": "background-image:linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.70",
-  "dot2": "background-image:linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.80",
-  "dotsrow": "background-image:radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.90;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "rivet": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.50",
-  "geo": "background-image:radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.60",
-  "geoline": "background-image:linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1));background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.70;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "geo2": "background-image:conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.80",
-  "bracket": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.90",
-  "bracket2": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.50;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "bracket3": "background-image:conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.60",
-  "braces": "background-image:linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.70",
-  "chevron": "background-image:linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.80;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "arrow": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.90",
-  "plus": "background-image:radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.50",
-  "cross": "background-image:radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.60;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "tri": "background-image:linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent)),linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent)),linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent)),linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent));background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.70",
-  "tri2": "background-image:conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.80",
-  "triple": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.90;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "square": "background-image:radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.50",
-  "diamondc": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.60",
-  "hexc": "background-image:linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.70;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "star": "background-image:linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.80",
-  "circlec": "background-image:radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.90",
-  "ring": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.50;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "orb": "background-image:radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.60",
-  "line": "background-image:linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1));background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.70",
-  "linebold": "background-image:conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.80;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "line2": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.90",
-  "corner": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.50",
-  "corner2": "background-image:conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.60;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "fold": "background-image:linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.70",
-  "tape": "background-image:linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.80",
-  "tape2": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.90;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "pin": "background-image:radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.50",
-  "clip": "background-image:radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.60",
-  "ribbonc": "background-image:linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2))),linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2))),linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2))),linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)));background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.70;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "ribbon2": "background-image:conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.80",
-  "flag": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.90",
-  "banner": "background-image:radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.50;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "seal": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.60",
-  "stamp": "background-image:linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.70",
-  "coin": "background-image:linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.80;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "gem": "background-image:radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.90",
-  "crown": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.50",
-  "wing": "background-image:radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.60;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "laurel": "background-image:linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1));background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.70",
-  "crest": "background-image:conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.80",
-  "shieldc": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.90;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "emblem": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.50",
-  "mono": "background-image:conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.60",
-  "half": "background-image:linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.70;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "quarter": "background-image:linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.80",
-  "split": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.90",
-  "splash": "background-image:radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.50;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "spark": "background-image:radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.60",
-  "beam": "background-image:linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent)),linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent)),linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent)),linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent));background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.70",
-  "grad": "background-image:conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.80;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "neon": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.90",
-  "neon2": "background-image:radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.50",
-  "pixel": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.60;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "pixelc": "background-image:linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.70",
-  "block": "background-image:linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.80",
-  "step": "background-image:radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.90;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "zigzagc": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.50",
-  "wavec": "background-image:radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.60",
-  "spine": "background-image:linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1));background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.70;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "tab": "background-image:conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.80",
-  "notchc": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.90",
-  "bolt": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.50;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "wire": "background-image:conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.60",
-  "hollow": "background-image:linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.70",
-  "full": "background-image:linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.80;filter:drop-shadow(0 0 4px var(--fx-c1))",
-  "halfgrad": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.90"
+  "metal": "border-top:3px solid var(--fx-c1);border-left:3px solid var(--fx-c1)",
+  "metal2": "border-top:3px solid var(--fx-c1);border-left:3px solid var(--fx-c1);background:radial-gradient(circle at 68% 68%,var(--fx-c2) 0 1.8px,transparent 2.2px) no-repeat",
+  "metalbold": "border-top:5px solid var(--fx-c1);border-left:5px solid var(--fx-c1);width:20px;height:20px",
+  "cut": "clip-path:polygon(0 0,100% 0,0 100%);background:linear-gradient(135deg,var(--fx-c1),color-mix(in srgb,var(--fx-c2) 40%,transparent))",
+  "cutthin": "clip-path:polygon(0 0,62% 0,0 62%);background:var(--fx-c1)",
+  "cutbold": "clip-path:polygon(0 0,100% 0,0 100%);background:var(--fx-c1);width:22px;height:22px",
+  "dot": "background:radial-gradient(circle at 28% 28%,var(--fx-c1) 0 3.6px,transparent 4px)",
+  "dot2": "background:radial-gradient(circle at 24% 24%,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle at 62% 62%,var(--fx-c2) 0 2px,transparent 2.4px)",
+  "dotsrow": "background:radial-gradient(circle at 22% 22%,var(--fx-c1) 0 2.6px,transparent 3px),radial-gradient(circle at 52% 52%,var(--fx-c1) 0 2.6px,transparent 3px),radial-gradient(circle at 82% 82%,var(--fx-c1) 0 2.6px,transparent 3px)",
+  "rivet": "background:radial-gradient(circle at 26% 26%,var(--fx-c2) 0 2.6px,transparent 3px),radial-gradient(circle at 66% 66%,var(--fx-c2) 0 2.6px,transparent 3px)",
+  "geo": "clip-path:polygon(0 0,100% 0,100% 34%,34% 34%,34% 100%,0 100%);background:var(--fx-c1)",
+  "geoline": "clip-path:polygon(0 0,100% 0,100% 18%,18% 18%,18% 100%,0 100%);background:var(--fx-c1)",
+  "geo2": "clip-path:polygon(0 0,100% 0,100% 14%,46% 14%,46% 46%,14% 46%,14% 100%,0 100%);background:var(--fx-c1)",
+  "bracket": "border-top:1.6px solid var(--fx-c1);border-left:1.6px solid var(--fx-c1)",
+  "bracket2": "border-top:1.6px solid var(--fx-c1);border-left:1.6px solid var(--fx-c1);border-top-left-radius:60%",
+  "bracket3": "border-top:1.6px solid var(--fx-c1);border-left:1.6px solid var(--fx-c1);box-shadow:inset 4px 4px 0 -2.4px color-mix(in srgb,var(--fx-c1) 70%,transparent)",
+  "braces": "border-top:2.4px solid var(--fx-c1);border-left:2.4px solid var(--fx-c1);border-top-left-radius:70%",
+  "chevron": "clip-path:polygon(0 0,62% 0,100% 50%,62% 100%,0 100%,38% 50%);background:var(--fx-c1)",
+  "arrow": "clip-path:polygon(0 0,62% 0,100% 50%,62% 100%,0 100%,38% 50%);background:var(--fx-c1);width:24px;height:24px",
+  "plus": "background:linear-gradient(var(--fx-c1),var(--fx-c1)) center/32% 100% no-repeat,linear-gradient(var(--fx-c1),var(--fx-c1)) center/100% 32% no-repeat",
+  "cross": "background:linear-gradient(var(--fx-c1),var(--fx-c1)) center/24% 100% no-repeat,linear-gradient(var(--fx-c1),var(--fx-c1)) center/100% 24% no-repeat",
+  "tri": "clip-path:polygon(0 0,100% 0,0 100%);background:var(--fx-c1)",
+  "tri2": "clip-path:polygon(0 0,100% 0,100% 100%);background:var(--fx-c1)",
+  "triple": "clip-path:polygon(0 0,100% 0,0 100%);background:var(--fx-c1);box-shadow:inset 6px 6px 0 -3px color-mix(in srgb,var(--fx-c2) 75%,transparent)",
+  "square": "background:var(--fx-c1);width:13px;height:13px",
+  "diamondc": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:var(--fx-c1)",
+  "hexc": "clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:var(--fx-c1)",
+  "star": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);background:var(--fx-c1);width:22px;height:22px",
+  "circlec": "border:2.4px solid var(--fx-c1);border-radius:50%",
+  "ring": "border:3px solid var(--fx-c1);border-radius:50%",
+  "orb": "border-radius:50%;background:radial-gradient(circle at 32% 30%,color-mix(in srgb,var(--fx-c1) 60%,#fff),var(--fx-c2) 72%)",
+  "line": "background:linear-gradient(var(--fx-c1),var(--fx-c1)) top left/100% 2px no-repeat",
+  "linebold": "background:linear-gradient(var(--fx-c1),var(--fx-c1)) top left/100% 4px no-repeat",
+  "line2": "background:linear-gradient(var(--fx-c1),var(--fx-c1)) 0 0/100% 2px no-repeat,linear-gradient(var(--fx-c2),var(--fx-c2)) 0 6px/70% 2px no-repeat",
+  "corner": "border-top:2px solid var(--fx-c1);border-left:2px solid var(--fx-c1)",
+  "corner2": "border-top:2px solid var(--fx-c1);border-left:2px solid var(--fx-c1);box-shadow:inset 5px 5px 0 -3px color-mix(in srgb,var(--fx-c2) 80%,transparent)",
+  "fold": "background:linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 85%,transparent) 0 50%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 50% 100%)",
+  "tape": "clip-path:polygon(0 0,100% 100%,100% 76%,24% 0);background:var(--fx-c1)",
+  "tape2": "clip-path:polygon(0 0,100% 100%,100% 78%,22% 0);background:color-mix(in srgb,var(--fx-c1) 88%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fx-c2) 70%,transparent)",
+  "pin": "background:radial-gradient(circle at 30% 30%,var(--fx-c1) 0 4px,transparent 4.4px),linear-gradient(var(--fx-c2),var(--fx-c2)) 62% 62%/2px 46% no-repeat",
+  "clip": "border:2px solid var(--fx-c1);border-radius:60% 60% 8px 8px;border-bottom-color:transparent",
+  "ribbonc": "clip-path:polygon(0 0,100% 0,100% 56%,50% 100%,0 56%);background:linear-gradient(180deg,var(--fx-c1),var(--fx-c2))",
+  "ribbon2": "clip-path:polygon(0 0,100% 0,100% 56%,50% 100%,0 56%);background:linear-gradient(180deg,var(--fx-c2),var(--fx-c1))",
+  "flag": "clip-path:polygon(0 0,100% 0,100% 55%,50% 76%,0 55%);background:var(--fx-c1)",
+  "banner": "clip-path:polygon(0 0,100% 0,100% 62%,50% 100%,0 62%);background:linear-gradient(180deg,var(--fx-c1),var(--fx-c2))",
+  "seal": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%);background:var(--fx-c1);width:20px;height:20px",
+  "stamp": "background:color-mix(in srgb,var(--fx-c1) 70%,transparent);box-shadow:inset 0 0 0 1.6px var(--fx-c2);border-radius:2px",
+  "coin": "border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 90%,transparent) 0 36%,color-mix(in srgb,var(--fx-c1) 95%,transparent) 38% 100%);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--fx-c2) 60%,transparent)",
+  "gem": "clip-path:polygon(50% 0,100% 32%,78% 100%,22% 100%,0 32%);background:linear-gradient(160deg,var(--fx-c1),var(--fx-c2))",
+  "crown": "clip-path:polygon(0 100%,0 26%,20% 58%,36% 0,50% 46%,64% 0,80% 58%,100% 26%,100% 100%);background:var(--fx-c1);width:20px;height:20px",
+  "wing": "clip-path:polygon(0 0,100% 22%,58% 52%,100% 82%,0 100%,34% 50%);background:linear-gradient(90deg,var(--fx-c1),var(--fx-c2))",
+  "laurel": "background:radial-gradient(circle at 12% 12%,transparent 44%,var(--fx-c1) 45% 58%,transparent 60%),radial-gradient(circle at 46% 46%,transparent 52%,var(--fx-c2) 53% 66%,transparent 68%)",
+  "crest": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%);background:linear-gradient(160deg,var(--fx-c1),var(--fx-c2))",
+  "shieldc": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%);background:var(--fx-c1)",
+  "emblem": "border-radius:50%;background:radial-gradient(circle,var(--fx-c1) 0 44%,transparent 46%);box-shadow:inset 0 0 0 1.6px color-mix(in srgb,var(--fx-c1) 80%,transparent)",
+  "mono": "background:var(--fx-c1);width:20px;height:20px",
+  "half": "clip-path:polygon(0 0,100% 0,0 100%);background:color-mix(in srgb,var(--fx-c1) 80%,transparent)",
+  "quarter": "clip-path:polygon(0 0,58% 0,58% 58%,0 58%);background:color-mix(in srgb,var(--fx-c1) 85%,transparent)",
+  "split": "background:linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 85%,transparent) 0 50%,color-mix(in srgb,var(--fx-c2) 85%,transparent) 50% 100%)",
+  "splash": "background:radial-gradient(circle at 30% 30%,var(--fx-c1) 0 42%,color-mix(in srgb,var(--fx-c1) 0%,transparent) 60%),radial-gradient(circle at 68% 64%,var(--fx-c2) 0 20%,transparent 28%)",
+  "spark": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);background:var(--fx-c2);width:16px;height:16px",
+  "beam": "clip-path:polygon(0 0,100% 0,0 100%);background:linear-gradient(135deg,var(--fx-c1),color-mix(in srgb,var(--fx-c1) 0%,transparent));filter:drop-shadow(0 0 5px color-mix(in srgb,var(--fx-c1) 80%,transparent))",
+  "grad": "background:linear-gradient(135deg,var(--fx-c1),var(--fx-c2));border-radius:4px;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--fx-c1) 80%,transparent))",
+  "neon": "border:2.5px solid var(--fx-c1);border-radius:5px;box-shadow:0 0 8px color-mix(in srgb,var(--fx-c1) 90%,transparent),inset 0 0 8px color-mix(in srgb,var(--fx-c1) 90%,transparent)",
+  "neon2": "border:2.5px solid var(--fx-c1);border-radius:5px;box-shadow:0 0 8px color-mix(in srgb,var(--fx-c2) 95%,transparent),inset 0 0 10px color-mix(in srgb,var(--fx-c2) 80%,transparent)",
+  "pixel": "clip-path:polygon(0 0,60% 0,60% 20%,80% 20%,80% 40%,100% 40%,100% 60%,60% 60%,60% 100%,40% 100%,40% 60%,20% 60%,20% 40%,0 40%);background:var(--fx-c1);width:24px;height:24px",
+  "pixelc": "clip-path:polygon(0 0,60% 0,60% 20%,80% 20%,80% 40%,100% 40%,100% 60%,60% 60%,60% 100%,40% 100%,40% 60%,20% 60%,20% 40%,0 40%);background:var(--fx-c1);width:20px;height:20px",
+  "block": "background:linear-gradient(135deg,var(--fx-c1),color-mix(in srgb,var(--fx-c1) 55%,transparent))",
+  "step": "clip-path:polygon(0 0,100% 0,100% 26%,72% 26%,72% 52%,44% 52%,44% 78%,16% 78%,16% 100%,0 100%);background:var(--fx-c1);width:22px;height:22px",
+  "zigzagc": "clip-path:polygon(0 0,100% 0,100% 30%,70% 30%,70% 55%,40% 55%,40% 80%,10% 80%,10% 100%,0 100%);background:var(--fx-c1)",
+  "wavec": "background:radial-gradient(circle at 22% 78%,transparent 38%,var(--fx-c1) 39% 50%,transparent 52%),radial-gradient(circle at 72% 22%,transparent 38%,var(--fx-c1) 39% 50%,transparent 52%)",
+  "spine": "border-top:3px solid var(--fx-c1);border-left:3px solid var(--fx-c1);box-shadow:inset 3px 3px 0 -1px color-mix(in srgb,var(--fx-c2) 75%,transparent)",
+  "tab": "clip-path:polygon(0 0,100% 0,100% 60%,70% 60%,70% 100%,0 100%);background:var(--fx-c1)",
+  "notchc": "clip-path:polygon(0 0,100% 0,100% 100%,38% 100%,38% 62%,0 62%);background:var(--fx-c1)",
+  "bolt": "border-top:3px solid var(--fx-c1);border-left:3px solid var(--fx-c1);background:radial-gradient(circle at 70% 70%,color-mix(in srgb,var(--fx-c2) 90%,transparent) 0 2.6px,color-mix(in srgb,var(--fx-c1) 90%,transparent) 2.6px 3.6px,transparent 4px) no-repeat",
+  "wire": "border-top:1.6px solid var(--fx-c1);border-left:1.6px solid var(--fx-c1);border-top-left-radius:9px",
+  "hollow": "border:2.5px solid var(--fx-c1);border-radius:4px",
+  "full": "background:var(--fx-c1);width:24px;height:24px",
+  "halfgrad": "clip-path:polygon(0 0,100% 0,0 100%);background:linear-gradient(135deg,var(--fx-c1),color-mix(in srgb,var(--fx-c2) 0%,transparent))"
  },
  "mo": {
-  "shimmer": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShimmer var(--fx-dur,5s) linear infinite",
-  "shimmerslow": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxShimmer var(--fx-dur,9s) linear infinite",
-  "shimmerfast": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxShimmer var(--fx-dur,3s) linear infinite",
-  "sheen": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShimmer var(--fx-dur,5s) linear infinite",
-  "sheen2": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShimmer var(--fx-dur,5s) linear infinite",
+  "shimmer": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,5s) linear infinite",
+  "shimmerslow": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,9s) linear infinite",
+  "shimmerfast": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,3s) linear infinite",
+  "sheen": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,5s) linear infinite",
+  "sheen2": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,5s) linear infinite",
   "float": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxFloat var(--fx-dur,5s) ease-in-out infinite",
   "float2": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxFloat var(--fx-dur,5s) ease-in-out infinite",
   "float3": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxFloat var(--fx-dur,5s) ease-in-out infinite",
   "hoverlift": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxFloat var(--fx-dur,5s) ease-in-out infinite",
   "hoverscale": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxFloat var(--fx-dur,5s) ease-in-out infinite",
-  "hovershine": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShimmer var(--fx-dur,5s) linear infinite",
+  "hovershine": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,5s) linear infinite",
   "hoverglow": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxFloat var(--fx-dur,5s) ease-in-out infinite",
   "hoverrotate": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxFloat var(--fx-dur,5s) ease-in-out infinite",
   "hoverrise": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxFloat var(--fx-dur,5s) ease-in-out infinite",
@@ -670,7 +670,7 @@
   "rotate": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxSpin var(--fx-dur,16s) linear infinite",
   "rotate2": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxSpin var(--fx-dur,16s) linear infinite",
   "rotate3": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxSpin var(--fx-dur,16s) linear infinite",
-  "rotor": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,6s) ease-in-out infinite",
+  "rotor": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTilt var(--fx-dur,5s) ease-in-out infinite",
   "wiggle": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTilt var(--fx-dur,5s) ease-in-out infinite",
   "wobble": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxTilt var(--fx-dur,5s) ease-in-out infinite",
   "bounce": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxBounce var(--fx-dur,3s) ease-in-out infinite",
@@ -678,14 +678,14 @@
   "wavem": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxWave var(--fx-dur,5s) ease-in-out infinite",
   "ripple": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxRipple var(--fx-dur,4.4s) ease-out infinite",
   "ripple2": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxRipple var(--fx-dur,4.4s) ease-out infinite",
-  "blink": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxBlink var(--fx-dur,3.2s) ease-in-out infinite",
-  "blink2": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxBlink var(--fx-dur,3.2s) ease-in-out infinite",
+  "blink": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite",
+  "blink2": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite",
   "flicker": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxFlicker var(--fx-dur,3s) linear infinite",
-  "strobe": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxBlink var(--fx-dur,3.2s) ease-in-out infinite",
-  "fadein": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxRise var(--fx-dur,3.6s) ease-out infinite",
-  "fadeup": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxBreathe var(--fx-dur,5s) ease-in-out infinite",
-  "fadedown": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxDrift var(--fx-dur,6s) ease-in-out infinite",
-  "fadeside": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,7s) ease-in-out infinite",
+  "strobe": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite",
+  "fadein": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite",
+  "fadeup": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite",
+  "fadedown": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite",
+  "fadeside": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite",
   "scalein": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxScale var(--fx-dur,5s) ease-out infinite",
   "spin": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxSpin var(--fx-dur,16s) linear infinite",
   "spin3d": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxSpin var(--fx-dur,16s) linear infinite",
@@ -697,35 +697,35 @@
   "glitch2": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlitch var(--fx-dur,3s) steps(2,end) infinite",
   "glitch3": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlitch var(--fx-dur,3s) steps(2,end) infinite",
   "scan": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxFlow var(--fx-dur,6s) linear infinite",
-  "scan2": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxFlow var(--fx-dur,6s) linear infinite",
-  "scanline": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxFlow var(--fx-dur,6s) linear infinite",
+  "scan2": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,3.6s) linear infinite",
+  "scanline": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,3.6s) linear infinite",
   "hologram": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,5s) ease-in-out infinite;filter:hue-rotate(20deg)",
   "matrix": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxFlow var(--fx-dur,6s) linear infinite",
   "type": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTypeIn var(--fx-dur,4s) steps(20,end) infinite",
   "typeloop": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxTypeIn var(--fx-dur,4s) steps(20,end) infinite",
-  "reveal": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxRise var(--fx-dur,3.6s) ease-out infinite",
-  "reveal2": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxRise var(--fx-dur,3.6s) ease-out infinite",
-  "clip": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxPulse var(--fx-dur,6s) ease-in-out infinite",
-  "wipe": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxScale var(--fx-dur,7s) ease-in-out infinite",
+  "reveal": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxFlow var(--fx-dur,6s) linear infinite",
+  "reveal2": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxFlow var(--fx-dur,6s) linear infinite",
+  "clip": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxFlow var(--fx-dur,6s) linear infinite",
+  "wipe": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,5s) linear infinite",
   "zoom": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxScale var(--fx-dur,5s) ease-out infinite",
   "zoom2": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxScale var(--fx-dur,5s) ease-out infinite",
-  "pan": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxDrift var(--fx-dur,13s) ease-in-out infinite",
+  "pan": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,5s) linear infinite",
   "orbit": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxOrbit var(--fx-dur,8s) linear infinite",
   "orbit2": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxOrbit var(--fx-dur,8s) linear infinite",
-  "comet": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,3.4s) linear infinite",
-  "magnet": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxPulse var(--fx-dur,7s) ease-in-out infinite",
-  "glowwave": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,4.6s) ease-in-out infinite",
+  "comet": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,3.6s) linear infinite",
+  "magnet": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxOrbit var(--fx-dur,8s) linear infinite",
+  "glowwave": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxRipple var(--fx-dur,4.4s) ease-out infinite",
   "shockwave": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxRipple var(--fx-dur,4.4s) ease-out infinite",
-  "focus": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,6.5s) ease-in-out infinite;filter:saturate(1.12)",
-  "unfocus": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,6.5s) ease-in-out infinite;filter:saturate(1.12)",
-  "blur": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,6.5s) ease-in-out infinite;filter:saturate(1.12)",
-  "sharpen": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTilt var(--fx-dur,6s) ease-in-out infinite",
+  "focus": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxScale var(--fx-dur,5s) ease-out infinite",
+  "unfocus": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxScale var(--fx-dur,5s) ease-out infinite",
+  "blur": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,6.5s) ease-in-out infinite;filter:blur(1.4px)",
+  "sharpen": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,6.5s) ease-in-out infinite;filter:blur(1.4px)",
   "tint": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,7s) ease-in-out infinite;filter:hue-rotate(12deg) saturate(1.2)",
   "saturate": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,7s) ease-in-out infinite;filter:hue-rotate(12deg) saturate(1.2)",
-  "bright": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxScale var(--fx-dur,9s) ease-in-out infinite",
+  "bright": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,7s) ease-in-out infinite;filter:hue-rotate(12deg) saturate(1.2)",
   "contrast": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,7s) ease-in-out infinite;filter:hue-rotate(12deg) saturate(1.2)",
-  "invert": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxDrift var(--fx-dur,4s) ease-in-out infinite",
-  "ghost": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,5s) ease-in-out infinite",
+  "invert": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,7s) ease-in-out infinite;filter:hue-rotate(12deg) saturate(1.2)",
+  "ghost": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite",
   "liquid": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxWave var(--fx-dur,6s) ease-in-out infinite",
   "neonpulse": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,3s) ease-in-out infinite"
  },
@@ -2671,7 +2671,7 @@
   {
    "v": "rotating",
    "label": "旋转渐变环",
-   "css": "box-shadow: inset 0 0 0 2px transparent; animation: bdSpin 5s linear infinite;"
+   "css": "box-shadow: inset 0 0 0 2px transparent; animation: pfBdSpin 5s linear infinite;"
   },
   {
    "v": "tracing",
@@ -2726,7 +2726,7 @@
   {
    "v": "glowpulse",
    "label": "发光脉冲边",
-   "css": "box-shadow: 0 0 0 1px var(--fx-c2); animation: bdPulse 2.5s ease-out infinite;"
+   "css": "box-shadow: 0 0 0 1px var(--fx-c2); animation: pfBdPulse 2.5s ease-out infinite;"
   },
   {
    "v": "innershine",
@@ -2787,432 +2787,432 @@
   {
    "v": "outer",
    "label": "外发光",
-   "css": "box-shadow: 0 0 24px -2px var(--fx-c2), 0 8px 30px rgba(0,0,0,.5);"
+   "css": "box-shadow: 0 0 24px -2px var(--fx-c2), 0 8px 30px rgba(0,0,0,.5)"
   },
   {
    "v": "outer2",
    "label": "双层外发光",
-   "css": "box-shadow: 0 0 18px var(--fx-c2), 0 0 40px -4px var(--fx-c2), 0 8px 30px rgba(0,0,0,.5);"
+   "css": "box-shadow: 0 0 18px var(--fx-c2), 0 0 40px -4px var(--fx-c2), 0 8px 30px rgba(0,0,0,.5)"
   },
   {
    "v": "inner",
    "label": "内辉光",
-   "css": "box-shadow: inset 0 0 50px -10px var(--fx-c2);"
+   "css": "box-shadow: inset 0 0 50px -10px var(--fx-c2)"
   },
   {
    "v": "both",
    "label": "内外发光",
-   "css": "box-shadow: 0 0 24px -2px var(--fx-c2), inset 0 0 30px -8px var(--fx-c2);"
+   "css": "box-shadow: 0 0 24px -2px var(--fx-c2), inset 0 0 30px -8px var(--fx-c2)"
   },
   {
    "v": "soft",
    "label": "柔光晕",
-   "css": "box-shadow: 0 6px 40px -6px var(--fx-c2);"
+   "css": "box-shadow: 0 6px 40px -6px var(--fx-c2)"
   },
   {
    "v": "softwide",
    "label": "广角柔光",
-   "css": "box-shadow: 0 10px 60px -10px var(--fx-c2);"
+   "css": "box-shadow: 0 10px 60px -10px var(--fx-c2)"
   },
   {
    "v": "tight",
    "label": "紧致光核",
-   "css": "box-shadow: 0 0 10px 2px var(--fx-c2);"
+   "css": "box-shadow: 0 0 10px 2px var(--fx-c2)"
   },
   {
    "v": "breath",
    "label": "呼吸灯",
-   "css": "animation: gwBreath 3.5s ease-in-out infinite;"
+   "css": "animation: pfGwBreath 3.5s ease-in-out infinite"
   },
   {
    "v": "breathslow",
    "label": "慢呼吸",
-   "css": "animation: gwBreath 6s ease-in-out infinite;"
+   "css": "animation: pfGwBreath 6s ease-in-out infinite"
   },
   {
    "v": "pulse",
    "label": "脉冲环",
-   "css": "animation: gwPulse 2.2s ease-out infinite;"
+   "css": "animation: pfGwPulse 2.2s ease-out infinite"
   },
   {
    "v": "pulse2",
    "label": "双脉冲",
-   "css": "animation: gwPulse2 2.6s ease-out infinite;"
+   "css": "animation: pfGwPulse2 2.6s ease-out infinite"
   },
   {
    "v": "sonar",
    "label": "声纳扩散",
-   "css": "animation: gwSonar 3s ease-out infinite;"
+   "css": "animation: pfGwSonar 3s ease-out infinite"
   },
   {
    "v": "neon",
    "label": "霓虹灯管",
-   "css": "box-shadow: 0 0 6px var(--fx-c2), 0 0 18px var(--fx-c2), 0 0 46px var(--fx-c2);"
+   "css": "box-shadow: 0 0 6px var(--fx-c2), 0 0 18px var(--fx-c2), 0 0 46px var(--fx-c2)"
   },
   {
    "v": "neonflick",
    "label": "霓虹闪烁",
-   "css": "animation: gwFlick 8s infinite;"
+   "css": "animation: pfGwFlick 8s infinite"
   },
   {
    "v": "buzzing",
    "label": "蜂鸣辉光",
-   "css": "animation: gwBuzz 3s infinite;"
+   "css": "animation: pfGwBuzz 3s infinite"
   },
   {
    "v": "rainbow",
    "label": "彩虹光",
-   "css": "animation: gwRainbow 4s linear infinite;"
+   "css": "animation: pfGwRainbow 4s linear infinite"
   },
   {
    "v": "rainbowslow",
    "label": "慢彩虹",
-   "css": "animation: gwRainbow 8s linear infinite;"
+   "css": "animation: pfGwRainbow 8s linear infinite"
   },
   {
    "v": "aurora",
    "label": "极光流",
-   "css": "background-image: radial-gradient(circle at 20% 0%, color-mix(in srgb,var(--fx-c2) 12%,transparent), transparent 60%), radial-gradient(circle at 85% 100%, color-mix(in srgb,var(--fx-c2) 10%,transparent), transparent 55%);"
+   "css": "box-shadow:0 0 30px -6px var(--fx-c2),inset 0 0 24px -12px var(--fx-c1)"
   },
   {
    "v": "spot",
    "label": "聚光灯",
-   "css": "box-shadow: 0 -10px 50px -15px var(--fx-c2);"
+   "css": "box-shadow: 0 -10px 50px -15px var(--fx-c2)"
   },
   {
    "v": "volumetric",
    "label": "体积光",
-   "css": "box-shadow: 0 0 60px -10px var(--fx-c2), inset 0 0 40px -20px var(--fx-c2);"
+   "css": "box-shadow: 0 0 60px -10px var(--fx-c2), inset 0 0 40px -20px var(--fx-c2)"
   },
   {
    "v": "bloom",
    "label": "泛光",
-   "css": "box-shadow: 0 0 20px var(--fx-c2), 0 0 60px -10px var(--fx-c2);"
+   "css": "box-shadow: 0 0 20px var(--fx-c2), 0 0 60px -10px var(--fx-c2)"
   },
   {
    "v": "bloomsoft",
    "label": "柔泛光",
-   "css": "box-shadow: 0 0 30px -6px var(--fx-c2), 0 0 80px -20px var(--fx-c2);"
+   "css": "box-shadow: 0 0 30px -6px var(--fx-c2), 0 0 80px -20px var(--fx-c2)"
   },
   {
    "v": "glowup",
    "label": "渐强发光",
-   "css": "animation: gwUp 2.5s ease-in-out infinite alternate;"
+   "css": "animation: pfGwUp 2.5s ease-in-out infinite alternate"
   },
   {
    "v": "glowdown",
    "label": "渐弱辉光",
-   "css": "animation: gwDown 2.5s ease-in-out infinite alternate;"
+   "css": "animation: pfGwDown 2.5s ease-in-out infinite alternate"
   },
   {
    "v": "shimmer",
    "label": "微光闪烁",
-   "css": "animation: gwShim 4s ease-in-out infinite;"
+   "css": "animation: pfGwShim 4s ease-in-out infinite"
   },
   {
    "v": "sparkle",
    "label": "闪烁星点",
-   "css": "animation: gwSpark 5s ease-in-out infinite;"
+   "css": "animation: pfGwSpark 5s ease-in-out infinite"
   },
   {
    "v": "fairy",
    "label": "萤火微光",
-   "css": "animation: gwFairy 6s ease-in-out infinite;"
+   "css": "animation: pfGwFairy 6s ease-in-out infinite"
   },
   {
    "v": "halo",
    "label": "神圣光环",
-   "css": "box-shadow: 0 0 30px 4px var(--fx-c2), inset 0 0 20px var(--fx-c2);"
+   "css": "box-shadow: 0 0 30px 4px var(--fx-c2), inset 0 0 20px var(--fx-c2)"
   },
   {
    "v": "halorot",
    "label": "旋转光环",
-   "css": "animation: gwHaloRot 6s linear infinite;"
+   "css": "animation: pfGwHaloRot 6s linear infinite"
   },
   {
    "v": "ringglow",
    "label": "光环扩散",
-   "css": "box-shadow: 0 0 0 1px var(--fx-c2), 0 0 24px -2px var(--fx-c2);"
+   "css": "box-shadow: 0 0 0 1px var(--fx-c2), 0 0 24px -2px var(--fx-c2)"
   },
   {
    "v": "shadowcore",
    "label": "暗核逆光",
-   "css": "box-shadow: inset 0 0 40px 4px rgba(0,0,0,.5), 0 0 30px -6px var(--fx-c2);"
+   "css": "box-shadow: inset 0 0 40px 4px rgba(0,0,0,.5), 0 0 30px -6px var(--fx-c2)"
   },
   {
    "v": "underglow",
    "label": "底部托光",
-   "css": "box-shadow: 0 20px 40px -10px var(--fx-c2);"
+   "css": "box-shadow: 0 20px 40px -10px var(--fx-c2)"
   },
   {
    "v": "topglow",
    "label": "顶部高光",
-   "css": "box-shadow: 0 -20px 40px -10px var(--fx-c2);"
+   "css": "box-shadow: 0 -20px 40px -10px var(--fx-c2)"
   },
   {
    "v": "sides",
    "label": "双侧光束",
-   "css": "box-shadow: -16px 0 40px -16px var(--fx-c2), 16px 0 40px -16px var(--fx-c2);"
+   "css": "box-shadow: -16px 0 40px -16px var(--fx-c2), 16px 0 40px -16px var(--fx-c2)"
   },
   {
    "v": "fire",
    "label": "火焰光",
-   "css": "box-shadow: 0 0 24px -2px #ff5722, 0 0 50px -10px #ff9800;"
+   "css": "box-shadow: 0 0 24px -2px #ff5722, 0 0 50px -10px #ff9800"
   },
   {
    "v": "ice",
    "label": "寒冰辉光",
-   "css": "box-shadow: 0 0 28px -2px #80deea, inset 0 0 20px -4px #b2ebf2;"
+   "css": "box-shadow: 0 0 28px -2px #80deea, inset 0 0 20px -4px #b2ebf2"
   },
   {
    "v": "magic",
    "label": "魔法辉光",
-   "css": "box-shadow: 0 0 26px -2px #ce93d8, 0 0 50px -12px #ba68c8;"
+   "css": "box-shadow: 0 0 26px -2px #ce93d8, 0 0 50px -12px #ba68c8"
   },
   {
    "v": "electric",
    "label": "电弧光",
-   "css": "box-shadow: 0 0 12px #00e5ff, 0 0 30px #00bcd4, inset 0 0 12px #00e5ff;"
+   "css": "box-shadow: 0 0 12px #00e5ff, 0 0 30px #00bcd4, inset 0 0 12px #00e5ff"
   },
   {
    "v": "plasma",
    "label": "等离子",
-   "css": "box-shadow: 0 0 22px -2px #b388ff, 0 0 50px -10px #7c4dff;"
+   "css": "box-shadow: 0 0 22px -2px #b388ff, 0 0 50px -10px #7c4dff"
   },
   {
    "v": "laser",
    "label": "激光边",
-   "css": "box-shadow: 0 0 4px var(--fx-c2), 0 0 14px var(--fx-c2), 0 0 32px var(--fx-c2);"
+   "css": "box-shadow: 0 0 4px var(--fx-c2), 0 0 14px var(--fx-c2), 0 0 32px var(--fx-c2)"
   },
   {
    "v": "energy",
    "label": "能量场",
-   "css": "box-shadow: 0 0 20px -2px var(--fx-c2), inset 0 0 16px -4px var(--fx-c2); animation: gwBreath 3s ease-in-out infinite;"
+   "css": "box-shadow: 0 0 20px -2px var(--fx-c2), inset 0 0 16px -4px var(--fx-c2); animation: pfGwBreath 3s ease-in-out infinite"
   },
   {
    "v": "energyflow",
    "label": "能量流",
-   "css": "animation: gwFlow 3s ease-in-out infinite alternate;"
+   "css": "animation: pfGwFlow 3s ease-in-out infinite alternate"
   },
   {
    "v": "core",
    "label": "能量核心",
-   "css": "box-shadow: inset 0 0 20px 4px var(--fx-c2), 0 0 30px -4px var(--fx-c2);"
+   "css": "box-shadow: inset 0 0 20px 4px var(--fx-c2), 0 0 30px -4px var(--fx-c2)"
   },
   {
    "v": "gridglow",
    "label": "网格发光",
-   "css": "box-shadow: 0 0 30px -6px var(--fx-c2); filter: drop-shadow(0 0 6px var(--fx-c2));"
+   "css": "box-shadow: 0 0 30px -6px var(--fx-c2); filter: drop-shadow(0 0 6px var(--fx-c2))"
   },
   {
    "v": "matrixglow",
    "label": "矩阵辉光",
-   "css": "box-shadow: 0 0 24px -2px #00ff96;"
+   "css": "box-shadow: 0 0 24px -2px #00ff96"
   },
   {
    "v": "glitch",
    "label": "故障辉光",
-   "css": "animation: gwGlitch 3s infinite;"
+   "css": "animation: pfGwGlitch 3s infinite"
   },
   {
    "v": "glitchrgb",
    "label": "RGB 偏移",
-   "css": "box-shadow: -3px 0 0 rgba(255,0,80,.5), 3px 0 0 rgba(0,200,255,.5);"
+   "css": "box-shadow: -3px 0 0 rgba(255,0,80,.5), 3px 0 0 rgba(0,200,255,.5)"
   },
   {
    "v": "scan",
    "label": "扫描扫光",
-   "css": "animation: gwScan 6s linear infinite;"
+   "css": "animation: pfGwScan 6s linear infinite"
   },
   {
    "v": "scanline",
    "label": "扫描线",
-   "css": "box-shadow: inset 0 0 0 1px var(--fx-c2);"
+   "css": "box-shadow: inset 0 0 0 1px var(--fx-c2)"
   },
   {
    "v": "crt",
    "label": "CRT 屏幕",
-   "css": "box-shadow: inset 0 0 60px rgba(0,0,0,.5);"
+   "css": "box-shadow: inset 0 0 60px rgba(0,0,0,.5)"
   },
   {
    "v": "hologram",
    "label": "全息投影",
-   "css": "box-shadow: 0 0 24px -2px var(--fx-c2), inset 0 0 24px -6px var(--fx-c2); animation: gwHolo 5s ease-in-out infinite;"
+   "css": "box-shadow: 0 0 24px -2px var(--fx-c2), inset 0 0 24px -6px var(--fx-c2); animation: pfGwHolo 5s ease-in-out infinite"
   },
   {
    "v": "hologrid",
    "label": "全息网格",
-   "css": "box-shadow: 0 0 24px -4px var(--fx-c2); filter: drop-shadow(0 0 4px var(--fx-c2));"
+   "css": "box-shadow: 0 0 24px -4px var(--fx-c2); filter: drop-shadow(0 0 4px var(--fx-c2))"
   },
   {
    "v": "morph",
    "label": "形变光",
-   "css": "animation: gwMorph 8s ease-in-out infinite;"
+   "css": "animation: pfGwMorph 8s ease-in-out infinite"
   },
   {
    "v": "wobble",
    "label": "摆动辉光",
-   "css": "animation: gwWobble 4s ease-in-out infinite;"
+   "css": "animation: pfGwWobble 4s ease-in-out infinite"
   },
   {
    "v": "strobe",
    "label": "频闪",
-   "css": "animation: gwStrobe 2s steps(2) infinite;"
+   "css": "animation: pfGwStrobe 2s steps(2) infinite"
   },
   {
    "v": "flicker",
    "label": "烛火微闪",
-   "css": "animation: gwFlicker 4s infinite;"
+   "css": "animation: pfGwFlicker 4s infinite"
   },
   {
    "v": "ember",
    "label": "余烬",
-   "css": "box-shadow: 0 0 20px -4px #ff6d00, 0 0 40px -12px #ff3d00;"
+   "css": "box-shadow: 0 0 20px -4px #ff6d00, 0 0 40px -12px #ff3d00"
   },
   {
    "v": "sunset",
    "label": "暮光渐变",
-   "css": "box-shadow: 0 0 40px -10px #ff7043, 0 -10px 50px -16px #ffab40;"
+   "css": "box-shadow: 0 0 40px -10px #ff7043, 0 -10px 50px -16px #ffab40"
   },
   {
    "v": "dawn",
    "label": "晨光",
-   "css": "box-shadow: 0 0 40px -12px #ff8a80, 0 0 60px -18px #ffd180;"
+   "css": "box-shadow: 0 0 40px -12px #ff8a80, 0 0 60px -18px #ffd180"
   },
   {
    "v": "golden",
    "label": "黄金时刻",
-   "css": "box-shadow: 0 0 30px -6px #ffd54f;"
+   "css": "box-shadow: 0 0 30px -6px #ffd54f"
   },
   {
    "v": "silver",
    "label": "银光",
-   "css": "box-shadow: 0 0 30px -6px #cfd8dc;"
+   "css": "box-shadow: 0 0 30px -6px #cfd8dc"
   },
   {
    "v": "iridescent",
    "label": "虹彩薄膜",
-   "css": "box-shadow: 0 0 24px -2px var(--fx-c2); animation: gwIridescent 5s linear infinite;"
+   "css": "box-shadow: 0 0 24px -2px var(--fx-c2); animation: pfGwIridescent 5s linear infinite"
   },
   {
    "v": "oil",
    "label": "油膜虹彩",
-   "css": "box-shadow: 0 0 24px -4px var(--fx-c2); animation: gwOil 6s linear infinite;"
+   "css": "box-shadow: 0 0 24px -4px var(--fx-c2); animation: pfGwOil 6s linear infinite"
   },
   {
    "v": "soap",
    "label": "皂泡",
-   "css": "box-shadow: 0 0 30px -6px var(--fx-c2); animation: gwSoap 7s ease-in-out infinite;"
+   "css": "box-shadow: 0 0 30px -6px var(--fx-c2); animation: pfGwSoap 7s ease-in-out infinite"
   },
   {
    "v": "prism",
    "label": "棱镜分光",
-   "css": "box-shadow: -4px 0 12px rgba(255,0,80,.5), 4px 0 12px rgba(0,150,255,.5);"
+   "css": "box-shadow: -4px 0 12px rgba(255,0,80,.5), 4px 0 12px rgba(0,150,255,.5)"
   },
   {
    "v": "chroma",
    "label": "色散边",
-   "css": "box-shadow: 0 0 14px var(--fx-c2); animation: gwChroma 5s linear infinite;"
+   "css": "box-shadow: 0 0 14px var(--fx-c2); animation: pfGwChroma 5s linear infinite"
   },
   {
    "v": "ambient",
    "label": "环境光",
-   "css": "box-shadow: 0 8px 40px -8px var(--fx-c2);"
+   "css": "box-shadow: 0 8px 40px -8px var(--fx-c2)"
   },
   {
    "v": "ambientsm",
    "label": "微环境光",
-   "css": "box-shadow: 0 6px 30px -10px var(--fx-c2);"
+   "css": "box-shadow: 0 6px 30px -10px var(--fx-c2)"
   },
   {
    "v": "refract",
    "label": "折射光",
-   "css": "box-shadow: 0 0 20px -4px var(--fx-c2); filter: blur(.2px);"
+   "css": "box-shadow: 0 0 20px -4px var(--fx-c2); filter: blur(.2px)"
   },
   {
    "v": "reflect",
    "label": "镜面反射",
-   "css": "box-shadow: inset 0 -20px 40px -20px var(--fx-c2), 0 10px 30px -10px var(--fx-c2);"
+   "css": "box-shadow: inset 0 -20px 40px -20px var(--fx-c2), 0 10px 30px -10px var(--fx-c2)"
   },
   {
    "v": "shadow",
    "label": "柔和投影",
-   "css": "box-shadow: 0 12px 30px -8px rgba(0,0,0,.6);"
+   "css": "box-shadow: 0 12px 30px -8px rgba(0,0,0,.6)"
   },
   {
    "v": "shadowdeep",
    "label": "深投影",
-   "css": "box-shadow: 0 20px 50px -10px rgba(0,0,0,.7);"
+   "css": "box-shadow: 0 20px 50px -10px rgba(0,0,0,.7)"
   },
   {
    "v": "shadowlong",
    "label": "长投影",
-   "css": "box-shadow: 20px 20px 40px -10px rgba(0,0,0,.6);"
+   "css": "box-shadow: 20px 20px 40px -10px rgba(0,0,0,.6)"
   },
   {
    "v": "layered",
    "label": "多层光",
-   "css": "box-shadow: 0 0 10px var(--fx-c2), 0 0 26px -2px var(--fx-c2), 0 0 50px -10px var(--fx-c2), inset 0 0 16px -4px var(--fx-c2);"
+   "css": "box-shadow: 0 0 10px var(--fx-c2), 0 0 26px -2px var(--fx-c2), 0 0 50px -10px var(--fx-c2), inset 0 0 16px -4px var(--fx-c2)"
   },
   {
    "v": "comet",
    "label": "彗星尾光",
-   "css": "animation: gwComet 6s ease-in-out infinite;"
+   "css": "animation: pfGwComet 6s ease-in-out infinite"
   },
   {
    "v": "flare",
    "label": "镜头光晕",
-   "css": "box-shadow: 0 0 60px 4px var(--fx-c2), 0 0 120px -10px var(--fx-c2);"
+   "css": "box-shadow: 0 0 60px 4px var(--fx-c2), 0 0 120px -10px var(--fx-c2)"
   },
   {
    "v": "dust",
    "label": "光尘",
-   "css": "box-shadow: 0 0 40px -10px var(--fx-c2);"
+   "css": "box-shadow: 0 0 40px -10px var(--fx-c2)"
   },
   {
    "v": "starlight",
    "label": "星光",
-   "css": "box-shadow: 0 0 20px -2px var(--fx-c2), inset 0 0 10px -2px #fff;"
+   "css": "box-shadow: 0 0 20px -2px var(--fx-c2), inset 0 0 10px -2px #fff"
   },
   {
    "v": "sunbeam",
    "label": "日冕光束",
-   "css": "box-shadow: 0 -20px 60px -16px var(--fx-c2);"
+   "css": "box-shadow: 0 -20px 60px -16px var(--fx-c2)"
   },
   {
    "v": "lunar",
    "label": "月华清辉",
-   "css": "box-shadow: 0 0 40px -10px #cfd8dc, inset 0 0 20px -6px #eceff1;"
+   "css": "box-shadow: 0 0 40px -10px #cfd8dc, inset 0 0 20px -6px #eceff1"
   },
   {
    "v": "twilight",
    "label": "暮色微光",
-   "css": "box-shadow: 0 0 40px -10px #b39ddb, 0 0 60px -18px #f48fb1;"
+   "css": "box-shadow: 0 0 40px -10px #b39ddb, 0 0 60px -18px #f48fb1"
   },
   {
    "v": "polar",
    "label": "极光流转",
-   "css": "box-shadow: 0 0 40px -10px var(--fx-c2); animation: gwPolar 6s linear infinite;"
+   "css": "box-shadow: 0 0 40px -10px var(--fx-c2); animation: pfGwPolar 6s linear infinite"
   },
   {
    "v": "candle",
    "label": "烛火摇曳",
-   "css": "box-shadow: 0 0 20px -4px #ffb74d; animation: gwFlicker 3s infinite;"
+   "css": "box-shadow: 0 0 20px -4px #ffb74d; animation: pfGwFlicker 3s infinite"
   },
   {
    "v": "torch",
    "label": "火炬炽燃",
-   "css": "box-shadow: 0 0 26px -4px #ff8a65, 0 0 50px -12px #ff5722;"
+   "css": "box-shadow: 0 0 26px -4px #ff8a65, 0 0 50px -12px #ff5722"
   },
   {
    "v": "lamp",
    "label": "暖灯柔光",
-   "css": "box-shadow: 0 0 30px -6px #ffe082;"
+   "css": "box-shadow: 0 0 30px -6px #ffe082"
   },
   {
    "v": "dreame",
    "label": "幻梦流光",
-   "css": "box-shadow: 0 0 40px -12px #ea80fc, 0 0 60px -20px #b388ff;"
+   "css": "box-shadow: 0 0 40px -12px #ea80fc, 0 0 60px -20px #b388ff"
   }
  ],
  "ty": [
@@ -3646,462 +3646,462 @@
   {
    "v": "plate",
    "label": "金属铭牌",
-   "css": "background: linear-gradient(180deg, color-mix(in srgb, var(--fx-c1) 25%, #1a1f2b), color-mix(in srgb, var(--fx-c1) 40%, #0f131c)); border: 1px solid color-mix(in srgb, var(--fx-c1) 50%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 12%,transparent), 0 2px 6px rgba(0,0,0,.4);"
+   "css": "background: linear-gradient(180deg, color-mix(in srgb, var(--fx-c1) 25%, #1a1f2b), color-mix(in srgb, var(--fx-c1) 40%, #0f131c)); border: 1px solid color-mix(in srgb, var(--fx-c1) 50%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 12%,transparent), 0 2px 6px rgba(0,0,0,.4);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "plate2",
    "label": "磨砂铭牌",
-   "css": "background: color-mix(in srgb,var(--fx-c2) 4%,transparent); border: 1px solid color-mix(in srgb, var(--fx-c1) 45%, transparent); backdrop-filter: blur(4px);"
+   "css": "background: color-mix(in srgb,var(--fx-c2) 4%,transparent); border: 1px solid color-mix(in srgb, var(--fx-c1) 45%, transparent); backdrop-filter: blur(4px);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "plate3",
    "label": "拉丝铭牌",
-   "css": "background: repeating-linear-gradient(90deg, transparent 0 3px, color-mix(in srgb,var(--fx-c2) 5%,transparent) 3px 4px), linear-gradient(180deg, color-mix(in srgb, var(--fx-c1) 20%, #1a1f2b), color-mix(in srgb, var(--fx-c1) 35%, #0f131c)); border: 1px solid color-mix(in srgb, var(--fx-c1) 50%, transparent);"
+   "css": "background: repeating-linear-gradient(90deg, transparent 0 3px, color-mix(in srgb,var(--fx-c2) 5%,transparent) 3px 4px), linear-gradient(180deg, color-mix(in srgb, var(--fx-c1) 20%, #1a1f2b), color-mix(in srgb, var(--fx-c1) 35%, #0f131c)); border: 1px solid color-mix(in srgb, var(--fx-c1) 50%, transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "platebold",
    "label": "粗边铭牌",
-   "css": "background: color-mix(in srgb, var(--fx-c1) 30%, #141a26); border: 2px solid var(--fx-c1);"
+   "css": "background: color-mix(in srgb, var(--fx-c1) 30%, #141a26); border: 2px solid var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "ribbon",
    "label": "缎带横幅",
-   "css": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 700; clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%);"
+   "css": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 700; clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "ribbon2",
    "label": "折叠缎带",
-   "css": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 8px 100%);"
+   "css": "background: var(--fx-c1); font-weight: 700; clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 8px 100%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "ribbon3",
    "label": "双尾缎带",
-   "css": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 700; clip-path: polygon(0 0, 100% 0, 100% 100%, 86% 100%, 80% 0, 74% 100%, 60% 100%, 54% 0, 48% 100%, 34% 100%, 28% 0, 22% 100%, 8% 100%, 0 0);"
+   "css": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 700; clip-path: polygon(0 0, 100% 0, 100% 100%, 86% 100%, 80% 0, 74% 100%, 60% 100%, 54% 0, 48% 100%, 34% 100%, 28% 0, 22% 100%, 8% 100%, 0 0);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "ribbon4",
    "label": "燕尾缎带",
-   "css": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; clip-path: polygon(0 20%, 20% 0, 80% 0, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0 80%);"
+   "css": "background: var(--fx-c1); font-weight: 700; clip-path: polygon(0 20%, 20% 0, 80% 0, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0 80%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "crest",
    "label": "纹章盾牌",
-   "css": "background: linear-gradient(135deg, color-mix(in srgb, var(--fx-c1) 40%, #0f131c), #0f131c); border: 1px solid var(--fx-c1); border-radius: 4px 14px 4px 14px; box-shadow: 0 0 12px -4px var(--fx-c1);"
+   "css": "background: linear-gradient(135deg, color-mix(in srgb, var(--fx-c1) 40%, #0f131c), #0f131c); border: 1px solid var(--fx-c1); border-radius: 4px 14px 4px 14px; box-shadow: 0 0 12px -4px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "crest2",
    "label": "尖盾纹章",
-   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);"
+   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "crest3",
    "label": "圆盾纹章",
-   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); border-radius: 50% 50% 0 0;"
+   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); border-radius: 50% 50% 0 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "chip",
    "label": "芯片贴片",
-   "css": "background: #0c1018; border: 1px solid var(--fx-c1); border-radius: 4px; font-family: \"JetBrains Mono\", monospace;"
+   "css": "background: #0c1018; border: 1px solid var(--fx-c1); border-radius: 4px; font-family: \"JetBrains Mono\", monospace;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "chip2",
    "label": "引脚芯片",
-   "css": "background: #0c1018; border: 1px solid var(--fx-c1); border-radius: 4px; box-shadow: inset 0 0 0 3px #0c1018, inset 0 0 0 4px var(--fx-c1);"
+   "css": "background: #0c1018; border: 1px solid var(--fx-c1); border-radius: 4px; box-shadow: inset 0 0 0 3px #0c1018, inset 0 0 0 4px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "seal",
    "label": "印章火漆",
-   "css": "background: radial-gradient(circle at 30% 30%, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; border-radius: 50px;"
+   "css": "background: radial-gradient(circle at 30% 30%, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; border-radius: 50px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "seal2",
    "label": "圆形印章",
-   "css": "background: #0b0e15; border: 2px solid var(--fx-c1); border-radius: 50px; color: color-mix(in srgb,var(--fx-c1) 72%,#fff);"
+   "css": "background: #0b0e15; border: 2px solid var(--fx-c1); border-radius: 50px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "seal3",
    "label": "方印",
-   "css": "background: #0b0e15; border: 2px solid var(--fx-c1); color: color-mix(in srgb,var(--fx-c1) 72%,#fff);"
+   "css": "background: #0b0e15; border: 2px solid var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "badge",
    "label": "工牌",
-   "css": "background: #0b0e15; border: 1px solid var(--fx-c1); border-radius: 6px; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); box-shadow: 0 3px 8px rgba(0,0,0,.4);"
+   "css": "background: #0b0e15; border: 1px solid var(--fx-c1); border-radius: 6px; box-shadow: 0 3px 8px rgba(0,0,0,.4);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "badge2",
    "label": "挂绳工牌",
-   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); border-radius: 6px 6px 0 0;"
+   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); border-radius: 6px 6px 0 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "tag",
    "label": "行李牌",
-   "css": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; clip-path: polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px));"
+   "css": "background: var(--fx-c1); font-weight: 700; clip-path: polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px));color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "tag2",
    "label": "三角标签",
-   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), 50% 100%, 0 calc(100% - 10px));"
+   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), 50% 100%, 0 calc(100% - 10px));color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "label",
    "label": "平标",
-   "css": "background: color-mix(in srgb,var(--fx-c2) 6%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 12%,transparent); border-left: 3px solid var(--fx-c1);"
+   "css": "background: color-mix(in srgb,var(--fx-c2) 6%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 12%,transparent); border-left: 3px solid var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "label2",
    "label": "斜标",
-   "css": "background: linear-gradient(90deg, var(--fx-c1), transparent 80%); color: #0b0e15; font-weight: 700;"
+   "css": "background: linear-gradient(90deg, var(--fx-c1), transparent 80%); font-weight: 700;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "label3",
    "label": "圆角标签",
-   "css": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; border-radius: 4px;"
+   "css": "background: var(--fx-c1); font-weight: 700; border-radius: 4px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "band",
    "label": "窄条带",
-   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); height: 22px; border-radius: 2px;"
+   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); height: 22px; border-radius: 2px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "band2",
    "label": "渐变条带",
-   "css": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 700;"
+   "css": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 700;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "band3",
    "label": "双色条带",
-   "css": "background: linear-gradient(90deg, var(--fx-c1), var(--fx-c2)); color: #0b0e15; font-weight: 700;"
+   "css": "background: linear-gradient(90deg, var(--fx-c1), var(--fx-c2)); font-weight: 700;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "banner",
    "label": "横幅",
-   "css": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; padding: 5px 16px;"
+   "css": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; padding: 5px 16px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "banner2",
    "label": "斜切横幅",
-   "css": "background: var(--fx-c1); color: #0b0e15; font-weight: 800; clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%); padding: 5px 18px;"
+   "css": "background: var(--fx-c1); font-weight: 800; clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%); padding: 5px 18px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "banner3",
    "label": "飘带横幅",
-   "css": "background: var(--fx-c1); color: #0b0e15; font-weight: 800; clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 10px 100%); padding: 5px 18px;"
+   "css": "background: var(--fx-c1); font-weight: 800; clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 10px 100%); padding: 5px 18px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "tab",
    "label": "标签页",
-   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border-radius: 6px 6px 0 0;"
+   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border-radius: 6px 6px 0 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "tab2",
    "label": "下挂标签",
-   "css": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; border-radius: 0 0 6px 6px;"
+   "css": "background: var(--fx-c1); font-weight: 700; border-radius: 0 0 6px 6px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "tab3",
    "label": "侧标签",
-   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border-radius: 0 6px 6px 0;"
+   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border-radius: 0 6px 6px 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "pill",
    "label": "胶囊",
-   "css": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; border-radius: 50px; padding: 4px 14px;"
+   "css": "background: var(--fx-c1); font-weight: 700; border-radius: 50px; padding: 4px 14px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "pill2",
    "label": "粗胶囊",
-   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 1px solid var(--fx-c1); border-radius: 50px;"
+   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border: 1px solid var(--fx-c1); border-radius: 50px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "pill3",
    "label": "渐变胶囊",
-   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 700; border-radius: 50px;"
+   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 700; border-radius: 50px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "bubble",
    "label": "气泡框",
-   "css": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; border-radius: 14px 14px 14px 2px;"
+   "css": "background: var(--fx-c1); font-weight: 700; border-radius: 14px 14px 14px 2px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "bubble2",
    "label": "指向气泡",
-   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border-radius: 14px 14px 14px 2px; border: 1px solid var(--fx-c1);"
+   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border-radius: 14px 14px 14px 2px; border: 1px solid var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "cloud",
    "label": "云形铭牌",
-   "css": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; border-radius: 20px 20px 4px 20px;"
+   "css": "background: var(--fx-c1); font-weight: 700; border-radius: 20px 20px 4px 20px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "shieldp",
    "label": "盾牌铭牌",
-   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);"
+   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1px solid var(--fx-c1); clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "shieldp2",
    "label": "尖盾铭牌",
-   "css": "background: linear-gradient(135deg, var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);"
+   "css": "background: linear-gradient(135deg, var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "medallion",
    "label": "圆形挂章",
-   "css": "background: radial-gradient(circle at 30% 30%, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; border-radius: 50%; width: 120px; height: 28px; line-height: 28px; text-align: center; padding: 0;"
+   "css": "background: radial-gradient(circle at 30% 30%, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; border-radius: 50%; height: 28px; text-align: center; padding: 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "coinp",
    "label": "金币牌",
-   "css": "background: radial-gradient(circle at 35% 30%, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; border: 2px solid color-mix(in srgb,var(--fx-c1) 72%,#fff); border-radius: 50%; box-shadow: 0 0 8px var(--fx-c1);"
+   "css": "background: radial-gradient(circle at 35% 30%, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; border: 2px solid color-mix(in srgb,var(--fx-c1) 72%,#fff); border-radius: 50%; box-shadow: 0 0 8px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "key",
    "label": "钥匙牌",
-   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 1px solid var(--fx-c1); clip-path: polygon(0 0, 100% 0, 100% 100%, 20% 100%, 20% 60%, 0 60%);"
+   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border: 1px solid var(--fx-c1); clip-path: polygon(0 0, 100% 0, 100% 100%, 20% 100%, 20% 60%, 0 60%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "gem",
    "label": "宝石牌",
-   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; clip-path: polygon(50% 0, 100% 35%, 100% 65%, 50% 100%, 0 65%, 0 35%);"
+   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; clip-path: polygon(50% 0, 100% 35%, 100% 65%, 50% 100%, 0 65%, 0 35%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "crownp",
    "label": "皇冠牌",
-   "css": "background: var(--fx-c1); color: #0b0e15; font-weight: 800; clip-path: polygon(0 100%, 0 50%, 20% 30%, 35% 50%, 50% 10%, 65% 50%, 80% 30%, 100% 50%, 100% 100%);"
+   "css": "background: var(--fx-c1); font-weight: 800; clip-path: polygon(0 100%, 0 50%, 20% 30%, 35% 50%, 50% 10%, 65% 50%, 80% 30%, 100% 50%, 100% 100%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "laurelp",
    "label": "桂冠牌",
-   "css": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; position: relative;"
+   "css": "background: linear-gradient(90deg, color-mix(in srgb,var(--fx-c1) 62%,#000), var(--fx-c1), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "wingp",
    "label": "羽翼牌",
-   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 1px solid var(--fx-c1); clip-path: polygon(0 20%, 15% 0, 85% 0, 100% 20%, 100% 80%, 85% 100%, 15% 100%, 0 80%);"
+   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border: 1px solid var(--fx-c1); clip-path: polygon(0 20%, 15% 0, 85% 0, 100% 20%, 100% 80%, 85% 100%, 15% 100%, 0 80%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "bookp",
    "label": "书卷牌",
-   "css": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; clip-path: polygon(0 0, 48% 0, 52% 8%, 100% 8%, 100% 100%, 0 100%);"
+   "css": "background: var(--fx-c1); font-weight: 700; clip-path: polygon(0 0, 48% 0, 52% 8%, 100% 8%, 100% 100%, 0 100%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "scrollp",
    "label": "卷轴牌",
-   "css": "background: var(--fx-c1); color: #0b0e15; font-weight: 700; border-radius: 4px; box-shadow: 0 4px 0 -2px color-mix(in srgb,var(--fx-c1) 62%,#000), 0 -4px 0 -2px color-mix(in srgb,var(--fx-c1) 62%,#000);"
+   "css": "background: var(--fx-c1); font-weight: 700; border-radius: 4px; box-shadow: 0 4px 0 -2px color-mix(in srgb,var(--fx-c1) 62%,#000), 0 -4px 0 -2px color-mix(in srgb,var(--fx-c1) 62%,#000);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "emblem",
    "label": "徽章铭牌",
-   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 2px solid var(--fx-c1); border-radius: 4px;"
+   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border: 2px solid var(--fx-c1); border-radius: 4px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "emblem2",
    "label": "圆徽章",
-   "css": "background: #0b0e15; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 2px solid var(--fx-c1); border-radius: 50%; width: 120px; text-align: center; padding: 0;"
+   "css": "background: #0b0e15; border: 2px solid var(--fx-c1); border-radius: 50%; text-align: center; padding: 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "emblem3",
    "label": "六角徽章",
-   "css": "background: #0b0e15; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 2px solid var(--fx-c1); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);"
+   "css": "background: #0b0e15; border: 2px solid var(--fx-c1); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "frame",
    "label": "相框铭牌",
-   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 4px solid var(--fx-c1); border-radius: 4px;"
+   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border: 4px solid var(--fx-c1); border-radius: 4px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "frame2",
    "label": "金框铭牌",
-   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 3px solid #8a6a30; box-shadow: 0 0 0 1px #2a1a08, inset 0 0 0 1px #2a1a08;"
+   "css": "background: color-mix(in srgb,var(--fx-c1) 62%,#000); border: 3px solid #8a6a30; box-shadow: 0 0 0 1px #2a1a08, inset 0 0 0 1px #2a1a08;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "frame3",
    "label": "木框铭牌",
-   "css": "background: #2a1a10; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 3px solid #4a2a14;"
+   "css": "background: #2a1a10; border: 3px solid #4a2a14;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "glassp",
    "label": "玻璃铭牌",
-   "css": "background: color-mix(in srgb,var(--fx-c2) 8%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 25%,transparent); backdrop-filter: blur(6px);"
+   "css": "background: color-mix(in srgb,var(--fx-c2) 8%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 25%,transparent); backdrop-filter: blur(6px);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "glassp2",
    "label": "磨砂玻璃牌",
-   "css": "background: color-mix(in srgb,var(--fx-c2) 5%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 18%,transparent); backdrop-filter: blur(8px); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 20%,transparent);"
+   "css": "background: color-mix(in srgb,var(--fx-c2) 5%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 18%,transparent); backdrop-filter: blur(8px); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 20%,transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "neonp",
    "label": "霓虹牌",
-   "css": "background: #0b0e15; color: #fff; border: 1.5px solid var(--fx-c1); box-shadow: 0 0 6px var(--fx-c1), inset 0 0 6px var(--fx-c1); font-weight: 700;"
+   "css": "background: #0b0e15; border: 1.5px solid var(--fx-c1); box-shadow: 0 0 6px var(--fx-c1), inset 0 0 6px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "neonp2",
    "label": "双色霓虹牌",
-   "css": "background: #0b0e15; color: #fff; border: 1.5px solid var(--fx-c1); box-shadow: 0 0 6px var(--fx-c1), 0 0 14px var(--fx-c2), inset 0 0 6px var(--fx-c1); font-weight: 700;"
+   "css": "background: #0b0e15; border: 1.5px solid var(--fx-c1); box-shadow: 0 0 6px var(--fx-c1), 0 0 14px var(--fx-c2), inset 0 0 6px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "led",
    "label": "LED 点阵",
-   "css": "background: #0b0e15; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); font-family: \"VT323\", \"JetBrains Mono\", monospace; border: 1px solid color-mix(in srgb,var(--fx-c1) 62%,#000); letter-spacing: 2px;"
+   "css": "background: #0b0e15; font-family: \"VT323\", \"JetBrains Mono\", monospace; border: 1px solid color-mix(in srgb,var(--fx-c1) 62%,#000); letter-spacing: 2px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "lcd",
    "label": "LCD 屏",
-   "css": "background: #0a1a14; color: #7cffb2; font-family: \"VT323\", monospace; border: 1px solid #1a3a2a;"
+   "css": "background: #0a1a14; font-family: \"VT323\", monospace; border: 1px solid #1a3a2a;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "metal",
    "label": "纯金属牌",
-   "css": "background: linear-gradient(180deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; border: 1px solid var(--fx-c1); box-shadow: inset 0 1px 2px color-mix(in srgb,var(--fx-c2) 40%,transparent);"
+   "css": "background: linear-gradient(180deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; border: 1px solid var(--fx-c1); box-shadow: inset 0 1px 2px color-mix(in srgb,var(--fx-c2) 40%,transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "metal2",
    "label": "拉丝金属牌",
-   "css": "background: repeating-linear-gradient(90deg, transparent 0 3px, color-mix(in srgb,var(--fx-c2) 6%,transparent) 3px 4px), linear-gradient(180deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); color: #0b0e15; font-weight: 800; border: 1px solid var(--fx-c1);"
+   "css": "background: repeating-linear-gradient(90deg, transparent 0 3px, color-mix(in srgb,var(--fx-c2) 6%,transparent) 3px 4px), linear-gradient(180deg, color-mix(in srgb,var(--fx-c1) 72%,#fff), color-mix(in srgb,var(--fx-c1) 62%,#000)); font-weight: 800; border: 1px solid var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "metal3",
    "label": "铜牌",
-   "css": "background: linear-gradient(180deg, #e0a070, #8a4a20); color: #1a0a04; font-weight: 800; border: 1px solid #6a3a10;"
+   "css": "background: linear-gradient(180deg, #e0a070, #8a4a20); font-weight: 800; border: 1px solid #6a3a10;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "metal4",
    "label": "钛金牌",
-   "css": "background: linear-gradient(180deg, #e8eef5, #8a9aa8); color: #0b1018; font-weight: 800; border: 1px solid #6a7a88;"
+   "css": "background: linear-gradient(180deg, #e8eef5, #8a9aa8); font-weight: 800; border: 1px solid #6a7a88;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "metal5",
    "label": "银牌",
-   "css": "background: linear-gradient(180deg, #f0f4f8, #aab4c0); color: #0b1018; font-weight: 800;"
+   "css": "background: linear-gradient(180deg, #f0f4f8, #aab4c0); font-weight: 800;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "metal6",
    "label": "铂金牌",
-   "css": "background: linear-gradient(180deg, #f5f5f0, #d0d0c8); color: #0b0e15; font-weight: 800; border: 1px solid #b0b0a8;"
+   "css": "background: linear-gradient(180deg, #f5f5f0, #d0d0c8); font-weight: 800; border: 1px solid #b0b0a8;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "wood",
    "label": "木质铭牌",
-   "css": "background: linear-gradient(180deg, #5a3418, #3a2010); color: #f0d0a0; border: 1px solid #2a1808; box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 10%,transparent);"
+   "css": "background: linear-gradient(180deg, #5a3418, #3a2010); border: 1px solid #2a1808; box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 10%,transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "wood2",
    "label": "深木牌",
-   "css": "background: linear-gradient(180deg, #4a2814, #2a1408); color: #d0a070; border: 1px solid #1a0c04;"
+   "css": "background: linear-gradient(180deg, #4a2814, #2a1408); border: 1px solid #1a0c04;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "wood3",
    "label": "雕花木牌",
-   "css": "background: linear-gradient(180deg, #6a3a1c, #3a1e0c); color: #f0d0a0; border: 2px solid #2a1408; box-shadow: inset 0 0 8px rgba(0,0,0,.4);"
+   "css": "background: linear-gradient(180deg, #6a3a1c, #3a1e0c); border: 2px solid #2a1408; box-shadow: inset 0 0 8px rgba(0,0,0,.4);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "acrylic",
    "label": "亚克力牌",
-   "css": "background: color-mix(in srgb,var(--fx-c2) 10%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 30%,transparent); backdrop-filter: blur(10px);"
+   "css": "background: color-mix(in srgb,var(--fx-c2) 10%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 30%,transparent); backdrop-filter: blur(10px);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "acrylic2",
    "label": "透明亚克力",
-   "css": "background: color-mix(in srgb,var(--fx-c2) 4%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 20%,transparent); backdrop-filter: blur(12px);"
+   "css": "background: color-mix(in srgb,var(--fx-c2) 4%,transparent); border: 1px solid color-mix(in srgb,var(--fx-c2) 20%,transparent); backdrop-filter: blur(12px);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "marblep",
    "label": "大理石牌",
-   "css": "background: linear-gradient(135deg, #f5f5f5, #c9c9c9); color: #1a1a1a; font-weight: 800; border: 1px solid #a0a0a0;"
+   "css": "background: linear-gradient(135deg, #f5f5f5, #c9c9c9); font-weight: 800; border: 1px solid #a0a0a0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "marblep2",
    "label": "金镶大理石",
-   "css": "background: linear-gradient(135deg, #f5f5f5, #c9c9c9); color: #1a1a1a; font-weight: 800; border: 2px solid var(--fx-c1);"
+   "css": "background: linear-gradient(135deg, #f5f5f5, #c9c9c9); font-weight: 800; border: 2px solid var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "leatherp",
    "label": "皮革铭牌",
-   "css": "background: linear-gradient(180deg, #4a2818, #2a1408); color: #f0d0a0; border: 1px solid #1a0c04; box-shadow: inset 0 0 12px rgba(0,0,0,.5);"
+   "css": "background: linear-gradient(180deg, #4a2818, #2a1408); border: 1px solid #1a0c04; box-shadow: inset 0 0 12px rgba(0,0,0,.5);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "leatherp2",
    "label": "压印皮牌",
-   "css": "background: #3a2010; color: #e0c090; border: 2px solid #5a3418; box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 10%,transparent), inset 0 -1px 0 rgba(0,0,0,.4);"
+   "css": "background: #3a2010; border: 2px solid #5a3418; box-shadow: inset 0 1px 0 color-mix(in srgb,var(--fx-c2) 10%,transparent), inset 0 -1px 0 rgba(0,0,0,.4);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "paperp",
    "label": "纸签",
-   "css": "background: #f5f0e6; color: #2a2018; border: 1px solid #d0c8b8; box-shadow: 1px 1px 4px rgba(0,0,0,.2);"
+   "css": "background: #f5f0e6; border: 1px solid #d0c8b8; box-shadow: 1px 1px 4px rgba(0,0,0,.2);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "paperp2",
    "label": "火漆纸签",
-   "css": "background: #f5f0e6; color: #8a2010; border: 1px solid #8a2010; border-radius: 50px;"
+   "css": "background: #f5f0e6; border: 1px solid #8a2010; border-radius: 50px;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "washi",
    "label": "和纸签",
-   "css": "background: #f5efe0; color: #2a2018; border: 1px solid #d0c8b0; box-shadow: inset 0 0 12px rgba(180,160,120,.2);"
+   "css": "background: #f5efe0; border: 1px solid #d0c8b0; box-shadow: inset 0 0 12px rgba(180,160,120,.2);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "carbonp",
    "label": "碳纤牌",
-   "css": "background: linear-gradient(135deg, #1a1a1a, #0a0a0a); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 1px solid #333;"
+   "css": "background: linear-gradient(135deg, #1a1a1a, #0a0a0a); border: 1px solid #333;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "crystalp",
    "label": "水晶牌",
-   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c2) 20%,transparent), color-mix(in srgb,var(--fx-c2) 5%,transparent)); border: 1px solid color-mix(in srgb,var(--fx-c2) 40%,transparent); backdrop-filter: blur(6px); color: #fff;"
+   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c2) 20%,transparent), color-mix(in srgb,var(--fx-c2) 5%,transparent)); border: 1px solid color-mix(in srgb,var(--fx-c2) 40%,transparent); backdrop-filter: blur(6px);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "crystalp2",
    "label": "切割水晶牌",
-   "css": "background: linear-gradient(105deg, transparent 0 30%, color-mix(in srgb,var(--fx-c2) 15%,transparent) 30% 33%, transparent 33% 66%, color-mix(in srgb,var(--fx-c2) 10%,transparent) 66% 69%, transparent 69%); border: 1px solid color-mix(in srgb,var(--fx-c2) 30%,transparent); color: #fff;"
+   "css": "background: linear-gradient(105deg, transparent 0 30%, color-mix(in srgb,var(--fx-c2) 15%,transparent) 30% 33%, transparent 33% 66%, color-mix(in srgb,var(--fx-c2) 10%,transparent) 66% 69%, transparent 69%); border: 1px solid color-mix(in srgb,var(--fx-c2) 30%,transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "enamel",
    "label": "珐琅牌",
-   "css": "background: linear-gradient(135deg, #1a1a2a, #0a0a14); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 1.5px solid var(--fx-c1); box-shadow: inset 0 1px 1px color-mix(in srgb,var(--fx-c2) 20%,transparent);"
+   "css": "background: linear-gradient(135deg, #1a1a2a, #0a0a14); border: 1.5px solid var(--fx-c1); box-shadow: inset 0 1px 1px color-mix(in srgb,var(--fx-c2) 20%,transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "enamel2",
    "label": "彩绘珐琅",
-   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border: 1.5px solid var(--fx-c1); box-shadow: inset 0 1px 1px color-mix(in srgb,var(--fx-c2) 20%,transparent), 0 0 8px -2px var(--fx-c1);"
+   "css": "background: linear-gradient(135deg, color-mix(in srgb,var(--fx-c1) 62%,#000), #0f131c); border: 1.5px solid var(--fx-c1); box-shadow: inset 0 1px 1px color-mix(in srgb,var(--fx-c2) 20%,transparent), 0 0 8px -2px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "gold",
    "label": "鎏金牌",
-   "css": "background: linear-gradient(135deg, #f5dfae, #c9a15a, #8a6a30); color: #1a1208; font-weight: 800; border: 1px solid #8a6a30;"
+   "css": "background: linear-gradient(135deg, #f5dfae, #c9a15a, #8a6a30); font-weight: 800; border: 1px solid #8a6a30;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "gold2",
    "label": "錾金牌",
-   "css": "background: linear-gradient(135deg, #f5dfae, #c9a15a); color: #1a1208; font-weight: 800; border: 1px solid #6a4a20; box-shadow: inset 0 1px 2px color-mix(in srgb,var(--fx-c2) 50%,transparent);"
+   "css": "background: linear-gradient(135deg, #f5dfae, #c9a15a); font-weight: 800; border: 1px solid #6a4a20; box-shadow: inset 0 1px 2px color-mix(in srgb,var(--fx-c2) 50%,transparent);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "silverp",
    "label": "银箔牌",
-   "css": "background: linear-gradient(135deg, #f0f4f8, #b0bcc8); color: #0b1018; font-weight: 800; border: 1px solid #8090a0;"
+   "css": "background: linear-gradient(135deg, #f0f4f8, #b0bcc8); font-weight: 800; border: 1px solid #8090a0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "brass",
    "label": "黄铜牌",
-   "css": "background: linear-gradient(135deg, #e8c877, #a08030); color: #1a1408; font-weight: 800; border: 1px solid #806020;"
+   "css": "background: linear-gradient(135deg, #e8c877, #a08030); font-weight: 800; border: 1px solid #806020;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "tech",
    "label": "科技感贴片",
-   "css": "background: #0c1018; border: 1px solid var(--fx-c1); border-left: 3px solid var(--fx-c1); font-family: \"JetBrains Mono\", monospace; color: color-mix(in srgb,var(--fx-c1) 72%,#fff);"
+   "css": "background: #0c1018; border: 1px solid var(--fx-c1); border-left: 3px solid var(--fx-c1); font-family: \"JetBrains Mono\", monospace;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "holo",
    "label": "全息贴片",
-   "css": "background: linear-gradient(135deg, var(--fx-c1), var(--fx-c2)); color: #0b0e15; font-weight: 800; box-shadow: 0 0 10px -2px var(--fx-c1);"
+   "css": "background: linear-gradient(135deg, var(--fx-c1), var(--fx-c2)); font-weight: 800; box-shadow: 0 0 10px -2px var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "minimal",
    "label": "极简下划线",
-   "css": "background: transparent; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border-bottom: 1.5px solid var(--fx-c1); border-radius: 0;"
+   "css": "background: transparent; border-bottom: 1.5px solid var(--fx-c1); border-radius: 0;color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   },
   {
    "v": "minimal2",
    "label": "极简括弧",
-   "css": "background: transparent; color: color-mix(in srgb,var(--fx-c1) 72%,#fff); border-radius: 0; box-shadow: inset 4px 0 0 var(--fx-c1);"
+   "css": "background: transparent; border-radius: 0; box-shadow: inset 4px 0 0 var(--fx-c1);color:var(--fx-tc1);-webkit-text-fill-color:var(--fx-tc1);background-clip:border-box;-webkit-background-clip:border-box"
   }
  ],
  "cor": [
@@ -4112,397 +4112,397 @@
   {
    "v": "metal",
    "label": "金属包角",
-   "css": "background-image:radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.60"
+   "css": "border-top:3px solid var(--fx-c1);border-left:3px solid var(--fx-c1)"
   },
   {
    "v": "metal2",
    "label": "双铆包角",
-   "css": "background-image:linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2))),linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2))),linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2))),linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)));background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.70"
+   "css": "border-top:3px solid var(--fx-c1);border-left:3px solid var(--fx-c1);background:radial-gradient(circle at 68% 68%,var(--fx-c2) 0 1.8px,transparent 2.2px) no-repeat"
   },
   {
    "v": "metalbold",
    "label": "粗金属角",
-   "css": "background-image:conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.80;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "border-top:5px solid var(--fx-c1);border-left:5px solid var(--fx-c1);width:20px;height:20px"
   },
   {
    "v": "cut",
    "label": "斜切角标",
-   "css": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.90"
+   "css": "clip-path:polygon(0 0,100% 0,0 100%);background:linear-gradient(135deg,var(--fx-c1),color-mix(in srgb,var(--fx-c2) 40%,transparent))"
   },
   {
    "v": "cutthin",
    "label": "细斜切",
-   "css": "background-image:radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.50"
+   "css": "clip-path:polygon(0 0,62% 0,0 62%);background:var(--fx-c1)"
   },
   {
    "v": "cutbold",
    "label": "粗斜切",
-   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.60;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "clip-path:polygon(0 0,100% 0,0 100%);background:var(--fx-c1);width:22px;height:22px"
   },
   {
    "v": "dot",
    "label": "圆点铆钉",
-   "css": "background-image:linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.70"
+   "css": "background:radial-gradient(circle at 28% 28%,var(--fx-c1) 0 3.6px,transparent 4px)"
   },
   {
    "v": "dot2",
    "label": "双圆点",
-   "css": "background-image:linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.80"
+   "css": "background:radial-gradient(circle at 24% 24%,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle at 62% 62%,var(--fx-c2) 0 2px,transparent 2.4px)"
   },
   {
    "v": "dotsrow",
    "label": "铆钉列",
-   "css": "background-image:radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:8px 8px;background-repeat:no-repeat;opacity:0.90;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "background:radial-gradient(circle at 22% 22%,var(--fx-c1) 0 2.6px,transparent 3px),radial-gradient(circle at 52% 52%,var(--fx-c1) 0 2.6px,transparent 3px),radial-gradient(circle at 82% 82%,var(--fx-c1) 0 2.6px,transparent 3px)"
   },
   {
    "v": "rivet",
    "label": "铆钉装饰",
-   "css": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.50"
+   "css": "background:radial-gradient(circle at 26% 26%,var(--fx-c2) 0 2.6px,transparent 3px),radial-gradient(circle at 66% 66%,var(--fx-c2) 0 2.6px,transparent 3px)"
   },
   {
    "v": "geo",
    "label": "几何切角",
-   "css": "background-image:radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.60"
+   "css": "clip-path:polygon(0 0,100% 0,100% 34%,34% 34%,34% 100%,0 100%);background:var(--fx-c1)"
   },
   {
    "v": "geoline",
    "label": "几何线",
-   "css": "background-image:linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1));background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.70;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "clip-path:polygon(0 0,100% 0,100% 18%,18% 18%,18% 100%,0 100%);background:var(--fx-c1)"
   },
   {
    "v": "geo2",
    "label": "双线几何",
-   "css": "background-image:conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.80"
+   "css": "clip-path:polygon(0 0,100% 0,100% 14%,46% 14%,46% 46%,14% 46%,14% 100%,0 100%);background:var(--fx-c1)"
   },
   {
    "v": "bracket",
    "label": "直角括号",
-   "css": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.90"
+   "css": "border-top:1.6px solid var(--fx-c1);border-left:1.6px solid var(--fx-c1)"
   },
   {
    "v": "bracket2",
    "label": "尖括号",
-   "css": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.50;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "border-top:1.6px solid var(--fx-c1);border-left:1.6px solid var(--fx-c1);border-top-left-radius:60%"
   },
   {
    "v": "bracket3",
    "label": "双角括号",
-   "css": "background-image:conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.60"
+   "css": "border-top:1.6px solid var(--fx-c1);border-left:1.6px solid var(--fx-c1);box-shadow:inset 4px 4px 0 -2.4px color-mix(in srgb,var(--fx-c1) 70%,transparent)"
   },
   {
    "v": "braces",
    "label": "花括号",
-   "css": "background-image:linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.70"
+   "css": "border-top:2.4px solid var(--fx-c1);border-left:2.4px solid var(--fx-c1);border-top-left-radius:70%"
   },
   {
    "v": "chevron",
    "label": "V 形角",
-   "css": "background-image:linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.80;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "clip-path:polygon(0 0,62% 0,100% 50%,62% 100%,0 100%,38% 50%);background:var(--fx-c1)"
   },
   {
    "v": "arrow",
    "label": "箭头角",
-   "css": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:10px 10px;background-repeat:no-repeat;opacity:0.90"
+   "css": "clip-path:polygon(0 0,62% 0,100% 50%,62% 100%,0 100%,38% 50%);background:var(--fx-c1);width:24px;height:24px"
   },
   {
    "v": "plus",
    "label": "十字角",
-   "css": "background-image:radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.50"
+   "css": "background:linear-gradient(var(--fx-c1),var(--fx-c1)) center/32% 100% no-repeat,linear-gradient(var(--fx-c1),var(--fx-c1)) center/100% 32% no-repeat"
   },
   {
    "v": "cross",
    "label": "十字架",
-   "css": "background-image:radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.60;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "background:linear-gradient(var(--fx-c1),var(--fx-c1)) center/24% 100% no-repeat,linear-gradient(var(--fx-c1),var(--fx-c1)) center/100% 24% no-repeat"
   },
   {
    "v": "tri",
    "label": "三角角标",
-   "css": "background-image:linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent)),linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent)),linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent)),linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent));background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.70"
+   "css": "clip-path:polygon(0 0,100% 0,0 100%);background:var(--fx-c1)"
   },
   {
    "v": "tri2",
    "label": "空心三角",
-   "css": "background-image:conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.80"
+   "css": "clip-path:polygon(0 0,100% 0,100% 100%);background:var(--fx-c1)"
   },
   {
    "v": "triple",
    "label": "三层三角",
-   "css": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.90;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "clip-path:polygon(0 0,100% 0,0 100%);background:var(--fx-c1);box-shadow:inset 6px 6px 0 -3px color-mix(in srgb,var(--fx-c2) 75%,transparent)"
   },
   {
    "v": "square",
    "label": "方角标",
-   "css": "background-image:radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.50"
+   "css": "background:var(--fx-c1);width:13px;height:13px"
   },
   {
    "v": "diamondc",
    "label": "菱形角",
-   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.60"
+   "css": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:var(--fx-c1)"
   },
   {
    "v": "hexc",
    "label": "六角角标",
-   "css": "background-image:linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.70;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:var(--fx-c1)"
   },
   {
    "v": "star",
    "label": "星形角标",
-   "css": "background-image:linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.80"
+   "css": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);background:var(--fx-c1);width:22px;height:22px"
   },
   {
    "v": "circlec",
    "label": "圆环角标",
-   "css": "background-image:radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:12px 12px;background-repeat:no-repeat;opacity:0.90"
+   "css": "border:2.4px solid var(--fx-c1);border-radius:50%"
   },
   {
    "v": "ring",
    "label": "环形角",
-   "css": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.50;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "border:3px solid var(--fx-c1);border-radius:50%"
   },
   {
    "v": "orb",
    "label": "球体角饰",
-   "css": "background-image:radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.60"
+   "css": "border-radius:50%;background:radial-gradient(circle at 32% 30%,color-mix(in srgb,var(--fx-c1) 60%,#fff),var(--fx-c2) 72%)"
   },
   {
    "v": "line",
    "label": "细线角",
-   "css": "background-image:linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1));background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.70"
+   "css": "background:linear-gradient(var(--fx-c1),var(--fx-c1)) top left/100% 2px no-repeat"
   },
   {
    "v": "linebold",
    "label": "粗线角",
-   "css": "background-image:conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.80;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "background:linear-gradient(var(--fx-c1),var(--fx-c1)) top left/100% 4px no-repeat"
   },
   {
    "v": "line2",
    "label": "双细线角",
-   "css": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.90"
+   "css": "background:linear-gradient(var(--fx-c1),var(--fx-c1)) 0 0/100% 2px no-repeat,linear-gradient(var(--fx-c2),var(--fx-c2)) 0 6px/70% 2px no-repeat"
   },
   {
    "v": "corner",
    "label": "直角折边",
-   "css": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.50"
+   "css": "border-top:2px solid var(--fx-c1);border-left:2px solid var(--fx-c1)"
   },
   {
    "v": "corner2",
    "label": "双层折边",
-   "css": "background-image:conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.60;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "border-top:2px solid var(--fx-c1);border-left:2px solid var(--fx-c1);box-shadow:inset 5px 5px 0 -3px color-mix(in srgb,var(--fx-c2) 80%,transparent)"
   },
   {
    "v": "fold",
    "label": "折纸角",
-   "css": "background-image:linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.70"
+   "css": "background:linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 85%,transparent) 0 50%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 50% 100%)"
   },
   {
    "v": "tape",
    "label": "胶带角",
-   "css": "background-image:linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.80"
+   "css": "clip-path:polygon(0 0,100% 100%,100% 76%,24% 0);background:var(--fx-c1)"
   },
   {
    "v": "tape2",
    "label": "对角胶带",
-   "css": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:14px 14px;background-repeat:no-repeat;opacity:0.90;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "clip-path:polygon(0 0,100% 100%,100% 78%,22% 0);background:color-mix(in srgb,var(--fx-c1) 88%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fx-c2) 70%,transparent)"
   },
   {
    "v": "pin",
    "label": "图钉",
-   "css": "background-image:radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.50"
+   "css": "background:radial-gradient(circle at 30% 30%,var(--fx-c1) 0 4px,transparent 4.4px),linear-gradient(var(--fx-c2),var(--fx-c2)) 62% 62%/2px 46% no-repeat"
   },
   {
    "v": "clip",
    "label": "回形针",
-   "css": "background-image:radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.60"
+   "css": "border:2px solid var(--fx-c1);border-radius:60% 60% 8px 8px;border-bottom-color:transparent"
   },
   {
    "v": "ribbonc",
    "label": "缎带角",
-   "css": "background-image:linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2))),linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2))),linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2))),linear-gradient(color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)));background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.70;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "clip-path:polygon(0 0,100% 0,100% 56%,50% 100%,0 56%);background:linear-gradient(180deg,var(--fx-c1),var(--fx-c2))"
   },
   {
    "v": "ribbon2",
    "label": "双缎带",
-   "css": "background-image:conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.80"
+   "css": "clip-path:polygon(0 0,100% 0,100% 56%,50% 100%,0 56%);background:linear-gradient(180deg,var(--fx-c2),var(--fx-c1))"
   },
   {
    "v": "flag",
    "label": "旗帜角标",
-   "css": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.90"
+   "css": "clip-path:polygon(0 0,100% 0,100% 55%,50% 76%,0 55%);background:var(--fx-c1)"
   },
   {
    "v": "banner",
    "label": "小横幅",
-   "css": "background-image:radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.50;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "clip-path:polygon(0 0,100% 0,100% 62%,50% 100%,0 62%);background:linear-gradient(180deg,var(--fx-c1),var(--fx-c2))"
   },
   {
    "v": "seal",
    "label": "火漆印",
-   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.60"
+   "css": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%);background:var(--fx-c1);width:20px;height:20px"
   },
   {
    "v": "stamp",
    "label": "印章角",
-   "css": "background-image:linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.70"
+   "css": "background:color-mix(in srgb,var(--fx-c1) 70%,transparent);box-shadow:inset 0 0 0 1.6px var(--fx-c2);border-radius:2px"
   },
   {
    "v": "coin",
    "label": "金币角",
-   "css": "background-image:linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.80;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 90%,transparent) 0 36%,color-mix(in srgb,var(--fx-c1) 95%,transparent) 38% 100%);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--fx-c2) 60%,transparent)"
   },
   {
    "v": "gem",
    "label": "宝石角",
-   "css": "background-image:radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:17px 17px;background-repeat:no-repeat;opacity:0.90"
+   "css": "clip-path:polygon(50% 0,100% 32%,78% 100%,22% 100%,0 32%);background:linear-gradient(160deg,var(--fx-c1),var(--fx-c2))"
   },
   {
    "v": "crown",
    "label": "皇冠角饰",
-   "css": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.50"
+   "css": "clip-path:polygon(0 100%,0 26%,20% 58%,36% 0,50% 46%,64% 0,80% 58%,100% 26%,100% 100%);background:var(--fx-c1);width:20px;height:20px"
   },
   {
    "v": "wing",
    "label": "羽翼角饰",
-   "css": "background-image:radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.60;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "clip-path:polygon(0 0,100% 22%,58% 52%,100% 82%,0 100%,34% 50%);background:linear-gradient(90deg,var(--fx-c1),var(--fx-c2))"
   },
   {
    "v": "laurel",
    "label": "桂冠角",
-   "css": "background-image:linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1));background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.70"
+   "css": "background:radial-gradient(circle at 12% 12%,transparent 44%,var(--fx-c1) 45% 58%,transparent 60%),radial-gradient(circle at 46% 46%,transparent 52%,var(--fx-c2) 53% 66%,transparent 68%)"
   },
   {
    "v": "crest",
    "label": "纹章角",
-   "css": "background-image:conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.80"
+   "css": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%);background:linear-gradient(160deg,var(--fx-c1),var(--fx-c2))"
   },
   {
    "v": "shieldc",
    "label": "盾形角",
-   "css": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 55%,transparent) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.90;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%);background:var(--fx-c1)"
   },
   {
    "v": "emblem",
    "label": "徽记角",
-   "css": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.50"
+   "css": "border-radius:50%;background:radial-gradient(circle,var(--fx-c1) 0 44%,transparent 46%);box-shadow:inset 0 0 0 1.6px color-mix(in srgb,var(--fx-c1) 80%,transparent)"
   },
   {
    "v": "mono",
    "label": "单色块角",
-   "css": "background-image:conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.60"
+   "css": "background:var(--fx-c1);width:20px;height:20px"
   },
   {
    "v": "half",
    "label": "半块角",
-   "css": "background-image:linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.70;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "clip-path:polygon(0 0,100% 0,0 100%);background:color-mix(in srgb,var(--fx-c1) 80%,transparent)"
   },
   {
    "v": "quarter",
    "label": "四分角",
-   "css": "background-image:linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.80"
+   "css": "clip-path:polygon(0 0,58% 0,58% 58%,0 58%);background:color-mix(in srgb,var(--fx-c1) 85%,transparent)"
   },
   {
    "v": "split",
    "label": "斜分角",
-   "css": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:21px 21px;background-repeat:no-repeat;opacity:0.90"
+   "css": "background:linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 85%,transparent) 0 50%,color-mix(in srgb,var(--fx-c2) 85%,transparent) 50% 100%)"
   },
   {
    "v": "splash",
    "label": "泼墨角",
-   "css": "background-image:radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px),radial-gradient(circle,var(--fx-c1) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.50;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "background:radial-gradient(circle at 30% 30%,var(--fx-c1) 0 42%,color-mix(in srgb,var(--fx-c1) 0%,transparent) 60%),radial-gradient(circle at 68% 64%,var(--fx-c2) 0 20%,transparent 28%)"
   },
   {
    "v": "spark",
    "label": "火花角",
-   "css": "background-image:radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,var(--fx-c2) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.60"
+   "css": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);background:var(--fx-c2);width:16px;height:16px"
   },
   {
    "v": "beam",
    "label": "光束角",
-   "css": "background-image:linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent)),linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent)),linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent)),linear-gradient(color-mix(in srgb,var(--fx-c1) 55%,transparent),color-mix(in srgb,var(--fx-c1) 55%,transparent));background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.70"
+   "css": "clip-path:polygon(0 0,100% 0,0 100%);background:linear-gradient(135deg,var(--fx-c1),color-mix(in srgb,var(--fx-c1) 0%,transparent));filter:drop-shadow(0 0 5px color-mix(in srgb,var(--fx-c1) 80%,transparent))"
   },
   {
    "v": "grad",
    "label": "渐变角",
-   "css": "background-image:conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0),conic-gradient(from 45deg,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.80;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "background:linear-gradient(135deg,var(--fx-c1),var(--fx-c2));border-radius:4px;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--fx-c1) 80%,transparent))"
   },
   {
    "v": "neon",
    "label": "霓虹角",
-   "css": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,var(--fx-c1) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.90"
+   "css": "border:2.5px solid var(--fx-c1);border-radius:5px;box-shadow:0 0 8px color-mix(in srgb,var(--fx-c1) 90%,transparent),inset 0 0 8px color-mix(in srgb,var(--fx-c1) 90%,transparent)"
   },
   {
    "v": "neon2",
    "label": "双色霓虹角",
-   "css": "background-image:radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px),radial-gradient(circle,var(--fx-c2) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.50"
+   "css": "border:2.5px solid var(--fx-c1);border-radius:5px;box-shadow:0 0 8px color-mix(in srgb,var(--fx-c2) 95%,transparent),inset 0 0 10px color-mix(in srgb,var(--fx-c2) 80%,transparent)"
   },
   {
    "v": "pixel",
    "label": "像素角",
-   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0),conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 25%,transparent 0 50%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.60;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "clip-path:polygon(0 0,60% 0,60% 20%,80% 20%,80% 40%,100% 40%,100% 60%,60% 60%,60% 100%,40% 100%,40% 60%,20% 60%,20% 40%,0 40%);background:var(--fx-c1);width:24px;height:24px"
   },
   {
    "v": "pixelc",
    "label": "像素方角",
-   "css": "background-image:linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%),linear-gradient(90deg,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.70"
+   "css": "clip-path:polygon(0 0,60% 0,60% 20%,80% 20%,80% 40%,100% 40%,100% 60%,60% 60%,60% 100%,40% 100%,40% 60%,20% 60%,20% 40%,0 40%);background:var(--fx-c1);width:20px;height:20px"
   },
   {
    "v": "block",
    "label": "方块角",
-   "css": "background-image:linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%),linear-gradient(135deg,var(--fx-c1),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.80"
+   "css": "background:linear-gradient(135deg,var(--fx-c1),color-mix(in srgb,var(--fx-c1) 55%,transparent))"
   },
   {
    "v": "step",
    "label": "阶梯角",
-   "css": "background-image:radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%),radial-gradient(circle,var(--fx-c2) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:26px 26px;background-repeat:no-repeat;opacity:0.90;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "clip-path:polygon(0 0,100% 0,100% 26%,72% 26%,72% 52%,44% 52%,44% 78%,16% 78%,16% 100%,0 100%);background:var(--fx-c1);width:22px;height:22px"
   },
   {
    "v": "zigzagc",
    "label": "锯齿角",
-   "css": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px),radial-gradient(circle,color-mix(in srgb,var(--fx-c1) 55%,transparent) 0 3px,transparent 3.4px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.50"
+   "css": "clip-path:polygon(0 0,100% 0,100% 30%,70% 30%,70% 55%,40% 55%,40% 80%,10% 80%,10% 100%,0 100%);background:var(--fx-c1)"
   },
   {
    "v": "wavec",
    "label": "波浪角",
-   "css": "background-image:radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%),radial-gradient(circle,transparent 52%,color-mix(in srgb,var(--fx-c2) 55%,transparent) 55% 64%,transparent 67%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.60"
+   "css": "background:radial-gradient(circle at 22% 78%,transparent 38%,var(--fx-c1) 39% 50%,transparent 52%),radial-gradient(circle at 72% 22%,transparent 38%,var(--fx-c1) 39% 50%,transparent 52%)"
   },
   {
    "v": "spine",
    "label": "书脊角",
-   "css": "background-image:linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1)),linear-gradient(var(--fx-c1),var(--fx-c1));background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.70;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "border-top:3px solid var(--fx-c1);border-left:3px solid var(--fx-c1);box-shadow:inset 3px 3px 0 -1px color-mix(in srgb,var(--fx-c2) 75%,transparent)"
   },
   {
    "v": "tab",
    "label": "标签页角",
-   "css": "background-image:conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0),conic-gradient(from 45deg,var(--fx-c2) 0 25%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.80"
+   "css": "clip-path:polygon(0 0,100% 0,100% 60%,70% 60%,70% 100%,0 100%);background:var(--fx-c1)"
   },
   {
    "v": "notchc",
    "label": "凹口角",
-   "css": "background-image:radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%),radial-gradient(circle at 50% 50%,transparent 60%,color-mix(in srgb,var(--fx-c1) 70%,var(--fx-c2)) 63% 72%,transparent 75%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.90"
+   "css": "clip-path:polygon(0 0,100% 0,100% 100%,38% 100%,38% 62%,0 62%);background:var(--fx-c1)"
   },
   {
    "v": "bolt",
    "label": "螺栓角",
-   "css": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 70%,var(--fx-c1)) 0 1.6px,transparent 2px);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.50;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "border-top:3px solid var(--fx-c1);border-left:3px solid var(--fx-c1);background:radial-gradient(circle at 70% 70%,color-mix(in srgb,var(--fx-c2) 90%,transparent) 0 2.6px,color-mix(in srgb,var(--fx-c1) 90%,transparent) 2.6px 3.6px,transparent 4px) no-repeat"
   },
   {
    "v": "wire",
    "label": "绕线角",
-   "css": "background-image:conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0),conic-gradient(from 0deg,var(--fx-c1) 0 25%,transparent 0 50%,var(--fx-c1) 0 75%,transparent 0);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.60"
+   "css": "border-top:1.6px solid var(--fx-c1);border-left:1.6px solid var(--fx-c1);border-top-left-radius:9px"
   },
   {
    "v": "hollow",
    "label": "镂空角",
-   "css": "background-image:linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%),linear-gradient(90deg,var(--fx-c2) 0 100%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.70"
+   "css": "border:2.5px solid var(--fx-c1);border-radius:4px"
   },
   {
    "v": "full",
    "label": "满角块",
-   "css": "background-image:linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%),linear-gradient(135deg,color-mix(in srgb,var(--fx-c1) 55%,transparent),transparent 70%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.80;filter:drop-shadow(0 0 4px var(--fx-c1))"
+   "css": "background:var(--fx-c1);width:24px;height:24px"
   },
   {
    "v": "halfgrad",
    "label": "半渐变角",
-   "css": "background-image:radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%),radial-gradient(circle,color-mix(in srgb,var(--fx-c2) 55%,transparent) 0 40%,transparent 62%);background-position:0 0,100% 0,0 100%,100% 100%;background-size:32px 32px;background-repeat:no-repeat;opacity:0.90"
+   "css": "clip-path:polygon(0 0,100% 0,0 100%);background:linear-gradient(135deg,var(--fx-c1),color-mix(in srgb,var(--fx-c2) 0%,transparent))"
   }
  ],
  "mo": [
@@ -4513,27 +4513,27 @@
   {
    "v": "shimmer",
    "label": "流光掠影",
-   "css": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShimmer var(--fx-dur,5s) linear infinite"
+   "css": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,5s) linear infinite"
   },
   {
    "v": "shimmerslow",
    "label": "慢流光",
-   "css": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxShimmer var(--fx-dur,9s) linear infinite"
+   "css": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,9s) linear infinite"
   },
   {
    "v": "shimmerfast",
    "label": "快流光",
-   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxShimmer var(--fx-dur,3s) linear infinite"
+   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,3s) linear infinite"
   },
   {
    "v": "sheen",
    "label": "丝绸反光",
-   "css": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShimmer var(--fx-dur,5s) linear infinite"
+   "css": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,5s) linear infinite"
   },
   {
    "v": "sheen2",
    "label": "双丝绸",
-   "css": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShimmer var(--fx-dur,5s) linear infinite"
+   "css": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,5s) linear infinite"
   },
   {
    "v": "float",
@@ -4563,7 +4563,7 @@
   {
    "v": "hovershine",
    "label": "悬停闪光",
-   "css": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShimmer var(--fx-dur,5s) linear infinite"
+   "css": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,5s) linear infinite"
   },
   {
    "v": "hoverglow",
@@ -4658,7 +4658,7 @@
   {
    "v": "rotor",
    "label": "摇摆",
-   "css": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,6s) ease-in-out infinite"
+   "css": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTilt var(--fx-dur,5s) ease-in-out infinite"
   },
   {
    "v": "wiggle",
@@ -4698,12 +4698,12 @@
   {
    "v": "blink",
    "label": "闪烁",
-   "css": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxBlink var(--fx-dur,3.2s) ease-in-out infinite"
+   "css": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite"
   },
   {
    "v": "blink2",
    "label": "慢闪烁",
-   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxBlink var(--fx-dur,3.2s) ease-in-out infinite"
+   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite"
   },
   {
    "v": "flicker",
@@ -4713,27 +4713,27 @@
   {
    "v": "strobe",
    "label": "频闪",
-   "css": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxBlink var(--fx-dur,3.2s) ease-in-out infinite"
+   "css": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite"
   },
   {
    "v": "fadein",
    "label": "淡入",
-   "css": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxRise var(--fx-dur,3.6s) ease-out infinite"
+   "css": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite"
   },
   {
    "v": "fadeup",
    "label": "上浮淡入",
-   "css": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxBreathe var(--fx-dur,5s) ease-in-out infinite"
+   "css": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite"
   },
   {
    "v": "fadedown",
    "label": "下沉淡入",
-   "css": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxDrift var(--fx-dur,6s) ease-in-out infinite"
+   "css": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite"
   },
   {
    "v": "fadeside",
    "label": "侧滑淡入",
-   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,7s) ease-in-out infinite"
+   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite"
   },
   {
    "v": "scalein",
@@ -4793,12 +4793,12 @@
   {
    "v": "scan2",
    "label": "扫描光带",
-   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxFlow var(--fx-dur,6s) linear infinite"
+   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,3.6s) linear infinite"
   },
   {
    "v": "scanline",
    "label": "横扫线",
-   "css": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxFlow var(--fx-dur,6s) linear infinite"
+   "css": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,3.6s) linear infinite"
   },
   {
    "v": "hologram",
@@ -4823,22 +4823,22 @@
   {
    "v": "reveal",
    "label": "遮罩展开",
-   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxRise var(--fx-dur,3.6s) ease-out infinite"
+   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxFlow var(--fx-dur,6s) linear infinite"
   },
   {
    "v": "reveal2",
    "label": "斜向展开",
-   "css": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxRise var(--fx-dur,3.6s) ease-out infinite"
+   "css": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxFlow var(--fx-dur,6s) linear infinite"
   },
   {
    "v": "clip",
    "label": "裁切循环",
-   "css": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxPulse var(--fx-dur,6s) ease-in-out infinite"
+   "css": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxFlow var(--fx-dur,6s) linear infinite"
   },
   {
    "v": "wipe",
    "label": "擦拭",
-   "css": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxScale var(--fx-dur,7s) ease-in-out infinite"
+   "css": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,5s) linear infinite"
   },
   {
    "v": "zoom",
@@ -4853,7 +4853,7 @@
   {
    "v": "pan",
    "label": "全景平移",
-   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxDrift var(--fx-dur,13s) ease-in-out infinite"
+   "css": "background-image:conic-gradient(from 0deg,color-mix(in srgb,var(--fx-c2) 30%,transparent),transparent 42%,color-mix(in srgb,var(--fx-c1) 28%,transparent) 72%,transparent);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,5s) linear infinite"
   },
   {
    "v": "orbit",
@@ -4868,17 +4868,17 @@
   {
    "v": "comet",
    "label": "彗星轨迹",
-   "css": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,3.4s) linear infinite"
+   "css": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxShine var(--fx-dur,3.6s) linear infinite"
   },
   {
    "v": "magnet",
    "label": "磁性吸引",
-   "css": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxPulse var(--fx-dur,7s) ease-in-out infinite"
+   "css": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxOrbit var(--fx-dur,8s) linear infinite"
   },
   {
    "v": "glowwave",
    "label": "光波扩散",
-   "css": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,4.6s) ease-in-out infinite"
+   "css": "background-image:repeating-linear-gradient(45deg,color-mix(in srgb,var(--fx-c2) 20%,transparent) 0 3px,transparent 3px 17px);background-size:200% 200%;background-repeat:no-repeat;animation:fxRipple var(--fx-dur,4.4s) ease-out infinite"
   },
   {
    "v": "shockwave",
@@ -4888,22 +4888,22 @@
   {
    "v": "focus",
    "label": "聚焦缩放",
-   "css": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,6.5s) ease-in-out infinite;filter:saturate(1.12)"
+   "css": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxScale var(--fx-dur,5s) ease-out infinite"
   },
   {
    "v": "unfocus",
    "label": "失焦模糊",
-   "css": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,6.5s) ease-in-out infinite;filter:saturate(1.12)"
+   "css": "background-image:linear-gradient(0deg,color-mix(in srgb,var(--fx-c1) 34%,transparent),transparent 58%);background-size:200% 200%;background-repeat:no-repeat;animation:fxScale var(--fx-dur,5s) ease-out infinite"
   },
   {
    "v": "blur",
    "label": "模糊循环",
-   "css": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,6.5s) ease-in-out infinite;filter:saturate(1.12)"
+   "css": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,6.5s) ease-in-out infinite;filter:blur(1.4px)"
   },
   {
    "v": "sharpen",
    "label": "清晰闪现",
-   "css": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTilt var(--fx-dur,6s) ease-in-out infinite"
+   "css": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,6.5s) ease-in-out infinite;filter:blur(1.4px)"
   },
   {
    "v": "tint",
@@ -4918,7 +4918,7 @@
   {
    "v": "bright",
    "label": "明度脉动",
-   "css": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxScale var(--fx-dur,9s) ease-in-out infinite"
+   "css": "background-image:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--fx-c2) 38%,transparent),transparent 66%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,7s) ease-in-out infinite;filter:hue-rotate(12deg) saturate(1.2)"
   },
   {
    "v": "contrast",
@@ -4928,12 +4928,12 @@
   {
    "v": "invert",
    "label": "反相闪",
-   "css": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxDrift var(--fx-dur,4s) ease-in-out infinite"
+   "css": "background-image:radial-gradient(circle at 30% 30%,color-mix(in srgb,var(--fx-c2) 42%,transparent),transparent 62%),radial-gradient(circle at 72% 74%,color-mix(in srgb,var(--fx-c1) 38%,transparent),transparent 62%);background-size:200% 200%;background-repeat:no-repeat;animation:fxGlowPulse var(--fx-dur,7s) ease-in-out infinite;filter:hue-rotate(12deg) saturate(1.2)"
   },
   {
    "v": "ghost",
    "label": "幽灵淡出",
-   "css": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,5s) ease-in-out infinite"
+   "css": "background-image:linear-gradient(120deg,transparent 18%,color-mix(in srgb,var(--fx-c2) 38%,transparent) 50%,transparent 82%);background-size:200% 200%;background-repeat:no-repeat;animation:fxTwinkle var(--fx-dur,3.6s) ease-in-out infinite"
   },
   {
    "v": "liquid",
@@ -5376,609 +5376,453 @@
   {
    "v": "circle",
    "label": "圆形",
-   "css": {
-    "css": "--fx-rad:50%"
-   }
+   "css": "--fx-rad:50%"
   },
   {
    "v": "round2",
    "label": "厚圆",
-   "css": {
-    "css": "--fx-rad:38%"
-   }
+   "css": "--fx-rad:38%"
   },
   {
    "v": "round3",
    "label": "齿轮圆",
-   "css": {
-    "css": "--fx-rad:38%"
-   }
+   "css": "--fx-rad:38%"
   },
   {
    "v": "oval",
    "label": "椭圆",
-   "css": {
-    "css": "--fx-rad:14%",
-    "css2": "clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)"
-   }
+   "css": "--fx-rad:14%",
+   "css2": "clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)"
   },
   {
    "v": "star",
    "label": "五角星",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"
   },
   {
    "v": "star4",
    "label": "四角星",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"
   },
   {
    "v": "star6",
    "label": "六角星",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"
   },
   {
    "v": "star8",
    "label": "八角星",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"
   },
   {
    "v": "starburst",
    "label": "放射星",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"
   },
   {
    "v": "shield",
    "label": "盾牌",
-   "css": {
-    "css": "--fx-rad:12%",
-    "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
-   }
+   "css": "--fx-rad:12%",
+   "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
   },
   {
    "v": "shield2",
    "label": "尖盾",
-   "css": {
-    "css": "--fx-rad:12%",
-    "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
-   }
+   "css": "--fx-rad:12%",
+   "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
   },
   {
    "v": "shield3",
    "label": "圆盾",
-   "css": {
-    "css": "--fx-rad:12%",
-    "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
-   }
+   "css": "--fx-rad:12%",
+   "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
   },
   {
    "v": "shield4",
    "label": "方盾",
-   "css": {
-    "css": "--fx-rad:12%",
-    "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
-   }
+   "css": "--fx-rad:12%",
+   "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
   },
   {
    "v": "crest",
    "label": "纹章",
-   "css": {
-    "css": "--fx-rad:12%",
-    "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
-   }
+   "css": "--fx-rad:12%",
+   "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
   },
   {
    "v": "crest2",
    "label": "花体纹章",
-   "css": {
-    "css": "--fx-rad:12%",
-    "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
-   }
+   "css": "--fx-rad:12%",
+   "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
   },
   {
    "v": "hexagon",
    "label": "六边形",
-   "css": {
-    "css": "--fx-rad:14%",
-    "css2": "clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)"
-   }
+   "css": "--fx-rad:14%",
+   "css2": "clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)"
   },
   {
    "v": "hex2",
    "label": "粗六边形",
-   "css": {
-    "css": "--fx-rad:14%",
-    "css2": "clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)"
-   }
+   "css": "--fx-rad:14%",
+   "css2": "clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)"
   },
   {
    "v": "diamond",
    "label": "菱形",
-   "css": {
-    "css": "--fx-rad:16%",
-    "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"
-   }
+   "css": "--fx-rad:16%",
+   "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"
   },
   {
    "v": "diamond2",
    "label": "斜方",
-   "css": {
-    "css": "--fx-rad:16%",
-    "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"
-   }
+   "css": "--fx-rad:16%",
+   "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"
   },
   {
    "v": "square",
    "label": "方章",
-   "css": {
-    "css": "--fx-rad:28%"
-   }
+   "css": "--fx-rad:28%"
   },
   {
    "v": "square2",
    "label": "圆角方",
-   "css": {
-    "css": "--fx-rad:28%"
-   }
+   "css": "--fx-rad:28%"
   },
   {
    "v": "octagon",
    "label": "八边形",
-   "css": {
-    "css": "--fx-rad:14%",
-    "css2": "clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)"
-   }
+   "css": "--fx-rad:14%",
+   "css2": "clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)"
   },
   {
    "v": "octagon2",
    "label": "斜八角",
-   "css": {
-    "css": "--fx-rad:14%",
-    "css2": "clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)"
-   }
+   "css": "--fx-rad:14%",
+   "css2": "clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)"
   },
   {
    "v": "triangle",
    "label": "三角章",
-   "css": {
-    "css": "--fx-rad:14%",
-    "css2": "clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)"
-   }
+   "css": "--fx-rad:14%",
+   "css2": "clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)"
   },
   {
    "v": "triangle2",
    "label": "倒三角",
-   "css": {
-    "css": "--fx-rad:10%",
-    "css2": "clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)"
-   }
+   "css": "--fx-rad:10%",
+   "css2": "clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)"
   },
   {
    "v": "triangler",
    "label": "右三角",
-   "css": {
-    "css": "--fx-rad:16%",
-    "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"
-   }
+   "css": "--fx-rad:16%",
+   "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"
   },
   {
    "v": "heart",
    "label": "心形",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 100%,4% 40%,4% 20%,20% 4%,38% 4%,50% 18%,62% 4%,80% 4%,96% 20%,96% 40%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 100%,4% 40%,4% 20%,20% 4%,38% 4%,50% 18%,62% 4%,80% 4%,96% 20%,96% 40%)"
   },
   {
    "v": "heart2",
    "label": "宝爱心",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 100%,4% 40%,4% 20%,20% 4%,38% 4%,50% 18%,62% 4%,80% 4%,96% 20%,96% 40%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 100%,4% 40%,4% 20%,20% 4%,38% 4%,50% 18%,62% 4%,80% 4%,96% 20%,96% 40%)"
   },
   {
    "v": "cross",
    "label": "十字",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,61% 25%,86% 14%,75% 39%,100% 50%,75% 61%,86% 86%,61% 75%,50% 100%,39% 75%,14% 86%,25% 61%,0 50%,25% 39%,14% 14%,39% 25%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,61% 25%,86% 14%,75% 39%,100% 50%,75% 61%,86% 86%,61% 75%,50% 100%,39% 75%,14% 86%,25% 61%,0 50%,25% 39%,14% 14%,39% 25%)"
   },
   {
    "v": "cross2",
    "label": "马耳他",
-   "css": {
-    "css": "--fx-rad:14%",
-    "css2": "clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)"
-   }
+   "css": "--fx-rad:14%",
+   "css2": "clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)"
   },
   {
    "v": "cross3",
    "label": "铁十字",
-   "css": {
-    "css": "--fx-rad:0 50% 0 50%"
-   }
+   "css": "--fx-rad:0 50% 0 50%"
   },
   {
    "v": "laurel",
    "label": "桂冠",
-   "css": {
-    "css": "--fx-rad:12%",
-    "css2": "clip-path:polygon(0 12%,12% 12%,12% 0,88% 0,88% 12%,100% 12%,100% 88%,88% 88%,88% 100%,12% 100%,12% 88%,0 88%)"
-   }
+   "css": "--fx-rad:12%",
+   "css2": "clip-path:polygon(0 12%,12% 12%,12% 0,88% 0,88% 12%,100% 12%,100% 88%,88% 88%,88% 100%,12% 100%,12% 88%,0 88%)"
   },
   {
    "v": "leaf",
    "label": "叶形",
-   "css": {
-    "css": "--fx-rad:0 50% 0 50%"
-   }
+   "css": "--fx-rad:0 50% 0 50%"
   },
   {
    "v": "flame",
    "label": "火焰",
-   "css": {
-    "css": "--fx-rad:50% 50% 50% 0"
-   }
+   "css": "--fx-rad:50% 50% 50% 0"
   },
   {
    "v": "flame2",
    "label": "火苗",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%,50% 20%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%,50% 20%)"
   },
   {
    "v": "bolt",
    "label": "闪电",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%)"
   },
   {
    "v": "sun",
    "label": "太阳",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,61% 25%,86% 14%,75% 39%,100% 50%,75% 61%,86% 86%,61% 75%,50% 100%,39% 75%,14% 86%,25% 61%,0 50%,25% 39%,14% 14%,39% 25%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,61% 25%,86% 14%,75% 39%,100% 50%,75% 61%,86% 86%,61% 75%,50% 100%,39% 75%,14% 86%,25% 61%,0 50%,25% 39%,14% 14%,39% 25%)"
   },
   {
    "v": "moon",
    "label": "弯月",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 100%,4% 40%,4% 20%,20% 4%,38% 4%,50% 18%,62% 4%,80% 4%,96% 20%,96% 40%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 100%,4% 40%,4% 20%,20% 4%,38% 4%,50% 18%,62% 4%,80% 4%,96% 20%,96% 40%)"
   },
   {
    "v": "moon2",
    "label": "满月",
-   "css": {
-    "css": "--fx-rad:8%",
-    "css2": "clip-path:polygon(0 0,100% 0,100% 72%,50% 100%,0 72%)"
-   }
+   "css": "--fx-rad:8%",
+   "css2": "clip-path:polygon(0 0,100% 0,100% 72%,50% 100%,0 72%)"
   },
   {
    "v": "cloud",
    "label": "云纹",
-   "css": {
-    "css": "--fx-rad:14%",
-    "css2": "clip-path:polygon(0 0,100% 0,100% 70%,88% 70%,88% 100%,12% 100%,12% 70%,0 70%)"
-   }
+   "css": "--fx-rad:14%",
+   "css2": "clip-path:polygon(0 0,100% 0,100% 70%,88% 70%,88% 100%,12% 100%,12% 70%,0 70%)"
   },
   {
    "v": "snow",
    "label": "雪花",
-   "css": {
-    "css": "--fx-rad:50%"
-   }
+   "css": "--fx-rad:50%"
   },
   {
    "v": "drop",
    "label": "水滴",
-   "css": {
-    "css": "--fx-rad:0 50% 0 50%"
-   }
+   "css": "--fx-rad:0 50% 0 50%"
   },
   {
    "v": "gem",
    "label": "宝石",
-   "css": {
-    "css": "--fx-rad:28%"
-   }
+   "css": "--fx-rad:28%"
   },
   {
    "v": "gem2",
    "label": "菱形宝",
-   "css": {
-    "css": "--fx-rad:14%",
-    "css2": "clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)"
-   }
+   "css": "--fx-rad:14%",
+   "css2": "clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)"
   },
   {
    "v": "crown",
    "label": "皇冠",
-   "css": {
-    "css": "--fx-rad:10%",
-    "css2": "clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)"
-   }
+   "css": "--fx-rad:10%",
+   "css2": "clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)"
   },
   {
    "v": "wing",
    "label": "羽翼",
-   "css": {
-    "css": "--fx-rad:16%",
-    "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"
-   }
+   "css": "--fx-rad:16%",
+   "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"
   },
   {
    "v": "eye",
    "label": "眼形",
-   "css": {
-    "css": "--fx-rad:12%",
-    "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
-   }
+   "css": "--fx-rad:12%",
+   "css2": "clip-path:polygon(50% 0,100% 18%,100% 62%,50% 100%,0 62%,0 18%)"
   },
   {
    "v": "eye2",
    "label": "全视之眼",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"
   },
   {
    "v": "key",
    "label": "钥匙",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,61% 25%,86% 14%,75% 39%,100% 50%,75% 61%,86% 86%,61% 75%,50% 100%,39% 75%,14% 86%,25% 61%,0 50%,25% 39%,14% 14%,39% 25%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,61% 25%,86% 14%,75% 39%,100% 50%,75% 61%,86% 86%,61% 75%,50% 100%,39% 75%,14% 86%,25% 61%,0 50%,25% 39%,14% 14%,39% 25%)"
   },
   {
    "v": "coin",
    "label": "金币",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%)"
   },
   {
    "v": "coin2",
    "label": "古币",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%)"
   },
   {
    "v": "medallion",
    "label": "圆形挂章",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%)"
   },
   {
    "v": "ribbon",
    "label": "缎带",
-   "css": {
-    "css": "--fx-rad:18%",
-    "css2": "clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%)"
-   }
+   "css": "--fx-rad:18%",
+   "css2": "clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%)"
   },
   {
    "v": "ribbon2",
    "label": "三角缎带",
-   "css": {
-    "css": "--fx-rad:18%",
-    "css2": "clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%)"
-   }
+   "css": "--fx-rad:18%",
+   "css2": "clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%)"
   },
   {
    "v": "book",
    "label": "书卷",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%,50% 20%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%,50% 20%)"
   },
   {
    "v": "scroll",
    "label": "卷轴",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%)"
   },
   {
    "v": "quill",
    "label": "羽毛笔",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,60% 8%,72% 5%,79% 16%,92% 18%,93% 31%,100% 50%,93% 69%,92% 82%,79% 84%,72% 95%,60% 92%,50% 100%,40% 92%,28% 95%,21% 84%,8% 82%,7% 69%,0 50%,7% 31%,8% 18%,21% 16%,28% 5%,40% 8%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,60% 8%,72% 5%,79% 16%,92% 18%,93% 31%,100% 50%,93% 69%,92% 82%,79% 84%,72% 95%,60% 92%,50% 100%,40% 92%,28% 95%,21% 84%,8% 82%,7% 69%,0 50%,7% 31%,8% 18%,21% 16%,28% 5%,40% 8%)"
   },
   {
    "v": "gear",
    "label": "齿轮",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,60% 8%,72% 5%,79% 16%,92% 18%,93% 31%,100% 50%,93% 69%,92% 82%,79% 84%,72% 95%,60% 92%,50% 100%,40% 92%,28% 95%,21% 84%,8% 82%,7% 69%,0 50%,7% 31%,8% 18%,21% 16%,28% 5%,40% 8%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,60% 8%,72% 5%,79% 16%,92% 18%,93% 31%,100% 50%,93% 69%,92% 82%,79% 84%,72% 95%,60% 92%,50% 100%,40% 92%,28% 95%,21% 84%,8% 82%,7% 69%,0 50%,7% 31%,8% 18%,21% 16%,28% 5%,40% 8%)"
   },
   {
    "v": "atom",
    "label": "原子",
-   "css": {
-    "css": "--fx-rad:8%",
-    "css2": "clip-path:polygon(0 0,100% 0,100% 72%,50% 100%,0 72%)"
-   }
+   "css": "--fx-rad:8%",
+   "css2": "clip-path:polygon(0 0,100% 0,100% 72%,50% 100%,0 72%)"
   },
   {
    "v": "infinity",
    "label": "无限",
-   "css": {
-    "css": "--fx-rad:14%",
-    "css2": "clip-path:polygon(0 0,100% 0,100% 70%,88% 70%,88% 100%,12% 100%,12% 70%,0 70%)"
-   }
+   "css": "--fx-rad:14%",
+   "css2": "clip-path:polygon(0 0,100% 0,100% 70%,88% 70%,88% 100%,12% 100%,12% 70%,0 70%)"
   },
   {
    "v": "yinyang",
    "label": "阴阳",
-   "css": {
-    "css": "--fx-rad:50%"
-   }
+   "css": "--fx-rad:50%"
   },
   {
    "v": "flower",
    "label": "花纹",
-   "css": {
-    "css": "--fx-rad:0 50% 0 50%"
-   }
+   "css": "--fx-rad:0 50% 0 50%"
   },
   {
    "v": "flower2",
    "label": "六瓣花",
-   "css": {
-    "css": "--fx-rad:0 50% 0 50%"
-   }
+   "css": "--fx-rad:0 50% 0 50%"
   },
   {
    "v": "shell",
    "label": "贝壳纹",
-   "css": {
-    "css": "--fx-rad:14%",
-    "css2": "clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)"
-   }
+   "css": "--fx-rad:14%",
+   "css2": "clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)"
   },
   {
    "v": "anchor",
    "label": "船锚",
-   "css": {
-    "css": "--fx-rad:10%",
-    "css2": "clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)"
-   }
+   "css": "--fx-rad:10%",
+   "css2": "clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)"
   },
   {
    "v": "sword",
    "label": "利剑",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%,50% 20%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%,50% 20%)"
   },
   {
    "v": "sword2",
    "label": "交叉剑",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%,50% 20%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%,50% 20%)"
   },
   {
    "v": "arrow",
    "label": "箭矢",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%,50% 20%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%,50% 20%)"
   },
   {
    "v": "compass",
    "label": "罗盘",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,61% 25%,86% 14%,75% 39%,100% 50%,75% 61%,86% 86%,61% 75%,50% 100%,39% 75%,14% 86%,25% 61%,0 50%,25% 39%,14% 14%,39% 25%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,61% 25%,86% 14%,75% 39%,100% 50%,75% 61%,86% 86%,61% 75%,50% 100%,39% 75%,14% 86%,25% 61%,0 50%,25% 39%,14% 14%,39% 25%)"
   },
   {
    "v": "spiral",
    "label": "螺旋",
-   "css": {
-    "css": "--fx-rad:14%",
-    "css2": "clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)"
-   }
+   "css": "--fx-rad:14%",
+   "css2": "clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)"
   },
   {
    "v": "wave",
    "label": "声波",
-   "css": {
-    "css": "--fx-rad:0 50% 0 50%"
-   }
+   "css": "--fx-rad:0 50% 0 50%"
   },
   {
    "v": "plug",
    "label": "插头",
-   "css": {
-    "css": "--fx-rad:12%",
-    "css2": "clip-path:polygon(0 12%,12% 12%,12% 0,88% 0,88% 12%,100% 12%,100% 88%,88% 88%,88% 100%,12% 100%,12% 88%,0 88%)"
-   }
+   "css": "--fx-rad:12%",
+   "css2": "clip-path:polygon(0 12%,12% 12%,12% 0,88% 0,88% 12%,100% 12%,100% 88%,88% 88%,88% 100%,12% 100%,12% 88%,0 88%)"
   },
   {
    "v": "chip",
    "label": "芯片",
-   "css": {
-    "css": "--fx-rad:18%",
-    "css2": "clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%)"
-   }
+   "css": "--fx-rad:18%",
+   "css2": "clip-path:polygon(8% 0,92% 0,100% 50%,92% 100%,8% 100%,0 50%)"
   },
   {
    "v": "planet",
    "label": "行星",
-   "css": {
-    "css": "--fx-rad:50% 50% 50% 0"
-   }
+   "css": "--fx-rad:50% 50% 50% 0"
   },
   {
    "v": "cometm",
    "label": "彗星",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%,50% 20%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%,50% 20%)"
   },
   {
    "v": "skull",
    "label": "骷髅",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,63% 12%,80% 8%,84% 25%,100% 35%,92% 50%,100% 65%,84% 75%,80% 92%,63% 88%,50% 100%,37% 88%,20% 92%,16% 75%,0 65%,8% 50%,0 35%,16% 25%,20% 8%,37% 12%)"
   },
   {
    "v": "runes",
    "label": "符文",
-   "css": {
-    "css": "--fx-rad:0",
-    "css2": "clip-path:polygon(50% 0,60% 8%,72% 5%,79% 16%,92% 18%,93% 31%,100% 50%,93% 69%,92% 82%,79% 84%,72% 95%,60% 92%,50% 100%,40% 92%,28% 95%,21% 84%,8% 82%,7% 69%,0 50%,7% 31%,8% 18%,21% 16%,28% 5%,40% 8%)"
-   }
+   "css": "--fx-rad:0",
+   "css2": "clip-path:polygon(50% 0,60% 8%,72% 5%,79% 16%,92% 18%,93% 31%,100% 50%,93% 69%,92% 82%,79% 84%,72% 95%,60% 92%,50% 100%,40% 92%,28% 95%,21% 84%,8% 82%,7% 69%,0 50%,7% 31%,8% 18%,21% 16%,28% 5%,40% 8%)"
   },
   {
    "v": "blank",
    "label": "空白章",
-   "css": {
-    "css": "--fx-rad:50%"
-   }
+   "css": "--fx-rad:50%"
   }
  ],
  "sig": [
@@ -5989,690 +5833,518 @@
   {
    "v": "bracket",
    "label": "方括号",
-   "css": {
-    "css": "content:\"[ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ]\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"[ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ]\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "bracket2",
    "label": "尖括号",
-   "css": {
-    "css": "content:\"< \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" >\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"< \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" >\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "braces",
    "label": "花括号",
-   "css": {
-    "css": "content:\"{ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" }\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"{ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" }\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "paren",
    "label": "圆括号",
-   "css": {
-    "css": "content:\"( \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" )\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"( \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" )\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "doubleparen",
    "label": "双括号",
-   "css": {
-    "css": "content:\"(( \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ))\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"(( \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ))\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "bar",
    "label": "竖线",
-   "css": {
-    "css": "content:\"| \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" |\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"| \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" |\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "dash",
    "label": "破折号",
-   "css": {
-    "css": "content:\"— \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" —\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"— \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" —\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "dash2",
    "label": "双破折号",
-   "css": {
-    "css": "content:\"—— \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ——\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"—— \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ——\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "tilde",
    "label": "波浪号",
-   "css": {
-    "css": "content:\"~ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ~\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"~ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ~\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "star",
    "label": "星号",
-   "css": {
-    "css": "content:\"* \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" *\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"* \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" *\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "star2",
    "label": "双星",
-   "css": {
-    "css": "content:\"** \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" **\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"** \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" **\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "star3",
    "label": "三星",
-   "css": {
-    "css": "content:\"*** \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ***\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"*** \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ***\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "dot",
    "label": "中点",
-   "css": {
-    "css": "content:\"· \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ·\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"· \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ·\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "dot2",
    "label": "双点",
-   "css": {
-    "css": "content:\"·· \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ··\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"·· \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ··\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "bullet",
    "label": "方点",
-   "css": {
-    "css": "content:\"▪ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ▪\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"▪ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ▪\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "bullet2",
    "label": "三角点",
-   "css": {
-    "css": "content:\"▸ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ◂\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"▸ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ◂\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "slash",
    "label": "斜杠",
-   "css": {
-    "css": "content:\"/ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" /\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"/ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" /\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "slash2",
    "label": "双斜杠",
-   "css": {
-    "css": "content:\"// \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" //\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"// \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" //\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "pipe",
    "label": "双竖线",
-   "css": {
-    "css": "content:\"|| \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ||\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"|| \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ||\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "plus",
    "label": "加号",
-   "css": {
-    "css": "content:\"+ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" +\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"+ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" +\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "equal",
    "label": "等号",
-   "css": {
-    "css": "content:\"= \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" =\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"= \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" =\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "arrowlr",
    "label": "左右箭头",
-   "css": {
-    "css": "content:\"← \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" →\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"← \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" →\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "arrow2",
    "label": "双箭头",
-   "css": {
-    "css": "content:\"⇆ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ⇆\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"⇆ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ⇆\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "arrow3",
    "label": "三角箭头",
-   "css": {
-    "css": "content:\"▷ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ◁\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"▷ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ◁\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "arrow4",
    "label": "粗箭头",
-   "css": {
-    "css": "content:\"➤ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ◀\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"➤ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ◀\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "arrow5",
    "label": "上下箭头",
-   "css": {
-    "css": "content:\"↑ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ↓\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"↑ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ↓\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "diamond",
    "label": "菱形符",
-   "css": {
-    "css": "content:\"◆ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ◆\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"◆ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ◆\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "diamond2",
    "label": "空心菱形",
-   "css": {
-    "css": "content:\"◇ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ◇\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"◇ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ◇\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "hex",
    "label": "六角符",
-   "css": {
-    "css": "content:\"⬢ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ⬢\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"⬢ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ⬢\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "tri",
    "label": "三角符",
-   "css": {
-    "css": "content:\"▲ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ▲\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"▲ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ▲\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "tri2",
    "label": "倒三角",
-   "css": {
-    "css": "content:\"▼ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ▼\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"▼ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ▼\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "square",
    "label": "方符",
-   "css": {
-    "css": "content:\"■ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ■\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"■ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ■\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "square2",
    "label": "空心方",
-   "css": {
-    "css": "content:\"□ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" □\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"□ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" □\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "circle",
    "label": "圆符",
-   "css": {
-    "css": "content:\"● \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ●\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"● \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ●\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "circle2",
    "label": "空心圆",
-   "css": {
-    "css": "content:\"○ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ○\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"○ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ○\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "circledot",
    "label": "点中圆",
-   "css": {
-    "css": "content:\"◉ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ◉\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"◉ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ◉\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "starbig",
    "label": "大星",
-   "css": {
-    "css": "content:\"★ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ★\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"★ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ★\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "starbig2",
    "label": "空心星",
-   "css": {
-    "css": "content:\"☆ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ☆\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"☆ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ☆\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "star4",
    "label": "四角星",
-   "css": {
-    "css": "content:\"✦ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ✦\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"✦ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ✦\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "star6",
    "label": "六角星",
-   "css": {
-    "css": "content:\"✶ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ✶\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"✶ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ✶\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "spark",
    "label": "火花符",
-   "css": {
-    "css": "content:\"✺ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ✺\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"✺ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ✺\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "crown",
    "label": "皇冠符",
-   "css": {
-    "css": "content:\"♛ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ♛\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"♛ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ♛\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "crown2",
    "label": "王冠",
-   "css": {
-    "css": "content:\"👑 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" 👑\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"👑 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" 👑\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "wing",
    "label": "羽翼符",
-   "css": {
-    "css": "content:\"⚜ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ⚜\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"⚜ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ⚜\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "laurel",
    "label": "桂冠符",
-   "css": {
-    "css": "content:\"🍃 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" 🍃\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"🍃 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" 🍃\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "flame",
    "label": "火焰符",
-   "css": {
-    "css": "content:\"🔥 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" 🔥\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"🔥 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" 🔥\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "bolt",
    "label": "闪电符",
-   "css": {
-    "css": "content:\"⚡ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ⚡\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"⚡ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ⚡\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "gem",
    "label": "宝石符",
-   "css": {
-    "css": "content:\"💎 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" 💎\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"💎 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" 💎\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "eye",
    "label": "眼符",
-   "css": {
-    "css": "content:\"👁 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" 👁\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"👁 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" 👁\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "key",
    "label": "钥匙符",
-   "css": {
-    "css": "content:\"🔑 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" 🔑\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"🔑 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" 🔑\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "infinity",
    "label": "无限符",
-   "css": {
-    "css": "content:\"∞ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ∞\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"∞ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ∞\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "yinyang",
    "label": "阴阳符",
-   "css": {
-    "css": "content:\"☯ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ☯\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"☯ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ☯\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "atom",
    "label": "原子符",
-   "css": {
-    "css": "content:\"⚛ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ⚛\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"⚛ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ⚛\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "gear",
    "label": "齿轮符",
-   "css": {
-    "css": "content:\"⚙ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ⚙\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"⚙ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ⚙\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "music",
    "label": "音符符",
-   "css": {
-    "css": "content:\"♪ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ♪\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"♪ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ♪\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "music2",
    "label": "双音符",
-   "css": {
-    "css": "content:\"♫ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ♫\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"♫ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ♫\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "cross",
    "label": "十字符",
-   "css": {
-    "css": "content:\"✚ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ✚\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"✚ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ✚\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "cross2",
    "label": "马耳他",
-   "css": {
-    "css": "content:\"✠ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ✠\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"✠ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ✠\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "sword",
    "label": "利剑符",
-   "css": {
-    "css": "content:\"⚔ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ⚔\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"⚔ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ⚔\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "sun",
    "label": "太阳符",
-   "css": {
-    "css": "content:\"☀ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ☀\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"☀ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ☀\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "moon",
    "label": "月符",
-   "css": {
-    "css": "content:\"☽ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ☽\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"☽ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ☽\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "snow",
    "label": "雪花符",
-   "css": {
-    "css": "content:\"❄ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ❄\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"❄ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ❄\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "heart",
    "label": "心符",
-   "css": {
-    "css": "content:\"♥ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ♥\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"♥ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ♥\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "drop",
    "label": "水滴符",
-   "css": {
-    "css": "content:\"💧 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" 💧\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"💧 \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" 💧\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "flower",
    "label": "花符",
-   "css": {
-    "css": "content:\"❁ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ❁\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"❁ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ❁\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "anchor",
    "label": "锚符",
-   "css": {
-    "css": "content:\"⚓ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ⚓\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"⚓ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ⚓\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "compass",
    "label": "罗盘符",
-   "css": {
-    "css": "content:\"❂ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ❂\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"❂ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ❂\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "skull",
    "label": "骷髅符",
-   "css": {
-    "css": "content:\"☠ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ☠\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"☠ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ☠\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "runic",
    "label": "符文",
-   "css": {
-    "css": "content:\"ᚠ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ᚠ\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"ᚠ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ᚠ\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "grave",
    "label": "墓碑符",
-   "css": {
-    "css": "content:\"⌂ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ⌂\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"⌂ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ⌂\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "section",
    "label": "节号",
-   "css": {
-    "css": "content:\"§ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" §\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"§ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" §\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "dagger",
    "label": "匕首号",
-   "css": {
-    "css": "content:\"† \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" †\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"† \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" †\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "doublecross",
    "label": "双十字",
-   "css": {
-    "css": "content:\"‡ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ‡\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"‡ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ‡\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "tilde2",
    "label": "双波浪",
-   "css": {
-    "css": "content:\"≈ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ≈\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"≈ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ≈\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "caret",
    "label": "插入符",
-   "css": {
-    "css": "content:\"‹ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ›\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"‹ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ›\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "guillemet",
    "label": "双尖括号",
-   "css": {
-    "css": "content:\"« \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" »\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"« \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" »\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "quote",
    "label": "引号",
-   "css": {
-    "css": "content:\"“ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ”\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"“ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ”\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "prime",
    "label": "撇号",
-   "css": {
-    "css": "content:\"“\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\"”\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"“\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\"”\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "accent",
    "label": "重音符",
-   "css": {
-    "css": "content:\"` \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ´\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"` \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ´\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "caret2",
    "label": "上插入符",
-   "css": {
-    "css": "content:\"^ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ^\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"^ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ^\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "underscore",
    "label": "下划线",
-   "css": {
-    "css": "content:\"_ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" _\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"_ \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" _\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "colon",
    "label": "冒号",
-   "css": {
-    "css": "content:\": \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" :\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\": \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" :\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "semicolon",
    "label": "分号",
-   "css": {
-    "css": "content:\"; \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ;\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"; \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ;\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "question",
    "label": "问号",
-   "css": {
-    "css": "content:\"? \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" ?\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"? \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" ?\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "exclaim",
    "label": "叹号",
-   "css": {
-    "css": "content:\"! \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" !\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"! \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" !\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   },
   {
    "v": "hash",
    "label": "井号",
-   "css": {
-    "css": "content:\"# \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
-    "css2": "content:\" #\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
-   }
+   "css": "content:\"# \";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92",
+   "css2": "content:\" #\";color:var(--fx-c2);-webkit-text-fill-color:var(--fx-c2);opacity:.92"
   }
  ],
  "rar": [
@@ -6804,11 +6476,21 @@
     { label: '叠加层（第二层纹理）', def: 'none', target: ' .fx-l-ovl' });
   /* 外框(bd) 与 辉光(gw) 都写 .fx-bg 的 box-shadow，且 gw 里含 box-shadow 关键帧动画
      （动画会一直压过普通声明）→ 必须合成同一个槽位，否则「外框」永远被辉光吃掉 */
-  stat.bd = mergeSlot('background', 'bd',
-    simple(CSS_LIST.bd).concat(simple(CSS_LIST.gw)), {});
+  var bdOpts = simple(CSS_LIST.bd).concat(simple(CSS_LIST.gw)).map(function (o) {
+    if (o.v === 'none' || !o.css) return o;
+    if (!/box-shadow|border|outline|filter/.test(o.css)) {
+      o.css += ';box-shadow:0 0 0 1px color-mix(in srgb,var(--fx-c2) 72%,transparent),0 0 16px -5px var(--fx-c2)';
+    }
+    return o;
+  });
+  stat.bd = mergeSlot('background', 'bd', bdOpts,
+    { label: '外框 / 辉光', def: 'none', target: '' });
+  /* 角饰：目标必须落在 4 个 <i> 子元素上（各自贴一个角并旋转），
+     若写到 .fx-l-cor 容器上，星形/金属包角这类 clip-path/border 会铺满整层，
+     看起来就只是「四个角多了几个圈」。 */
   stat.cor = mergeSlot('background', 'cor',
     [noneOpt('无角饰')].concat(simple(CSS_LIST.cor)),
-    { label: '角饰', def: 'none', target: ' .fx-l-cor' });
+    { label: '角饰', def: 'none', target: ' .fx-l-cor > i' });
   stat.mo = mergeSlot('background', 'mo',
     [{ v: 'static', label: '静态' }].concat(simple(CSS_LIST.mo)),
     { label: '进阶动效', def: 'static', target: ' .fx-l-mo' });
