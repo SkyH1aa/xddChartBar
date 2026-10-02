@@ -230,6 +230,7 @@
         <span style="flex:1;min-width:0">
           <b>${escapeHtml(x.nickname || '匿名')}</b>
           <span class="p4-tag" style="margin-left:6px">${x.score} ${escapeHtml(unit)}</span>
+          <span class="p4-meta" style="margin-left:6px">${x.post_count || 0} 篇作品</span>
           <div class="p4-meta" style="margin-top:2px">${escapeHtml(x.excerpt || '')}</div>
         </span>
       </div>`).join('');
