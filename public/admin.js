@@ -2915,6 +2915,16 @@
     try { badgeCache = (await callEdge('admin_badge_list', {})) || []; } catch (_e) { badgeCache = []; }
     return badgeCache;
   }
+  let eventShopCache = null;   // 活动附赠模板奖品可选的商城商品（含已下架）
+  async function ensureEventShopItems() {
+    if (eventShopCache) return eventShopCache;
+    try { eventShopCache = (await callEdge('admin_shop_list', {})) || []; } catch (_e) { eventShopCache = []; }
+    return eventShopCache;
+  }
+  function applyEventShopItems() {
+    const E = EC();
+    if (E && E.setShopItems && eventShopCache) E.setShopItems(eventShopCache);
+  }
   // 按玩法挂载「玩法细则 + 奖励配置」两张可视化表单
   async function renderEventForm(mode, ruleCfg, rewardCfg) {
     const E = EC();
@@ -2927,6 +2937,8 @@
       return;
     }
     E.setBadges(await ensureEventBadges());
+    await ensureEventShopItems();
+    applyEventShopItems();
     eventRuleEditor = E.rules(ruleHost, ruleCfg, null);
     eventRewardEditor = E.reward(rewardHost, mode, rewardCfg, null);
     eventRewardMode = mode;
@@ -3012,6 +3024,21 @@
     }));
   }
   $('badgeRefresh')?.addEventListener('click', () => loadBadgeAdmin().catch((e) => alert(e.message)));
+  // 全站历史漏发补扫：徽章系统上线前就已达标的老账号一次性补齐（幂等，可重复点击）
+  $('badgeBackfill')?.addEventListener('click', async () => {
+    if (!confirm('将为全站「已达标但从未获得过」的自动徽章补发，过程可能需要一些时间，且可重复执行不会重复发放。确认开始？')) return;
+    const btn = $('badgeBackfill');
+    btn.disabled = true; const old = btn.textContent; btn.textContent = '补发中…';
+    try {
+      const r = (await callEdge('admin_badge_backfill', {})) || {};
+      await loadBadgeAdmin();
+      const names = (r.details || []).slice(0, 20)
+        .map((d) => `${d.name || d.user_id}（${d.count}）`).join('、');
+      alert(`补发完成：扫描 ${r.scanned || 0} 个账号，补发 ${r.granted || 0} 枚徽章，涉及 ${r.users || 0} 个账号。`
+        + (names ? `\n\n示例：${names}` : ''));
+    } catch (e) { alert('补发失败：' + e.message); }
+    btn.disabled = false; btn.textContent = old;
+  });
   $('badgeSource')?.addEventListener('change', badgeSyncSource);
   $('badgeCancel')?.addEventListener('click', badgeResetForm);
   attachUserPicker($('badgeGrantUser'), (u) => { badgeGrantUserId = u ? u.id : ''; });
@@ -3115,6 +3142,8 @@
   }
   async function loadShopAdmin() {
     const list = (await callEdge('admin_shop_list', {})) || [];
+    eventShopCache = list;
+    applyEventShopItems();
     const box = $('shopItemList');
     box.innerHTML = list.map((it) => `<div class="panel" style="box-shadow:none;padding:10px 12px;margin-bottom:8px">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -3369,10 +3398,10 @@
         const d = await callEdge('admin_event_preview', { id: btn.dataset.epreview });
         let html = '';
         if (d.mode === 'lottery') {
-          html = (d.prizes || []).map((p) => `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12px"><b>${escapeHtml(p.name)}</b><span style="color:var(--faint)">数量 ${p.qty} · 已抽 ${p.drawn} · 权重 ${p.weight}</span></div>`).join('');
+          html = (d.prizes || []).map((p) => `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12px;flex-wrap:wrap"><b>${escapeHtml(p.name)}</b><span style="color:var(--faint)">数量 ${p.qty} · 已抽 ${p.drawn} · 权重 ${p.weight}</span>${(p.item_titles && p.item_titles.length) ? `<span style="color:var(--faint)">· 附赠装扮：${p.item_titles.map((t) => escapeHtml(t)).join('、')}</span>` : ''}</div>`).join('');
           html += `<div style="margin-top:8px;color:var(--faint);font-size:12px">未中奖次数：${d.no_prize_count}</div>`;
         } else {
-          html = (d.proposed || []).map((p) => `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12px"><b>第 ${p.rank} 名</b><span>${escapeHtml(p.nickname || p.user_id)}</span><span style="margin-left:auto;color:var(--faint)">+${p.coins} 积分${p.xp ? ' · +' + p.xp + ' 经验' : ''}</span></div>`).join('') || '<div class="empty">暂无排行数据</div>';
+          html = (d.proposed || []).map((p) => `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12px;flex-wrap:wrap"><b>第 ${p.rank} 名</b><span>${escapeHtml(p.nickname || p.user_id)}</span><span style="margin-left:auto;color:var(--faint)">+${p.coins} 积分${p.xp ? ' · +' + p.xp + ' 经验' : ''}${(p.item_titles && p.item_titles.length) ? ' · 附赠装扮：' + p.item_titles.map((t) => escapeHtml(t)).join('、') : ''}</span></div>`).join('') || '<div class="empty">暂无排行数据</div>';
         }
         showModal('结算预览', html);
       } catch (e) { alert(e.message); }
@@ -3399,6 +3428,8 @@
     const keep = !!(eventRewardEditor && eventRewardMode) && ((eventRewardMode === 'lottery') === (next === 'lottery'));
     const seed = keep ? eventRewardEditor.get() : null;
     E.setBadges(await ensureEventBadges());
+    await ensureEventShopItems();
+    applyEventShopItems();
     eventRewardEditor = E.reward($('eventRewardCfgHost'), next, seed, null);
     eventRewardMode = next;
   });

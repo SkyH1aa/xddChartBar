@@ -261,7 +261,13 @@
       try {
         const r = await callEdge('event_lottery_draw', { id });
         const prize = (r && r.prize) || {};
-        window.alert(`🎉 抽奖结果：${prize.name || '谢谢参与'}${prize.coins ? `（+${prize.coins} 积分）` : ''}${prize.xp ? `（+${prize.xp} 经验）` : ''}`);
+        const extras = [];
+        if (prize.coins) extras.push(`+${prize.coins} 积分`);
+        if (prize.xp) extras.push(`+${prize.xp} 经验`);
+        if (prize.badge_id) extras.push('含徽章奖励');
+        const pnames = Array.isArray(r && r.item_titles) ? r.item_titles : [];
+        if (pnames.length) extras.push(`装扮：${pnames.join('、')}`);
+        window.alert(`🎉 抽奖结果：${prize.name || '谢谢参与'}${extras.length ? `（${extras.join('，')}）` : ''}`);
         mask.remove();
         await loadEvents();
         await openDetail(id);
@@ -289,13 +295,28 @@
     catch (e) { box.innerHTML = `<div class="p4-empty">加载失败：${escapeHtml(e.message)}</div>`; return; }
     $('rewardCount').textContent = rows.length;
     if (!rows.length) { box.innerHTML = '<div class="p4-empty"><div class="emoji">🏆</div>还没有获奖记录，快去参加活动吧</div>'; return; }
-    box.innerHTML = rows.map((r) => `<div class="p4-row">
+    box.innerHTML = rows.map((r) => {
+      // 兼容旧记录：只有 reward.item_ids 字段的老数据同样能展示模板奖品
+      const items = Array.isArray(r.reward_items) && r.reward_items.length
+        ? r.reward_items
+        : (Array.isArray(r.reward?.item_ids) ? r.reward.item_ids.map((id) => ({ id, title: '装扮模板', category_label: '模板' })) : []);
+      const coins = r.coins ? `+${r.coins} 积分` : '';
+      const xp = r.xp ? `+${r.xp} 经验` : '';
+      const badge = r.has_badge || r.badge_id ? '含徽章奖励' : '';
+      const head = [coins, xp, badge].filter(Boolean).join(' · ');
+      const chips = items.length
+        ? `<br /><span class="p4-meta">${items.map((it) => `<span class="p4-tag" title="${escapeHtml(it.category_label || '')}">🎁 ${escapeHtml(it.title || '装扮模板')}</span>`).join(' ')}</span>`
+        : '';
+      return `<div class="p4-row">
       <span style="flex:1;min-width:180px">
         <b>${escapeHtml(r.event_title || '活动')}</b>
         <span class="p4-tag accent">第 ${r.rank} 名</span>
-        <br /><span class="p4-meta">${r.coins ? `+${r.coins} 积分` : ''}${r.xp ? ` · +${r.xp} 经验` : ''}${r.badge_id ? ' · 含徽章奖励' : ''} · ${formatTime(r.granted_at)}</span>
+        ${head ? `<br /><span class="p4-meta">${head}</span>` : ''}
+        ${chips}
+        <br /><span class="p4-meta">${formatTime(r.granted_at)}</span>
       </span>
-    </div>`).join('');
+    </div>`;
+    }).join('');
   }
 
   // ---------------- 页签 ----------------

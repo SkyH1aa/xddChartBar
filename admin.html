@@ -537,7 +537,10 @@
     <section id="tab-badge" class="panel hidden">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
         <h3 style="margin:0">🏅 成就徽章管理</h3>
-        <button id="badgeRefresh" class="btn ghost sm">刷新</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="badgeBackfill" class="btn ghost sm" title="为徽章系统上线前就已达标、却一直没有自动获得徽章的老账号补发">补发历史漏发徽章</button>
+          <button id="badgeRefresh" class="btn ghost sm">刷新</button>
+        </div>
       </div>
       <div class="panel" style="box-shadow:none;background:var(--card-soft);border:1px dashed var(--line);margin-bottom:14px">
         <h4 id="badgeFormTitle" style="margin:0 0 10px">新建徽章</h4>
