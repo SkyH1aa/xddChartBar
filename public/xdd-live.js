@@ -319,7 +319,7 @@
     dm.open = true;
     dm.mask.style.display = 'flex';
     if (dm.tab === 'favorites') loadFavs();
-    else if (dm.threads.length) renderThreads(dm.threads);
+    else loadThreads();
     pollNow();
   }
   function closePanel() {
@@ -341,8 +341,7 @@
     if (!dm.mask) return;
     dm.mask.querySelectorAll('.dm-tab').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
     if (tab === 'favorites') loadFavs();
-    else if (dm.threads.length) renderThreads(dm.threads);
-    else q('.dm-threads').innerHTML = '<div class="dm-empty">还没有会话<br>搜索昵称开始私信吧</div>';
+    else loadThreads();
     pollNow();
   }
 
@@ -353,7 +352,7 @@
     if (!dm.open) { dm.open = true; dm.mask.style.display = 'flex'; }
     if (opts.threadId) openThread(opts.threadId);
     else if (opts.peerId) openThreadByPeer(opts.peerId);
-    else { if (dm.tab === 'favorites') loadFavs(); else if (dm.threads.length) renderThreads(dm.threads); pollNow(); }
+    else { if (dm.tab === 'favorites') loadFavs(); else loadThreads(); pollNow(); }
   }
 
   async function openThreadByPeer(peerId) {
@@ -589,6 +588,22 @@
   }
 
   // ---------------- 会话列表 / 收藏 / 搜索 ----------------
+  async function loadThreads() {
+    const box = q('.dm-threads');
+    if (!box || dm.tab !== 'threads') return;
+    box.innerHTML = '<div class="dm-empty">加载中…</div>';
+    try {
+      const list = await edge('dm_thread_list', {}) || [];
+      dm.threads = Array.isArray(list) ? list : [];
+      dm.threadsSig = dm.threads.map((t) => `${t.id}:${t.unread}:${t.last_message_at || ''}:${t.last_preview || ''}`).join('|');
+      renderThreads(dm.threads);
+    } catch (e) {
+      box.innerHTML = `<div class="dm-empty">${escapeHtml(e.message || '会话加载失败')}<br><button class="btn sm dm-retry-threads">重试</button></div>`;
+      const retry = box.querySelector('.dm-retry-threads');
+      if (retry) retry.addEventListener('click', loadThreads);
+    }
+  }
+
   function renderThreads(list) {
     const box = q('.dm-threads');
     if (!box) return;

@@ -281,7 +281,7 @@
     // 排除登录/注册接口自身可能返回的 401（如密码错误），以及管理员校验 whoami
     // （admin 令牌失效只代表管理会话过期，绝不等于用户会话失效，不能清空用户登录态）
     if (res.status === 401 && state.user && state.user.token
-      && action !== 'user_login' && action !== 'user_register' && action !== 'admin_login' && action !== 'whoami') {
+      && action !== 'user_login' && action !== 'user_register' && action !== 'admin_login' && action !== 'whoami' && action !== 'report_submit') {
       sessionMonitorReset();
     }
     if (!res.ok || data.ok === false) {
@@ -1466,7 +1466,7 @@
     if (!reason) { err.textContent = '请填写举报理由'; return; }
     els.reportSubmitBtn.disabled = true;
     try {
-      await callEdge('report_submit', { target_type: reportTarget.type, target_id: reportTarget.id, reason });
+      await callEdge('report_submit', { token: state.user.token, target_type: reportTarget.type, target_id: reportTarget.id, reason });
       els.reportModal.classList.add('hidden');
       window.alert('✅ 举报已提交，管理员会尽快处理。');
     } catch (e) { err.textContent = e.message; }

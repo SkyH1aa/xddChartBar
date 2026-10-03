@@ -34,7 +34,7 @@
 .fx-bg > .fx-l.fx-l-vig { z-index: 5; }
 .fx-bg > :not(.fx-l) { position: relative; z-index: 6; }
 .fx-bg::after { z-index: 5; }
-.fx-bg.fx-has-vig > .fx-l { z-index: auto; }
+.fx-bg.fx-has-vig > .fx-l { z-index: 0; }
 .fx-bg.fx-has-vig::after { z-index: 5; }
 
 /* 角饰：4 个独立子元素，各自贴一个角并按角位旋转。
@@ -51,10 +51,10 @@
 .fx-l-cor > i:nth-child(3) { right: 0; bottom: 0; transform: rotate(180deg); }
 .fx-l-cor > i:nth-child(4) { left: 0; bottom: 0; transform: rotate(270deg); }
 .fx-bg::after {
-  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  content: ''; position: absolute; inset: 0; z-index: 5; pointer-events: none;
 }
-.fx-bg.fx-has-vig > .fx-l { z-index: -2; }
-.fx-bg.fx-has-vig::after { z-index: -1; }
+.fx-bg.fx-has-vig > .fx-l { z-index: 0; }
+.fx-bg.fx-has-vig::after { z-index: 5; }
 
 /* ---------- 文字特效（作用于帖子正文 .post-content） ----------
    具体「样式 / 动效 / 衬底」由 effects.js 依特效规格生成，选择器形如
@@ -81,17 +81,21 @@
 /* ---------- 昵称样式 ---------- */
 .fx-nick {
   display: inline-flex; align-items: center; position: relative;
+  max-width: 100%; min-width: 0; white-space: nowrap; line-height: 1.35;
   font-weight: var(--fx-wt, 600); font-style: var(--fx-it, normal);
   letter-spacing: var(--fx-sp, 0); border-radius: 6px; padding: 0 2px;
   background-repeat: repeat; isolation: isolate; overflow: visible;
 }
 .fx-nick > .nick-txt {
   position: relative; z-index: 1; display: inline-block;
+  min-width: 0; max-width: 100%; white-space: nowrap;
   font: inherit; letter-spacing: inherit; font-style: inherit;
   color: inherit; -webkit-text-fill-color: currentColor;
   background-repeat: no-repeat; background-position: 0 50%;
 }
-.fx-nick::before, .fx-nick::after { content: ''; }
+.fx-nick::before, .fx-nick::after {
+  content: ''; flex: 0 0 auto; white-space: nowrap;
+}
 
 /* ---------- 徽章 ----------
    两层结构：外层 .fx-badge 承载「外发光(filter) / 动效(transform) / 外环 / 闪光点」，
@@ -186,7 +190,7 @@
   border: 1px solid var(--line); border-radius: 8px; display: block;
 }
 .fx-list-ico .fx-prev-card > .fx-l {
-  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
   background-repeat: repeat; opacity: var(--fx-int, .65);
 }
 .fx-list-ico .fx-prev-card > div { display: none; }
@@ -198,11 +202,17 @@
   width: 100%; height: 100%; min-height: 54px; border-radius: 10px;
   padding: 8px 10px; font-size: 12px; color: var(--text);
 }
-.fx-prev-bg > .fx-l { position: absolute; inset: 0; z-index: -1; pointer-events: none; background-repeat: repeat; opacity: var(--fx-int, .65); }
+.fx-prev-bg > .fx-l { position: absolute; inset: 0; z-index: 0; pointer-events: none; background-repeat: repeat; opacity: var(--fx-int, .65); }
+.fx-prev-bg > .fx-l.fx-l-pat { z-index: 0; }
+.fx-prev-bg > .fx-l.fx-l-ovl { z-index: 1; }
+.fx-prev-bg > .fx-l.fx-l-anim, .fx-prev-bg > .fx-l.fx-l-mo { z-index: 2; }
+.fx-prev-bg > .fx-l.fx-l-halo { z-index: 3; }
+.fx-prev-bg > .fx-l.fx-l-cor { z-index: 4; }
+.fx-prev-bg > .fx-l.fx-l-vig { z-index: 5; }
 .fx-prev-bg > .fx-l.fx-l-anim { background-repeat: no-repeat; background-size: 200% 200%; }
-.fx-prev-bg::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.fx-prev-bg::after { content: ''; position: absolute; inset: 0; z-index: 5; pointer-events: none; }
 /* 商城详情预览里的正文样例（承载「文字特效」） */
-.fx-prev-bg > .post-content { font-size: 12.5px; line-height: 1.7; width: 100%; text-align: left; }
+.fx-prev-bg > .post-content { position: relative; z-index: 6; font-size: 12.5px; line-height: 1.7; width: 100%; text-align: left; }
 
 /* 商城商品卡 / 详情里的特效舞台 */
 .p4-fx-stage { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; min-height: 62px; padding: 4px; }
